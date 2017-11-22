@@ -32,7 +32,7 @@ public class RemoteProcessServer implements Runnable {
 		COMPRESSION = c;
 		try {
 
-			h = new Handle(this, socket, t, pv, c, ts);
+			h = new Handle(this, socket, t, PROTOCOL_VERSION, COMPRESSION, TILE_SIZE);
 			// Make sure everything is up to date
 			if (!h.verifyToken())
 				h.close();

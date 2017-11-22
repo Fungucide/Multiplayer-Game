@@ -39,10 +39,6 @@ public class Handle implements Closeable {
 	private final ByteArrayOutputStream outputStreamBuffer;
 	private final Socket SOCKET;
 
-	public void tempFunc() {
-
-	}
-
 	public Handle(RemoteProcessServer rps, Socket socket, String t, int pv, int c, int ts) throws IOException {
 		RPS = rps;
 		SOCKET = socket;
@@ -58,11 +54,6 @@ public class Handle implements Closeable {
 		outputStream = socket.getOutputStream();
 		outputStreamBuffer = new ByteArrayOutputStream(BUFFER_SIZE_BYTES);
 
-		/**
-		 * Temporary For Testing Terrain
-		 */
-		tempFunc();
-
 	}
 
 	public boolean verifyToken() throws IOException {
@@ -75,7 +66,7 @@ public class Handle implements Closeable {
 
 	public boolean verifyProtocolVersion() throws IOException {
 		ensureMessageType(readEnum(MessageType.class), MessageType.PROTOCOL_VERSION);
-		if (readInt() == 0)
+		if (readInt() == PROTOCOL_VERSION)
 			return true;
 		else
 			return false;
@@ -156,7 +147,8 @@ public class Handle implements Closeable {
 
 	private static void ensureMessageType(MessageType actualType, MessageType expectedType) {
 		if (actualType != expectedType) {
-			throw new IllegalArgumentException(String.format("Received wrong message [actual=%s, expected=%s].", actualType, expectedType));
+			throw new IllegalArgumentException(
+					String.format("Received wrong message [actual=%s, expected=%s].", actualType, expectedType));
 		}
 	}
 
@@ -342,7 +334,8 @@ public class Handle implements Closeable {
 		int[] array = new int[count];
 
 		for (int i = 0; i < count; ++i) {
-			array[i] = ByteBuffer.wrap(bytes, i * INTEGER_SIZE_BYTES, INTEGER_SIZE_BYTES).order(PROTOCOL_BYTE_ORDER).getInt();
+			array[i] = ByteBuffer.wrap(bytes, i * INTEGER_SIZE_BYTES, INTEGER_SIZE_BYTES).order(PROTOCOL_BYTE_ORDER)
+					.getInt();
 		}
 
 		return array;

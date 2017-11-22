@@ -17,11 +17,11 @@ public class ServerInteractions implements Runnable {
 	private RemoteProcessClient rpc;
 	public int xMove, yMove;
 
-	public boolean attemptLogin(String adress, String username, char[] password) throws IOException, NoSuchAlgorithmException {
+	public boolean attemptLogin(String adress,int port ,String username, char[] password) throws IOException, NoSuchAlgorithmException {
 		System.out.println("Attempting Login Username: " + username + " Password: " + new String(password));
 		boolean result;
 		try {
-			rpc = new RemoteProcessClient(adress, 31001);
+			rpc = new RemoteProcessClient(adress, port);
 			rpc.writeTokenMessage(TOKEN);
 			rpc.writeProtocolVersionMessage();
 			info = rpc.getGraphic();

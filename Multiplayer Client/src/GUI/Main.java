@@ -155,7 +155,7 @@ public class Main {
 
 	private void login() {
 		try {
-			if (si.attemptLogin(textFieldServerAdress.getText(), textFieldUsername.getText(), textFieldPassword.getPassword())) {
+			if (si.attemptLogin(textFieldServerAdress.getText(),31001, textFieldUsername.getText(), textFieldPassword.getPassword())) {
 				hide(login);
 				canvas.setVisible(true);
 				canvas.repaint();

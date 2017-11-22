@@ -11,9 +11,14 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableModel;
+
 import java.awt.FlowLayout;
 import javax.swing.JList;
 import javax.swing.JTable;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class Main {
 
@@ -26,7 +31,7 @@ public class Main {
 	private JTextArea logTextArea;
 	private Server s;
 	private JScrollPane connectionScrollPane;
-	private JTable connectionTable;
+	private ConnectionTable connectionTable;
 
 	/**
 	 * Launch the application.
@@ -102,9 +107,18 @@ public class Main {
 
 		connectionScrollPane = new JScrollPane();
 		connectionPanel.add(connectionScrollPane, BorderLayout.CENTER);
-		
-		connectionTable = new JTable();
+
+		ConnectionTableModel tm = new ConnectionTableModel();
+		tm.c.add(new Connection(0, "Test", "Test", 1, "Something"));
+		connectionTable = new ConnectionTable(tm);
 		connectionScrollPane.setViewportView(connectionTable);
+		connectionTable.getTableHeader().getColumnModel().getColumn(0).setHeaderValue("ID");
+		connectionTable.getTableHeader().getColumnModel().getColumn(1).setHeaderValue("Adress");
+		connectionTable.getTableHeader().getColumnModel().getColumn(2).setHeaderValue("Username");
+		connectionTable.getTableHeader().getColumnModel().getColumn(3).setHeaderValue("Refresh Rate");
+		connectionTable.getTableHeader().getColumnModel().getColumn(4).setHeaderValue("Character Class");
+		connectionTable.getTableHeader().getColumnModel().getColumn(5).setHeaderValue("Details");
+		connectionTable.setButtonRenderer();
 
 	}
 }
