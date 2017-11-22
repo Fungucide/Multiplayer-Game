@@ -200,7 +200,7 @@ public class Main {
 			}
 		});
 		
-		CanvasUpdate cu = new CanvasUpdate(canvas, 12);
+		CanvasUpdate cu = new CanvasUpdate(canvas, 15);
 		Thread cut = new Thread(cu);
 		cut.start();
 		

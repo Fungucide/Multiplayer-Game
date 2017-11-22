@@ -1,0 +1,6 @@
+maxconnections=10
+port=31001
+token=Token
+protocolVersion=0
+tileSize=2000
+compression=50

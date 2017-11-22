@@ -21,8 +21,11 @@ import Framework.World;
 
 public class Handle implements Closeable {
 
-	private static final String TOKEN = "Token";
-	private static final int PROTOCOL_VERSION = 0;
+	private final String TOKEN;
+	private final int PROTOCOL_VERSION;
+	private final int COMPRESSION;
+	private final int TILE_SIZE;
+	private final RemoteProcessServer RPS;
 
 	private static final int BUFFER_SIZE_BYTES = 1 << 20;
 	private static final ByteOrder PROTOCOL_BYTE_ORDER = ByteOrder.LITTLE_ENDIAN;
@@ -34,22 +37,19 @@ public class Handle implements Closeable {
 	private final InputStream inputStream;
 	private final OutputStream outputStream;
 	private final ByteArrayOutputStream outputStreamBuffer;
-	private Socket socket;
+	private final Socket SOCKET;
 
-	/**
-	 * Temporary Code For Testing Char Object will most likely be moved to another
-	 * Location World Code also for testing and will be moved later
-	 */
-	private final int COMPRESSION = 50;
-	private final int TILE_SIZE = 2000;
-	private final int WORLD_X = 3000;
-	private final int WORLD_Y = 3000;
-	public Char c = new Char(0, 0, 100, 10, 100, 10, 5);
-	public Terrain t = new Terrain(WORLD_X / COMPRESSION, WORLD_Y / COMPRESSION, COMPRESSION);
-	public World w = new World(WORLD_X, WORLD_Y, t);
+	public void tempFunc() {
 
-	public Handle(Socket socket) throws IOException {
-		this.socket = socket;
+	}
+
+	public Handle(RemoteProcessServer rps, Socket socket, String t, int pv, int c, int ts) throws IOException {
+		RPS = rps;
+		SOCKET = socket;
+		TOKEN = t;
+		PROTOCOL_VERSION = pv;
+		COMPRESSION = c;
+		TILE_SIZE = ts;
 		socket.setSendBufferSize(BUFFER_SIZE_BYTES);
 		socket.setReceiveBufferSize(BUFFER_SIZE_BYTES);
 		socket.setTcpNoDelay(true);
@@ -61,15 +61,8 @@ public class Handle implements Closeable {
 		/**
 		 * Temporary For Testing Terrain
 		 */
-		Random r = new Random();
-		for (int i = 0; i < WORLD_X / COMPRESSION; i++) {
-			for (int j = 0; j < WORLD_Y / COMPRESSION; j++) {
-				int num = r.nextInt() % 5;
-				if (num == 4) {
-					w.changeTerrain(i, j, 1);
-				}
-			}
-		}
+		tempFunc();
+
 	}
 
 	public boolean verifyToken() throws IOException {
@@ -130,19 +123,21 @@ public class Handle implements Closeable {
 
 	public void writeCharacter() throws IOException {
 		writeEnum(MessageType.CHARACTER_DATA);
-		writeInt(c.getX());
-		writeInt(c.getY());
-		writeInt(c.getHealth());
-		writeInt(c.getAttack());
-		writeInt(c.getMana());
-		writeInt(c.getPower());
-		writeInt(c.getSpeed());
+		writeInt(RPS.c.getX());
+		writeInt(RPS.c.getY());
+		writeInt(RPS.c.getMaxHealth());
+		writeInt(RPS.c.getHealth());
+		writeInt(RPS.c.getAttack());
+		writeInt(RPS.c.getMaxMana());
+		writeInt(RPS.c.getMana());
+		writeInt(RPS.c.getPower());
+		writeInt(RPS.c.getSpeed());
 		flush();
 	}
 
 	public void getCharacterMove() throws IOException {
 		ensureMessageType(readEnum(MessageType.class), MessageType.CHARACTER_MOVE);
-		c.move(readInt(),readInt());
+		RPS.c.move(readInt(), readInt());
 		readInt();
 		readBoolean();
 	}
@@ -155,7 +150,7 @@ public class Handle implements Closeable {
 		int height = readInt();
 		writeEnum(MessageType.TERRAIN_REQUEST);
 		writeInt(COMPRESSION);
-		writeIntArray2D(c.w.getTerrain(x, y, width, height));
+		writeIntArray2D(RPS.c.w.getTerrain(x, y, width, height));
 		flush();
 	}
 
@@ -463,7 +458,7 @@ public class Handle implements Closeable {
 	public void close() {
 		// TODO Auto-generated method stub
 		try {
-			socket.close();
+			SOCKET.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

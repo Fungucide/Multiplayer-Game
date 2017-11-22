@@ -91,7 +91,7 @@ public class RemoteProcessClient implements Closeable {
 
 	public void getCharacter() throws IOException {
 		ensureMessageType(readEnum(MessageType.class), MessageType.CHARACTER_DATA);
-		c.setStats(readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt());
+		c.setStats(readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt());
 	}
 
 	public void moveCharacter(int xMove, int yMove, int direction, boolean attack) throws IOException {

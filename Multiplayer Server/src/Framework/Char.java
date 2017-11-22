@@ -7,14 +7,16 @@ import java.io.IOException;
 
 public class Char {
 	private double DIAGONAL_MOD = Math.sqrt(.5d);
-	private int x, y, health, attack, mana, power, speed;
+	private int x, y, maxHealth, health, attack, maxMana, mana, power, speed;
 	public World w;
 
-	public Char(int x, int y, int health, int attack, int mana, int power, int speed) {
+	public Char(int x, int y, int maxHealth, int health, int attack, int maxMana, int mana, int power, int speed) {
 		this.x = x;
 		this.y = y;
+		this.maxHealth = maxHealth;
 		this.health = health;
 		this.attack = attack;
+		this.maxMana = maxMana;
 		this.mana = mana;
 		this.power = power;
 		this.speed = speed;
@@ -41,12 +43,20 @@ public class Char {
 		return y;
 	}
 
+	public int getMaxHealth() {
+		return maxHealth;
+	}
+
 	public int getHealth() {
 		return health;
 	}
 
 	public int getAttack() {
 		return attack;
+	}
+
+	public int getMaxMana() {
+		return maxMana;
 	}
 
 	public int getMana() {
