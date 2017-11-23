@@ -28,7 +28,7 @@ public class Main {
 	private JPanel connectionPanel;
 	private JTextField commandLine;
 	private JScrollPane logScrollPane;
-	private JTextArea logTextArea;
+	private JLogArea logTextArea;
 	private Server s;
 	private JScrollPane connectionScrollPane;
 	private ConnectionTable connectionTable;
@@ -61,10 +61,10 @@ public class Main {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		
+
 		tm = new ConnectionTableModel();
 		connectionTable = new ConnectionTable(tm);
-		
+
 		frmConnectionManager = new JFrame();
 		frmConnectionManager.setTitle("Connection Manager");
 		frmConnectionManager.setBounds(100, 100, 450, 300);
@@ -93,11 +93,12 @@ public class Main {
 		sl_logPanel.putConstraint(SpringLayout.EAST, logScrollPane, -10, SpringLayout.EAST, logPanel);
 		logPanel.add(logScrollPane);
 
-		logTextArea = new JTextArea();
+		logTextArea = new JLogArea();
+		logTextArea.setEditable(false);
 		logScrollPane.setViewportView(logTextArea);
 
 		try {
-			s = new Server("Data/Server/Server.dat",connectionTable);
+			s = new Server("Data/Server/Server.dat", connectionTable);
 			s.setLog(logTextArea);
 			Thread t = new Thread(s);
 			t.start();

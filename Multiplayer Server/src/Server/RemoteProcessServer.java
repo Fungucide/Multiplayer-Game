@@ -9,11 +9,13 @@ import Framework.Char;
 import Framework.Terrain;
 import Framework.World;
 import GUI.Connection;
+import GUI.LogMessageType;
 import GUI.Server;
 
 public class RemoteProcessServer implements Runnable {
 
 	private Handle h;
+	private Socket socket;
 	private final int PROTOCOL_VERSION, TILE_SIZE, COMPRESSION;
 	public Connection connection;
 	public final Server SERVER;
@@ -29,7 +31,8 @@ public class RemoteProcessServer implements Runnable {
 	public World w;
 
 	public RemoteProcessServer(Socket socket, Server s, Connection connection, String t, int pv, int c, int ts) {
-		SERVER=s;
+		this.socket = socket;
+		SERVER = s;
 		this.connection = connection;
 		PROTOCOL_VERSION = pv;
 		TILE_SIZE = ts;
@@ -78,7 +81,8 @@ public class RemoteProcessServer implements Runnable {
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block
 			h.close();
-			System.out.println("Connection Terminated from client side");
+			SERVER.remove(connection);
+			SERVER.log.log(LogMessageType.SERVER, "Connection to " + socket.getInetAddress().getHostAddress() + " Terminated from client side\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

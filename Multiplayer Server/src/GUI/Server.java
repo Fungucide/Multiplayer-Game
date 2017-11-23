@@ -17,12 +17,10 @@ import Server.RemoteProcessServer;
 public class Server implements Runnable {
 	private int MAXCONNECTIONS, PORT, PROTOCOL_VERSION, TILE_SIZE, COMPRESSION;
 	private String TOKEN;
-	private JTextArea log;
-	private ConnectionTable clients;
+	public JLogArea log;
+	public ConnectionTable clients;
 	private final Stack<Integer> idStack;
 	public final HashSet<String> active;
-
-	public ArrayList<RemoteProcessServer> connections = new ArrayList<RemoteProcessServer>();
 
 	public Server(String path, ConnectionTable clients) throws IOException {
 		this.clients = clients;
@@ -56,7 +54,7 @@ public class Server implements Runnable {
 		}
 	}
 
-	public void setLog(JTextArea log) {
+	public void setLog(JLogArea log) {
 		this.log = log;
 	}
 
@@ -66,20 +64,32 @@ public class Server implements Runnable {
 			idStack.push(i);
 		}
 		while (true)
-			while (connections.size() < MAXCONNECTIONS) {
-				log.append("Waiting for connection....\n");
+			while (!idStack.isEmpty()) {
+				log.log(LogMessageType.SERVER, "Waiting for connection....");
 				Socket sock = serverSocket.accept();
-				log.append("Begining Conection to:" + sock.getInetAddress().getHostAddress());
+				log.log(LogMessageType.SERVER, "Begining Conection to:" + sock.getInetAddress().getHostAddress());
 				Connection c = new Connection(idStack.pop(), sock.getInetAddress().getHostAddress(), "", 0, "");
 				RemoteProcessServer rps = new RemoteProcessServer(sock, this, c, TOKEN, PROTOCOL_VERSION, COMPRESSION, TILE_SIZE);
 				clients.getConnectionTableModel().c.add(c);
 				clients.getConnectionTableModel().fireTableDataChanged();
-				log.append("Handle object created for " + sock.getInetAddress().getHostAddress() + "\n");
+				log.log(LogMessageType.SERVER, "Handle object created for " + sock.getInetAddress().getHostAddress());
 				Thread t = new Thread(rps);
 				t.start();
-				log.append("Connection to " + sock.getInetAddress().getHostAddress() + " passed on\n");
+				log.log(LogMessageType.SERVER, "Connection to " + sock.getInetAddress().getHostAddress() + " passed on");
 			}
 
+	}
+
+	public void remove(Connection c) {
+		for (int i = 0; i < clients.getConnectionTableModel().c.size(); i++) {
+			if (clients.getConnectionTableModel().c.get(i).ID == c.ID) {
+				clients.getConnectionTableModel().c.remove(i);
+				break;
+			}
+		}
+		active.remove(c.USERNAME);
+		idStack.push(c.ID);
+		clients.getConnectionTableModel().fireTableDataChanged();
 	}
 
 	@Override

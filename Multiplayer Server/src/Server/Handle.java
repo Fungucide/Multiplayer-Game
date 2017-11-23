@@ -18,6 +18,7 @@ import java.util.Random;
 import Framework.Char;
 import Framework.Terrain;
 import Framework.World;
+import GUI.LogMessageType;
 
 public class Handle implements Closeable {
 
@@ -84,18 +85,36 @@ public class Handle implements Closeable {
 			ensureMessageType(readEnum(MessageType.class), MessageType.LOGIN_REQUEST);
 			String user = readString();
 			byte[] pass = readByteArray(false);
+			if (RPS.SERVER.active.contains(user)) {
+				RPS.SERVER.log.log(LogMessageType.DATA, "Player already loged in with same username: " + user);
+				writeLoginStatus(false);
+				continue;
+			}
 			File f = new File("Data/Player/" + user + "/Password.pass");
 			if (!f.exists()) {
+				RPS.SERVER.log.log(LogMessageType.DATA, "Player does not exist: " + user);
 				writeLoginStatus(false);
 				continue;
 			}
 			FileReader fr = new FileReader(f);
 			BufferedReader br = new BufferedReader(fr);
-			if (new String(pass).equals(br.readLine())) {
+			String cpass = "";
+			while (br.ready()) {
+				cpass += br.readLine();
+				if (br.ready())
+					cpass += "\n";
+			}
+			System.out.println(new String(pass));
+			System.out.println(cpass);
+			System.out.println(new String(pass).equals(cpass.trim()));
+			if (new String(pass).equals(cpass.trim())) {
+				RPS.SERVER.log.log(LogMessageType.DATA, "Player loged in successfully: " + user);
 				RPS.connection.USERNAME = user;
+				RPS.SERVER.active.add(user);
 				writeLoginStatus(true);
 				break;
 			} else {
+				RPS.SERVER.log.log(LogMessageType.DATA, "Player login rejected: " + user + " " + new String(pass) + " " + cpass);
 				writeLoginStatus(false);
 			}
 		}

@@ -64,6 +64,7 @@ public class RemoteProcessClient implements Closeable {
 		writeEnum(MessageType.LOGIN_REQUEST);
 		writeString(user);
 		writeByteArray(pass);
+		System.out.println(new String(pass));
 		flush();
 	}
 
