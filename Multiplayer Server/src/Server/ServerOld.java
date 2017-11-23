@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 @Deprecated
-public class Server {
+public class ServerOld {
 
     private static final int MAXNCONNECTIONS=10;
 	

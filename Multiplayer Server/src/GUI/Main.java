@@ -32,6 +32,7 @@ public class Main {
 	private Server s;
 	private JScrollPane connectionScrollPane;
 	private ConnectionTable connectionTable;
+	private ConnectionTableModel tm;
 
 	/**
 	 * Launch the application.
@@ -60,6 +61,10 @@ public class Main {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		
+		tm = new ConnectionTableModel();
+		connectionTable = new ConnectionTable(tm);
+		
 		frmConnectionManager = new JFrame();
 		frmConnectionManager.setTitle("Connection Manager");
 		frmConnectionManager.setBounds(100, 100, 450, 300);
@@ -92,7 +97,7 @@ public class Main {
 		logScrollPane.setViewportView(logTextArea);
 
 		try {
-			s = new Server("Data/Server/Server.dat");
+			s = new Server("Data/Server/Server.dat",connectionTable);
 			s.setLog(logTextArea);
 			Thread t = new Thread(s);
 			t.start();
@@ -108,9 +113,6 @@ public class Main {
 		connectionScrollPane = new JScrollPane();
 		connectionPanel.add(connectionScrollPane, BorderLayout.CENTER);
 
-		ConnectionTableModel tm = new ConnectionTableModel();
-		tm.c.add(new Connection(0, "Test", "Test", 1, "Something"));
-		connectionTable = new ConnectionTable(tm);
 		connectionScrollPane.setViewportView(connectionTable);
 		connectionTable.getTableHeader().getColumnModel().getColumn(0).setHeaderValue("ID");
 		connectionTable.getTableHeader().getColumnModel().getColumn(1).setHeaderValue("Adress");

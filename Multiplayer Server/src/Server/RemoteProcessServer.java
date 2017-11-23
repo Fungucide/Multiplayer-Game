@@ -8,12 +8,15 @@ import java.util.Random;
 import Framework.Char;
 import Framework.Terrain;
 import Framework.World;
+import GUI.Connection;
+import GUI.Server;
 
 public class RemoteProcessServer implements Runnable {
 
 	private Handle h;
 	private final int PROTOCOL_VERSION, TILE_SIZE, COMPRESSION;
-	private final String CLIENT_ADRESS;
+	public Connection connection;
+	public final Server SERVER;
 
 	/**
 	 * Temporary Code For Testing Char Object will most likely be moved to another
@@ -25,8 +28,9 @@ public class RemoteProcessServer implements Runnable {
 	public Terrain t;
 	public World w;
 
-	public RemoteProcessServer(Socket socket, String clientAdress, String t, int pv, int c, int ts) {
-		CLIENT_ADRESS = clientAdress;
+	public RemoteProcessServer(Socket socket, Server s, Connection connection, String t, int pv, int c, int ts) {
+		SERVER=s;
+		this.connection = connection;
 		PROTOCOL_VERSION = pv;
 		TILE_SIZE = ts;
 		COMPRESSION = c;

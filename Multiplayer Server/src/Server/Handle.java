@@ -81,27 +81,22 @@ public class Handle implements Closeable {
 
 	public void waitForLogin() throws IOException {
 		while (true) {
-			while (inputStream.available() == 0)
-				;
 			ensureMessageType(readEnum(MessageType.class), MessageType.LOGIN_REQUEST);
 			String user = readString();
 			byte[] pass = readByteArray(false);
 			File f = new File("Data/Player/" + user + "/Password.pass");
 			if (!f.exists()) {
 				writeLoginStatus(false);
-				System.out.println("Login Declined");
 				continue;
 			}
-			System.out.println("Reading file:" + f.getAbsolutePath());
 			FileReader fr = new FileReader(f);
 			BufferedReader br = new BufferedReader(fr);
 			if (new String(pass).equals(br.readLine())) {
+				RPS.connection.USERNAME = user;
 				writeLoginStatus(true);
-				System.out.println("Login Verified");
 				break;
 			} else {
 				writeLoginStatus(false);
-				System.out.println("Login Declined");
 			}
 		}
 	}
@@ -147,8 +142,7 @@ public class Handle implements Closeable {
 
 	private static void ensureMessageType(MessageType actualType, MessageType expectedType) {
 		if (actualType != expectedType) {
-			throw new IllegalArgumentException(
-					String.format("Received wrong message [actual=%s, expected=%s].", actualType, expectedType));
+			throw new IllegalArgumentException(String.format("Received wrong message [actual=%s, expected=%s].", actualType, expectedType));
 		}
 	}
 
@@ -334,8 +328,7 @@ public class Handle implements Closeable {
 		int[] array = new int[count];
 
 		for (int i = 0; i < count; ++i) {
-			array[i] = ByteBuffer.wrap(bytes, i * INTEGER_SIZE_BYTES, INTEGER_SIZE_BYTES).order(PROTOCOL_BYTE_ORDER)
-					.getInt();
+			array[i] = ByteBuffer.wrap(bytes, i * INTEGER_SIZE_BYTES, INTEGER_SIZE_BYTES).order(PROTOCOL_BYTE_ORDER).getInt();
 		}
 
 		return array;

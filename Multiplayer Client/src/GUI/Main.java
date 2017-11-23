@@ -65,7 +65,7 @@ public class Main {
 		si = new ServerInteractions();
 
 		frame = new JFrame();
-		frame.setBounds(100, 100, 600, 500);
+		frame.setBounds(100, 100, 750, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		springLayout = new SpringLayout();
 		frame.getContentPane().setLayout(springLayout);

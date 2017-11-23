@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Stack;
 
 import javax.swing.JTextArea;
 
@@ -16,10 +18,16 @@ public class Server implements Runnable {
 	private int MAXCONNECTIONS, PORT, PROTOCOL_VERSION, TILE_SIZE, COMPRESSION;
 	private String TOKEN;
 	private JTextArea log;
+	private ConnectionTable clients;
+	private final Stack<Integer> idStack;
+	public final HashSet<String> active;
 
 	public ArrayList<RemoteProcessServer> connections = new ArrayList<RemoteProcessServer>();
 
-	public Server(String path) throws IOException {
+	public Server(String path, ConnectionTable clients) throws IOException {
+		this.clients = clients;
+		idStack = new Stack<Integer>();
+		active = new HashSet<String>();
 		BufferedReader br = new BufferedReader(new FileReader(new File(path)));
 		String[] in;
 		while (br.ready()) {
@@ -54,13 +62,18 @@ public class Server implements Runnable {
 
 	public void open() throws IOException {
 		ServerSocket serverSocket = new ServerSocket(PORT);
+		for (int i = MAXCONNECTIONS - 1; i >= 0; i--) {
+			idStack.push(i);
+		}
 		while (true)
 			while (connections.size() < MAXCONNECTIONS) {
 				log.append("Waiting for connection....\n");
 				Socket sock = serverSocket.accept();
 				log.append("Begining Conection to:" + sock.getInetAddress().getHostAddress());
-				RemoteProcessServer rps = new RemoteProcessServer(sock, sock.getInetAddress().getHostAddress(), TOKEN,
-						PROTOCOL_VERSION, COMPRESSION, TILE_SIZE);
+				Connection c = new Connection(idStack.pop(), sock.getInetAddress().getHostAddress(), "", 0, "");
+				RemoteProcessServer rps = new RemoteProcessServer(sock, this, c, TOKEN, PROTOCOL_VERSION, COMPRESSION, TILE_SIZE);
+				clients.getConnectionTableModel().c.add(c);
+				clients.getConnectionTableModel().fireTableDataChanged();
 				log.append("Handle object created for " + sock.getInetAddress().getHostAddress() + "\n");
 				Thread t = new Thread(rps);
 				t.start();

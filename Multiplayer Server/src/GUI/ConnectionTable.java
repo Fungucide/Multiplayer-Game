@@ -1,95 +1,68 @@
 package GUI;
 
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.EventObject;
-import java.util.Vector;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JButton;
 import javax.swing.JTable;
-import javax.swing.event.CellEditorListener;
-import javax.swing.table.TableCellEditor;
+import javax.swing.UIManager;
 import javax.swing.table.TableCellRenderer;
 
 public class ConnectionTable extends JTable {
+	private ConnectionTableModel tm;
+
 	public ConnectionTable(ConnectionTableModel tm) {
 		super(tm);
+		this.tm = tm;
+		addMouseListener(new ConnectionTableButtonMouseListener(this));
 	}
-	
+
+	public ConnectionTableModel getConnectionTableModel() {
+		return tm;
+	}
+
 	public void setButtonRenderer() {
+		getColumn("Details").setCellRenderer(new ConnectionTableButtonRenderer());
 	}
 
 }
 
-class TableButton extends JButton implements TableCellRenderer, TableCellEditor {
-	  private int selectedRow;
-	  private int selectedColumn;
-	  Vector<TableButtonListener> listener;
-
-	  public TableButton(String text) {
-	    super(text); 
-	    listener = new Vector<TableButtonListener>();
-	    addActionListener(new ActionListener() { 
-	      public void actionPerformed( ActionEvent e ) { 
-	        for(TableButtonListener l : listener) { 
-	          l.tableButtonClicked(selectedRow, selectedColumn);
-	        }
-	      }
-	    });
-	  }
-
-	  public void addTableButtonListener( TableButtonListener l ) {
-	    listener.add(l);
-	  }
-
-	  public void removeTableButtonListener( TableButtonListener l ) { 
-	    listener.remove(l);
-	  }
-
-	  @Override 
-	  public Component getTableCellRendererComponent(JTable table,
-	    Object value, boolean isSelected, boolean hasFocus, int row, int col) {
-	    return this;
-	  }
-
-	  @Override
-	  public Component getTableCellEditorComponent(JTable table,
-	      Object value, boolean isSelected, int row, int col) {
-	    selectedRow = row;
-	    selectedColumn = col;
-	    return this;
-	  } 
-
-	  @Override
-	  public void addCellEditorListener(CellEditorListener arg0) {      
-	  } 
-
-	  @Override
-	  public void cancelCellEditing() {
-	  } 
-
-	  @Override
-	  public Object getCellEditorValue() {
-	    return "";
-	  }
-
-	  @Override
-	  public boolean isCellEditable(EventObject arg0) {
-	    return true;
-	  }
-
-	  @Override
-	  public void removeCellEditorListener(CellEditorListener arg0) {
-	  }
-
-	  @Override
-	  public boolean shouldSelectCell(EventObject arg0) {
-	    return true;
-	  }
-
-	  @Override
-	  public boolean stopCellEditing() {
-	    return true;
-	  }
+class ConnectionTableButtonRenderer implements TableCellRenderer {
+	@Override
+	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+			int row, int column) {
+		JButton button = (JButton) value;
+		if (isSelected) {
+			button.setForeground(table.getSelectionForeground());
+			button.setBackground(table.getSelectionBackground());
+		} else {
+			button.setForeground(table.getForeground());
+			button.setBackground(UIManager.getColor("Button.background"));
+		}
+		return button;
 	}
+}
+
+class ConnectionTableButtonMouseListener extends MouseAdapter {
+	private final ConnectionTable table;
+
+	public ConnectionTableButtonMouseListener(ConnectionTable table) {
+		this.table = table;
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		int column = table.getColumnModel().getColumnIndexAtX(e.getX());
+		int row = e.getY() / table.getRowHeight();
+
+		if (row < table.getRowCount() && row >= 0 && column < table.getColumnCount() && column >= 0) {
+			Object value = table.getValueAt(row, column);
+			System.out.println("JTable click detected");
+			System.out.println(value instanceof JButton);
+			if (value instanceof JButton) {
+				((JButton) value).doClick();
+			}
+		}
+	}
+}
