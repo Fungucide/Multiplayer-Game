@@ -1,0 +1,7 @@
+x=0
+y=0
+maxHealth=100
+health=100
+maxMana=100
+mana=100
+speed=5

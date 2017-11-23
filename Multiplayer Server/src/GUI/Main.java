@@ -98,7 +98,7 @@ public class Main {
 		logScrollPane.setViewportView(logTextArea);
 
 		try {
-			s = new Server("Data/Server/Server.dat", connectionTable);
+			s = new Server("Data/Server/Server.dat", connectionTable,"Data/Server/StartWorld.world");
 			s.setLog(logTextArea);
 			Thread t = new Thread(s);
 			t.start();

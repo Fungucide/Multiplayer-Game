@@ -16,7 +16,7 @@ public class RemoteProcessServer implements Runnable {
 
 	private Handle h;
 	private Socket socket;
-	private final int PROTOCOL_VERSION, TILE_SIZE, COMPRESSION;
+	private final int PROTOCOL_VERSION, TILE_SIZE, COMPRESSION, MAX_REFRESH_RATE;
 	public Connection connection;
 	public final Server SERVER;
 
@@ -24,13 +24,13 @@ public class RemoteProcessServer implements Runnable {
 	 * Temporary Code For Testing Char Object will most likely be moved to another
 	 * Location World Code also for testing and will be moved later
 	 */
-	private final int WORLD_X = 3000;
-	private final int WORLD_Y = 3000;
-	public Char c = new Char(0, 0, 100, 100, 10, 100, 100, 10, 5);
-	public Terrain t;
-	public World w;
+	public Char CHARACTER;
 
-	public RemoteProcessServer(Socket socket, Server s, Connection connection, String t, int pv, int c, int ts) {
+	public RemoteProcessServer(Socket socket, Server s, Connection connection, int mrr, String t, int pv, int c, int ts) {
+		/**
+		 * Temporary Stuff
+		 */
+		MAX_REFRESH_RATE = mrr;
 		this.socket = socket;
 		SERVER = s;
 		this.connection = connection;
@@ -58,25 +58,16 @@ public class RemoteProcessServer implements Runnable {
 		try {
 
 			h.waitForLogin();
-
-			// Temporary Stuff
-			t = new Terrain(WORLD_X / COMPRESSION, WORLD_Y / COMPRESSION, COMPRESSION);
-			w = new World(WORLD_X, WORLD_Y, t);
-			Random r = new Random();
-			for (int i = 0; i < WORLD_X / COMPRESSION; i++) {
-				for (int j = 0; j < WORLD_Y / COMPRESSION; j++) {
-					int num = r.nextInt() % 5;
-					if (num == 4) {
-						w.changeTerrain(i, j, 1);
-					}
-				}
-			}
-
-			c.setWorld(w);
+			CHARACTER = new Char(connection.USERNAME, 0);// Index value will be inputed later
+			CHARACTER.setWorld(SERVER.STARTING_WORLD);
+			long time;
 			while (true) {
+				time = System.currentTimeMillis();
 				h.writeCharacter();
 				h.getCharacterMove();
 				h.terraintRequest();
+				while (System.currentTimeMillis() - time < MAX_REFRESH_RATE);
+				connection.REFRESH_RATE = System.currentTimeMillis() - time;
 			}
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block

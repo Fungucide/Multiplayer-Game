@@ -1,16 +1,24 @@
 package Framework;
 
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 
-public class Char {
+public class Char implements Closeable {
+	private final String USERNAME;
+	private final int INDEX;
 	private double DIAGONAL_MOD = Math.sqrt(.5d);
-	private int x, y, maxHealth, health, attack, maxMana, mana, power, speed;
+	private int x = 0, y = 0, maxHealth = 100, health = 100, attack = 10, maxMana = 100, mana = 100, power = 10, speed = 5;
 	public World w;
 
-	public Char(int x, int y, int maxHealth, int health, int attack, int maxMana, int mana, int power, int speed) {
+	public Char(String userName, int x, int y, int maxHealth, int health, int attack, int maxMana, int mana, int power, int speed) {
+		USERNAME = userName;
+		int i;
+		for (i = 0; new File("Data/Player/" + userName + "/Characters/Character" + i + ".dat").exists(); i++);
+		INDEX = i;
 		this.x = x;
 		this.y = y;
 		this.maxHealth = maxHealth;
@@ -22,8 +30,11 @@ public class Char {
 		this.speed = speed;
 	}
 
-	public Char(String userName) throws IOException {
-		File f = new File("Data/Player/" + userName + "/data.dat");
+	public Char(String userName, int index) throws IOException {
+		USERNAME = userName;
+		INDEX = index;
+		String FILE_PATH = "Data/Player/" + userName + "/Characters/Character" + index + ".dat";
+		File f = new File(FILE_PATH);
 		f.createNewFile();
 		BufferedReader br = new BufferedReader(new FileReader(f));
 		String[] input;
@@ -99,6 +110,21 @@ public class Char {
 
 	public void setWorld(World w) {
 		this.w = w;
+	}
+
+	@Override
+	public void close() throws IOException {
+		FileWriter fw = new FileWriter("Data/Player/" + USERNAME + "/Characters/Character" + INDEX + ".dat");
+		fw.write("x=" + x);
+		fw.write("y=" + y);
+		fw.write("maxHealth=" + maxHealth);
+		fw.write("health=" + health);
+		fw.write("attack=" + attack);
+		fw.write("maxMana=" + maxMana);
+		fw.write("mana=" + mana);
+		fw.write("power=" + power);
+		fw.write("speed=" + speed);
+		fw.close();
 	}
 
 }

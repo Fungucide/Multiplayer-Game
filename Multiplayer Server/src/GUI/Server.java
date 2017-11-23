@@ -6,23 +6,36 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Stack;
 
-import javax.swing.JTextArea;
-
+import Framework.World;
 import Server.RemoteProcessServer;
 
 public class Server implements Runnable {
-	private int MAXCONNECTIONS, PORT, PROTOCOL_VERSION, TILE_SIZE, COMPRESSION;
+	private int MAXCONNECTIONS, PORT, PROTOCOL_VERSION, TILE_SIZE, COMPRESSION, MAX_REFRESH_RATE;
 	private String TOKEN;
 	public JLogArea log;
 	public ConnectionTable clients;
 	private final Stack<Integer> idStack;
 	public final HashSet<String> active;
+	public final World STARTING_WORLD;
 
-	public Server(String path, ConnectionTable clients) throws IOException {
+	public Server(String path, ConnectionTable clients, String worldPath) throws IOException {
+		BufferedReader worldRead = new BufferedReader(new FileReader(new File(worldPath)));
+		int width = Integer.parseInt(worldRead.readLine());
+		int height = Integer.parseInt(worldRead.readLine());
+		int compress = Integer.parseInt(worldRead.readLine());
+		int[][] data = new int[width][height];
+		String[] input;
+		for (int i = 0; i < height / compress; i++) {
+			input = worldRead.readLine().split(" ");
+			for (int j = 0; j < width / compress; j++) {
+				data[j][i] = Integer.parseInt(input[j]);
+			}
+		}
+		worldRead.close();
+		STARTING_WORLD = new World(width, height, data, compress);
 		this.clients = clients;
 		idStack = new Stack<Integer>();
 		active = new HashSet<String>();
@@ -31,7 +44,7 @@ public class Server implements Runnable {
 		while (br.ready()) {
 			in = br.readLine().split("=");
 			switch (in[0]) {
-			case "maxconnections":
+			case "maxConnections":
 				MAXCONNECTIONS = Integer.parseInt(in[1]);
 				break;
 			case "port":
@@ -49,9 +62,12 @@ public class Server implements Runnable {
 			case "compression":
 				COMPRESSION = Integer.parseInt(in[1]);
 				break;
-
+			case "maxRefreshRate":
+				MAX_REFRESH_RATE = Integer.parseInt(in[1]);
+				break;
 			}
 		}
+		br.close();
 	}
 
 	public void setLog(JLogArea log) {
@@ -69,9 +85,9 @@ public class Server implements Runnable {
 				Socket sock = serverSocket.accept();
 				log.log(LogMessageType.SERVER, "Begining Conection to:" + sock.getInetAddress().getHostAddress());
 				Connection c = new Connection(idStack.pop(), sock.getInetAddress().getHostAddress(), "", 0, "");
-				RemoteProcessServer rps = new RemoteProcessServer(sock, this, c, TOKEN, PROTOCOL_VERSION, COMPRESSION, TILE_SIZE);
+				RemoteProcessServer rps = new RemoteProcessServer(sock, this, c, MAX_REFRESH_RATE, TOKEN, PROTOCOL_VERSION, COMPRESSION, TILE_SIZE);
 				clients.getConnectionTableModel().c.add(c);
-				clients.getConnectionTableModel().fireTableDataChanged();
+				connectionUpdate();
 				log.log(LogMessageType.SERVER, "Handle object created for " + sock.getInetAddress().getHostAddress());
 				Thread t = new Thread(rps);
 				t.start();
@@ -89,6 +105,10 @@ public class Server implements Runnable {
 		}
 		active.remove(c.USERNAME);
 		idStack.push(c.ID);
+		connectionUpdate();
+	}
+
+	public void connectionUpdate() {
 		clients.getConnectionTableModel().fireTableDataChanged();
 	}
 

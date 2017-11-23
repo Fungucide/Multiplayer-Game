@@ -60,11 +60,10 @@ public class RemoteProcessClient implements Closeable {
 		return data;
 	}
 
-	public void loginRequest(String user, byte[] pass) throws IOException {
+	public void loginRequest(String user, String pass) throws IOException {
 		writeEnum(MessageType.LOGIN_REQUEST);
 		writeString(user);
-		writeByteArray(pass);
-		System.out.println(new String(pass));
+		writeString(pass);
 		flush();
 	}
 

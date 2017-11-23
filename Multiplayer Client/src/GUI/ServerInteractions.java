@@ -1,6 +1,7 @@
 package GUI;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -17,7 +18,7 @@ public class ServerInteractions implements Runnable {
 	private RemoteProcessClient rpc;
 	public int xMove, yMove;
 
-	public boolean attemptLogin(String adress,int port ,String username, char[] password) throws IOException, NoSuchAlgorithmException {
+	public boolean attemptLogin(String adress, int port, String username, char[] password) throws IOException, NoSuchAlgorithmException {
 		System.out.println("Attempting Login Username: " + username + " Password: " + new String(password));
 		boolean result;
 		try {
@@ -28,7 +29,8 @@ public class ServerInteractions implements Runnable {
 			byte[] bytes = new String(password).getBytes("UTF-8");
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			byte[] hash = md.digest(bytes);
-			rpc.loginRequest(username, hash);
+			BigInteger foo = new BigInteger(hash);
+			rpc.loginRequest(username, foo.toString(16));
 			System.out.println("Login Request Sent");
 			result = rpc.loginStatus();
 			System.out.println("Login Status: " + result);

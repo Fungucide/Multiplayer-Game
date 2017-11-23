@@ -32,7 +32,7 @@ public class Runner {
 				byte[] bytes = pass.getBytes("UTF-8");
 				MessageDigest md = MessageDigest.getInstance("MD5");
 				byte[] hash = md.digest(bytes);
-				remoteProcessClient.loginRequest("Admin", hash);
+				//remoteProcessClient.loginRequest("Admin", hash);
 				if (remoteProcessClient.loginStatus())
 					break;
 			}
