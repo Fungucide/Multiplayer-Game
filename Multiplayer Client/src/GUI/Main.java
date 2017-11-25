@@ -159,11 +159,9 @@ public class Main {
 				hide(login);
 				canvas.setVisible(true);
 				canvas.repaint();
-				System.out.println("Login success");
 				run();
 			} else {
 				JOptionPane.showMessageDialog(frame, "Login Failed", "Login Error", JOptionPane.ERROR_MESSAGE);
-				System.out.println("Login Failed");
 			}
 		} catch (NoSuchAlgorithmException | IOException e) {
 			// TODO Auto-generated catch block

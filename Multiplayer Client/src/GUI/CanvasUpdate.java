@@ -9,7 +9,6 @@ public class CanvasUpdate implements Runnable {
 		this.r = r;
 		this.FPS = fps;
 		DELAY = 1000 / FPS;
-		System.out.println("Update Delay: " + DELAY);
 	}
 
 	public void update() throws InterruptedException {

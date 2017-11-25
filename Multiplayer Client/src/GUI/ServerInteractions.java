@@ -19,7 +19,6 @@ public class ServerInteractions implements Runnable {
 	public int xMove, yMove;
 
 	public boolean attemptLogin(String adress, int port, String username, char[] password) throws IOException, NoSuchAlgorithmException {
-		System.out.println("Attempting Login Username: " + username + " Password: " + new String(password));
 		boolean result;
 		try {
 			rpc = new RemoteProcessClient(adress, port);
@@ -31,11 +30,8 @@ public class ServerInteractions implements Runnable {
 			byte[] hash = md.digest(bytes);
 			BigInteger foo = new BigInteger(hash);
 			rpc.loginRequest(username, foo.toString(16));
-			System.out.println("Login Request Sent");
 			result = rpc.loginStatus();
-			System.out.println("Login Status: " + result);
 		} finally {
-			System.out.println("Connection To Server Terminated");
 			if (rpc == null) {
 				return false;
 			}
