@@ -31,7 +31,7 @@ public class Main {
 	private JLabel lblServerAdress;
 	private JLabel lblUsername;
 	private JLabel lblPassowrd;
-	private Render canvas;
+	private Render render;
 	private SpringLayout springLayout;
 
 	/**
@@ -67,6 +67,7 @@ public class Main {
 		frame = new JFrame();
 		frame.setBounds(100, 100, 750, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setResizable(false);
 		springLayout = new SpringLayout();
 		frame.getContentPane().setLayout(springLayout);
 
@@ -98,7 +99,7 @@ public class Main {
 		textFieldUsername.setColumns(10);
 		frame.getContentPane().add(textFieldUsername);
 
-		lblPassowrd = new JLabel("Passowrd:");
+		lblPassowrd = new JLabel("Password:");
 		springLayout.putConstraint(SpringLayout.NORTH, lblPassowrd, 10, SpringLayout.SOUTH, lblUsername);
 		springLayout.putConstraint(SpringLayout.WEST, lblPassowrd, 0, SpringLayout.WEST, lblUsername);
 		springLayout.putConstraint(SpringLayout.EAST, lblPassowrd, 0, SpringLayout.EAST, lblUsername);
@@ -155,10 +156,10 @@ public class Main {
 
 	private void login() {
 		try {
-			if (si.attemptLogin(textFieldServerAdress.getText(),31001, textFieldUsername.getText(), textFieldPassword.getPassword())) {
+			if (si.attemptLogin(textFieldServerAdress.getText(), 31001, textFieldUsername.getText(), textFieldPassword.getPassword())) {
 				hide(login);
-				canvas.setVisible(true);
-				canvas.repaint();
+				render.setVisible(true);
+				render.repaint();
 				run();
 			} else {
 				JOptionPane.showMessageDialog(frame, "Login Failed", "Login Error", JOptionPane.ERROR_MESSAGE);
@@ -171,8 +172,15 @@ public class Main {
 
 	private void run() {
 
-		canvas.addKeyListener(new KeyAdapter() {
+		RenderUpdate cu = new RenderUpdate(render, 15);
+		Thread cut = new Thread(cu);
+		cut.start();
 
+		si.setRender(render);
+		Thread t = new Thread(si);
+		t.start();
+
+		render.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_W) {
@@ -197,24 +205,16 @@ public class Main {
 				}
 			}
 		});
-		
-		CanvasUpdate cu = new CanvasUpdate(canvas, 15);
-		Thread cut = new Thread(cu);
-		cut.start();
-		
-		si.setRender(canvas);
-		Thread t = new Thread(si);
-		t.start();
-
+		render.setFocusable(true);
 	}
 
 	private void addRender() {
-		canvas = new Render();
-		canvas.setVisible(false);
-		springLayout.putConstraint(SpringLayout.NORTH, canvas, 0, SpringLayout.NORTH, frame.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, canvas, 0, SpringLayout.WEST, frame.getContentPane());
-		springLayout.putConstraint(SpringLayout.SOUTH, canvas, 0, SpringLayout.SOUTH, frame.getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, canvas, 0, SpringLayout.EAST, frame.getContentPane());
-		frame.getContentPane().add(canvas);
+		render = new Render();
+		render.setVisible(false);
+		springLayout.putConstraint(SpringLayout.NORTH, render, 0, SpringLayout.NORTH, frame.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, render, 0, SpringLayout.WEST, frame.getContentPane());
+		springLayout.putConstraint(SpringLayout.SOUTH, render, 0, SpringLayout.SOUTH, frame.getContentPane());
+		springLayout.putConstraint(SpringLayout.EAST, render, 0, SpringLayout.EAST, frame.getContentPane());
+		frame.getContentPane().add(render);
 	}
 }

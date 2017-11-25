@@ -49,7 +49,7 @@ public class ServerInteractions implements Runnable {
 			try {
 				rpc.getCharacter();
 				rpc.moveCharacter(xMove, yMove, 0, false);
-				terrain = rpc.requestTerrain(r.getWidth() / r.getCompression() + 2, r.getHeight() / r.getCompression() + 1);
+				terrain = rpc.requestTerrain(r.getWidth() / r.getCompression() + 2, r.getHeight() / r.getCompression() + 2);
 				r.x = getX();
 				r.y = getY();
 				r.data = terrain.data;

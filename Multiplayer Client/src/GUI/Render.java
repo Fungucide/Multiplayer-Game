@@ -1,6 +1,5 @@
 package GUI;
 
-import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -10,8 +9,14 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+import javax.swing.JPanel;
 
-public class Render extends Canvas {
+public class Render extends JPanel {
+
+	public Render() {
+		super();
+		setDoubleBuffered(true);
+	}
 
 	private int TILE_SIZE;
 	private int COMPRESSION;
@@ -25,7 +30,7 @@ public class Render extends Canvas {
 		TILE_SIZE = tileSize;
 		COMPRESSION = compression;
 		try {
-			background = toBufferedImage(ImageIO.read(new File("Resources/Background/Background.png")).getScaledInstance(TILE_SIZE, TILE_SIZE, Image.SCALE_SMOOTH));
+			background = toBufferedImage(ImageIO.read(new File("Resources/Background/Background.jpg")).getScaledInstance(TILE_SIZE, TILE_SIZE, Image.SCALE_SMOOTH));
 			tree = toBufferedImage(ImageIO.read(new File("Resources/Background/Tree.png")).getScaledInstance(COMPRESSION, COMPRESSION, Image.SCALE_SMOOTH));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -34,10 +39,14 @@ public class Render extends Canvas {
 	}
 
 	public void paint(Graphics g) {
-
-		g.drawImage(background, -(x % (TILE_SIZE - getWidth())), -(y % (TILE_SIZE - getHeight())), this);
+		
 		int xOff = -(x % COMPRESSION);
 		int yOff = -(y % COMPRESSION);
+		for (int i = 0; i * TILE_SIZE <= getWidth()+TILE_SIZE; i++) {
+			for (int j = 0; j * TILE_SIZE <= getHeight()+TILE_SIZE; j++) {
+				g.drawImage(background, xOff + i * TILE_SIZE, yOff + j * TILE_SIZE, this);
+			}
+		}
 		if (data != null) {
 			for (int i = 0; i < data.length; i++) {
 				for (int j = 0; j < data[0].length; j++) {
@@ -53,10 +62,9 @@ public class Render extends Canvas {
 		g.fillRoundRect(37, 37, 150, 38, 5, 5);
 	}
 
-	@Override
-	public void update(Graphics g) {
-		paint(g);
-	}
+	/*
+	 * @Override public void update(Graphics g) { paint(g); }
+	 */
 
 	public int getCompression() {
 		return COMPRESSION;

@@ -2,6 +2,6 @@ maxConnections=10
 port=31001
 token=Token
 protocolVersion=0
-tileSize=2000
+tileSize=100
 compression=50
 maxRefreshRate=20

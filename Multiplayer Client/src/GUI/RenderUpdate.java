@@ -1,11 +1,11 @@
 package GUI;
 
-public class CanvasUpdate implements Runnable {
+public class RenderUpdate implements Runnable {
 	private final Render r;
 	private final int FPS;
 	private final int DELAY;
 
-	public CanvasUpdate(Render r, int fps) {
+	public RenderUpdate(Render r, int fps) {
 		this.r = r;
 		this.FPS = fps;
 		DELAY = 1000 / FPS;
