@@ -14,6 +14,7 @@ import Server.RemoteProcessServer;
 
 public class Server implements Runnable {
 	private int MAXCONNECTIONS, PORT, PROTOCOL_VERSION, TILE_SIZE, COMPRESSION, MAX_REFRESH_RATE;
+	private long MAX_WORLD_UPDATE;
 	private String TOKEN;
 	public JLogArea log;
 	public ConnectionTable clients;
@@ -35,7 +36,6 @@ public class Server implements Runnable {
 			}
 		}
 		worldRead.close();
-		STARTING_WORLD = new World(width, height, data, compress);
 		this.clients = clients;
 		idStack = new Stack<Integer>();
 		active = new HashSet<String>();
@@ -65,8 +65,12 @@ public class Server implements Runnable {
 			case "maxRefreshRate":
 				MAX_REFRESH_RATE = Integer.parseInt(in[1]);
 				break;
+			case "maxWorldUpdate":
+				MAX_WORLD_UPDATE=Long.parseLong(in[1]);
 			}
 		}
+
+		STARTING_WORLD = new World(width, height, data, compress, MAX_WORLD_UPDATE);
 		br.close();
 	}
 

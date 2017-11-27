@@ -11,13 +11,15 @@ public class Char implements Closeable {
 	private final String USERNAME;
 	private final int INDEX;
 	private double DIAGONAL_MOD = Math.sqrt(.5d);
+	private int xMove = 0, yMove = 0;
 	private int x = 0, y = 0, maxHealth = 100, health = 100, attack = 10, maxMana = 100, mana = 100, power = 10, speed = 5;
 	public World w;
 
 	public Char(String userName, int x, int y, int maxHealth, int health, int attack, int maxMana, int mana, int power, int speed) {
 		USERNAME = userName;
 		int i;
-		for (i = 0; new File("Data/Player/" + userName + "/Characters/Character" + i + ".dat").exists(); i++);
+		for (i = 0; new File("Data/Player/" + userName + "/Characters/Character" + i + ".dat").exists(); i++)
+			;
 		INDEX = i;
 		this.x = x;
 		this.y = y;
@@ -83,12 +85,28 @@ public class Char implements Closeable {
 	}
 
 	public void move(int x, int y) {
-		if (x != 0 && y != 0) {
-			moveX((int) Math.floor(DIAGONAL_MOD * (double) speed * (double) x));
-			moveY((int) Math.floor(DIAGONAL_MOD * (double) speed * (double) y));
+		if (x == 0)
+			xMove = 0;
+		else if (x > 0)
+			xMove = 1;
+		else if (x < 0)
+			xMove = -1;
+		
+		if (y == 0)
+			yMove = 0;
+		else if (y > 0)
+			yMove = 1;
+		else if (y < 0)
+			yMove = -1;
+	}
+
+	public void update() {
+		if (xMove != 0 && yMove != 0) {
+			moveX((int) Math.floor(DIAGONAL_MOD * (double) speed * (double) xMove));
+			moveY((int) Math.floor(DIAGONAL_MOD * (double) speed * (double) yMove));
 		} else {
-			moveX(x * speed);
-			moveY(y * speed);
+			moveX(xMove * speed);
+			moveY(yMove * speed);
 		}
 	}
 
@@ -109,7 +127,10 @@ public class Char implements Closeable {
 	}
 
 	public void setWorld(World w) {
+		if(this.w!=null)
+			this.w.removePlayer(this);
 		this.w = w;
+		this.w.addPlayer(this);
 	}
 
 	@Override
@@ -125,6 +146,14 @@ public class Char implements Closeable {
 		fw.write("power=" + power);
 		fw.write("speed=" + speed);
 		fw.close();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof Char) {
+			return ((Char) o).USERNAME.equals(USERNAME);
+		}
+		return false;
 	}
 
 }

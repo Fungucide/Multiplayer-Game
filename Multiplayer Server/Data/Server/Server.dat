@@ -4,4 +4,5 @@ token=Token
 protocolVersion=0
 tileSize=100
 compression=50
-maxRefreshRate=20
+maxRefreshRate=10
+maxWorldUpdate=20
