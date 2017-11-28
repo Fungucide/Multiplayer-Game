@@ -1,5 +1,7 @@
 package Client;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
@@ -11,6 +13,9 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+import javax.imageio.ImageIO;
 
 public class RemoteProcessClient implements Closeable {
 
@@ -58,6 +63,17 @@ public class RemoteProcessClient implements Closeable {
 		data[0] = readInt();
 		data[1] = readInt();
 		return data;
+	}
+
+	public BufferedImage[] getResources() throws IOException {
+		BufferedImage[] resources;
+		ensureMessageType(readEnum(MessageType.class), MessageType.RESOURCE_DATA);
+		resources = new BufferedImage[readInt()];
+		for (int i = 0; i < resources.length; i++) {
+			byte[] arr = Base64.getDecoder().decode(readString());
+			resources[i] = ImageIO.read(new ByteArrayInputStream(arr));
+		}
+		return resources;
 	}
 
 	public void loginRequest(String user, String pass) throws IOException {

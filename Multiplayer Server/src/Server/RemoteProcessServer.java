@@ -61,6 +61,7 @@ public class RemoteProcessServer implements Runnable {
 			CHARACTER = new Char(connection.USERNAME, 0);// Index value will be inputed later
 			CHARACTER.setWorld(SERVER.STARTING_WORLD);
 			long time;
+			h.writeResources(SERVER.STARTING_WORLD.getResources(),SERVER.STARTING_WORLD.getType());
 			while (true) {
 				time = System.currentTimeMillis();
 				h.writeCharacter();

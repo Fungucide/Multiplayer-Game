@@ -23,19 +23,6 @@ public class Server implements Runnable {
 	public final World STARTING_WORLD;
 
 	public Server(String path, ConnectionTable clients, String worldPath) throws IOException {
-		BufferedReader worldRead = new BufferedReader(new FileReader(new File(worldPath)));
-		int width = Integer.parseInt(worldRead.readLine());
-		int height = Integer.parseInt(worldRead.readLine());
-		int compress = Integer.parseInt(worldRead.readLine());
-		int[][] data = new int[width][height];
-		String[] input;
-		for (int i = 0; i < height / compress; i++) {
-			input = worldRead.readLine().split(" ");
-			for (int j = 0; j < width / compress; j++) {
-				data[j][i] = Integer.parseInt(input[j]);
-			}
-		}
-		worldRead.close();
 		this.clients = clients;
 		idStack = new Stack<Integer>();
 		active = new HashSet<String>();
@@ -70,7 +57,7 @@ public class Server implements Runnable {
 			}
 		}
 
-		STARTING_WORLD = new World(width, height, data, compress, MAX_WORLD_UPDATE);
+		STARTING_WORLD = new World(worldPath, MAX_WORLD_UPDATE);
 		br.close();
 	}
 

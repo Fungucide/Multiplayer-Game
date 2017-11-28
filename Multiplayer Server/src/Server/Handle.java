@@ -1,5 +1,8 @@
 package Server;
 
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -13,6 +16,9 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+import javax.imageio.ImageIO;
 
 import GUI.LogMessageType;
 
@@ -74,6 +80,35 @@ public class Handle implements Closeable {
 		writeInt(TILE_SIZE);
 		writeInt(COMPRESSION);
 		flush();
+	}
+
+	public void writeResources(String[] path, int[] type) throws IOException {
+		writeEnum(MessageType.RESOURCE_DATA);
+		writeInt(path.length);
+		for (int i = 0; i < path.length; i++) {
+			BufferedImage img;
+			if (type[i] == 0)
+				img = toBufferedImage(ImageIO.read(new File(path[i])).getScaledInstance(TILE_SIZE, TILE_SIZE, Image.SCALE_SMOOTH));
+			else if (type[i] == 1)
+				img = toBufferedImage(ImageIO.read(new File(path[i])).getScaledInstance(COMPRESSION, COMPRESSION, Image.SCALE_SMOOTH));
+			else
+				img = ImageIO.read(new File(path[i]));
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ImageIO.write(img, "jpg", baos);
+			String base64String = new String(Base64.getEncoder().encode(baos.toByteArray()));
+			writeString(base64String);
+		}
+		flush();
+	}
+
+	private static BufferedImage toBufferedImage(Image img) {
+		if (img instanceof BufferedImage)
+			return (BufferedImage) img;
+		BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+		Graphics2D bGr = bimage.createGraphics();
+		bGr.drawImage(img, 0, 0, null);
+		bGr.dispose();
+		return bimage;
 	}
 
 	public void waitForLogin() throws IOException {
