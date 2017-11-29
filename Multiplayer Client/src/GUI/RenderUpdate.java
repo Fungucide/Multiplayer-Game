@@ -1,5 +1,6 @@
 package GUI;
 
+@Deprecated
 public class RenderUpdate implements Runnable {
 	private final Render r;
 	private final int FPS;

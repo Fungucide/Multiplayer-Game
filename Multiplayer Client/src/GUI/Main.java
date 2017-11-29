@@ -172,9 +172,9 @@ public class Main {
 
 	private void run() {
 
-		RenderUpdate cu = new RenderUpdate(render, 12);
+		/*RenderUpdate cu = new RenderUpdate(render, 50);
 		Thread cut = new Thread(cu);
-		cut.start();
+		cut.start();*/
 
 		si.setRender(render);
 		Thread t = new Thread(si);

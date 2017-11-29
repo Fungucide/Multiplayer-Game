@@ -4,19 +4,15 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.io.IOException;
 
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableModel;
-
-import java.awt.FlowLayout;
-import javax.swing.JList;
-import javax.swing.JTable;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -33,6 +29,10 @@ public class Main {
 	private JScrollPane connectionScrollPane;
 	private ConnectionTable connectionTable;
 	private ConnectionTableModel tm;
+	private JMenuBar menuBar;
+	private FilterCheckBox[] filters;
+	private boolean[] filter;
+	private JMenu filterMenu;
 
 	/**
 	 * Launch the application.
@@ -98,8 +98,38 @@ public class Main {
 		logScrollPane.setViewportView(logTextArea);
 
 		try {
-			s = new Server("Data/Server/Server.dat", connectionTable,"Data/Server/StartWorld.world");
+			s = new Server("Data/Server/Server.dat", connectionTable, "Data/Server/StartWorld.world");
 			s.setLog(logTextArea);
+
+			menuBar = new JMenuBar();
+			filterMenu = new JMenu("Filter");
+
+			filters = new FilterCheckBox[LogMessageType.values().length];
+			filter = new boolean[filters.length];
+			for (int i = 0; i < filters.length; i++) {
+				filter[i] = true;
+				filters[i] = new FilterCheckBox(LogMessageType.values()[i].toString());
+				filters[i].setSelected(true);
+				filterMenu.add(filters[i]);
+			}
+			
+			filterMenu.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent arg0) {
+					for(int i = 0 ; i <filter.length;i++) {
+						if(filters[i].isSelected())
+							filter[i]=true;
+						else
+							filter[i]=false;
+					}
+					logTextArea.setFilter(filter);
+				}
+			});
+			
+			logTextArea.setFilter(filter);
+
+			menuBar.add(filterMenu);
+			logScrollPane.setColumnHeaderView(menuBar);
 			Thread t = new Thread(s);
 			t.start();
 		} catch (IOException e) {

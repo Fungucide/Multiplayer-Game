@@ -58,8 +58,6 @@ class ConnectionTableButtonMouseListener extends MouseAdapter {
 
 		if (row < table.getRowCount() && row >= 0 && column < table.getColumnCount() && column >= 0) {
 			Object value = table.getValueAt(row, column);
-			System.out.println("JTable click detected");
-			System.out.println(value instanceof JButton);
 			if (value instanceof JButton) {
 				((JButton) value).doClick();
 			}

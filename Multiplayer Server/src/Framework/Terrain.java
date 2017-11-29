@@ -20,12 +20,10 @@ public class Terrain {
 	}
 
 	public int[][] get(int x, int y, int width, int height) {
-		x /= COMPRESSION;
-		y /= COMPRESSION;
 		int[][] res = new int[width][height];
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
-				if (x + i >= data.length || y + j >= data.length)
+				if (x + i < 0 || x + i >= data.length || y + j < 0 || y + j >= data.length)
 					res[i][j] = 0;
 				else
 					res[i][j] = data[x + i][y + j];

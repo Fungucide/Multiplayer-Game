@@ -18,8 +18,7 @@ public class Char implements Closeable {
 	public Char(String userName, int x, int y, int maxHealth, int health, int attack, int maxMana, int mana, int power, int speed) {
 		USERNAME = userName;
 		int i;
-		for (i = 0; new File("Data/Player/" + userName + "/Characters/Character" + i + ".dat").exists(); i++)
-			;
+		for (i = 0; new File("Data/Player/" + userName + "/Characters/Character" + i + ".dat").exists(); i++);
 		INDEX = i;
 		this.x = x;
 		this.y = y;
@@ -91,7 +90,7 @@ public class Char implements Closeable {
 			xMove = 1;
 		else if (x < 0)
 			xMove = -1;
-		
+
 		if (y == 0)
 			yMove = 0;
 		else if (y > 0)
@@ -114,7 +113,7 @@ public class Char implements Closeable {
 		x += dis;
 		if (x < 0)
 			x = 0;
-		else if (x > w.getWidth())
+		else if (w != null && x > w.getWidth())
 			x = w.getWidth();
 	}
 
@@ -122,12 +121,12 @@ public class Char implements Closeable {
 		y += dis;
 		if (y < 0)
 			y = 0;
-		else if (y > w.getHeight())
+		else if (w != null && y > w.getHeight())
 			y = w.getHeight();
 	}
 
 	public void setWorld(World w) {
-		if(this.w!=null)
+		if (this.w != null)
 			this.w.removePlayer(this);
 		this.w = w;
 		this.w.addPlayer(this);

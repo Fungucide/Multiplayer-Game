@@ -2,8 +2,6 @@ package GUI;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
@@ -18,8 +16,6 @@ public class Render extends JPanel {
 	private int TILE_SIZE;
 	private int COMPRESSION;
 
-	private BufferedImage background, tree;
-
 	public int x, y;
 	public int[][] data;
 	private BufferedImage[] resources;
@@ -27,14 +23,6 @@ public class Render extends JPanel {
 	public void setData(int tileSize, int compression) {
 		TILE_SIZE = tileSize;
 		COMPRESSION = compression;
-		/*
-		 * try { background = toBufferedImage(ImageIO.read(new
-		 * File("Resources/Background/Background.jpg")).getScaledInstance(TILE_SIZE,
-		 * TILE_SIZE, Image.SCALE_SMOOTH)); tree = toBufferedImage(ImageIO.read(new
-		 * File("Resources/Background/Tree.png")).getScaledInstance(COMPRESSION,
-		 * COMPRESSION, Image.SCALE_SMOOTH)); } catch (IOException e) { // TODO
-		 * Auto-generated catch block e.printStackTrace(); }
-		 */
 	}
 
 	public void setResources(BufferedImage[] resources) {
@@ -42,7 +30,6 @@ public class Render extends JPanel {
 	}
 
 	public void paint(Graphics g) {
-
 		int xOff = -(x % COMPRESSION);
 		int yOff = -(y % COMPRESSION);
 		if (data != null && resources != null) {
@@ -59,27 +46,13 @@ public class Render extends JPanel {
 				}
 			}
 		}
-
 		g.setColor(Color.DARK_GRAY);
 		g.fillOval(0, 0, 75, 75);
 		g.fillRoundRect(37, 37, 150, 38, 5, 5);
 	}
 
-	/*
-	 * @Override public void update(Graphics g) { paint(g); }
-	 */
-
 	public int getCompression() {
 		return COMPRESSION;
 	}
 
-	private static BufferedImage toBufferedImage(Image img) {
-		if (img instanceof BufferedImage)
-			return (BufferedImage) img;
-		BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
-		Graphics2D bGr = bimage.createGraphics();
-		bGr.drawImage(img, 0, 0, null);
-		bGr.dispose();
-		return bimage;
-	}
 }

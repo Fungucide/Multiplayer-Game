@@ -3,11 +3,8 @@ package Server;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.Random;
 
 import Framework.Char;
-import Framework.Terrain;
-import Framework.World;
 import GUI.Connection;
 import GUI.LogMessageType;
 import GUI.Server;
@@ -60,6 +57,7 @@ public class RemoteProcessServer implements Runnable {
 			h.waitForLogin();
 			CHARACTER = new Char(connection.USERNAME, 0);// Index value will be inputed later
 			CHARACTER.setWorld(SERVER.STARTING_WORLD);
+			connection.setChar(CHARACTER);
 			long time;
 			h.writeResources(SERVER.STARTING_WORLD.getResources(),SERVER.STARTING_WORLD.getType());
 			while (true) {
@@ -75,6 +73,7 @@ public class RemoteProcessServer implements Runnable {
 			h.close();
 			SERVER.remove(connection);
 			SERVER.log.log(LogMessageType.SERVER, "Connection to " + socket.getInetAddress().getHostAddress() + " Terminated from client side\n");
+			connection.STATUS=false;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

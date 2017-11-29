@@ -82,17 +82,17 @@ public class Handle implements Closeable {
 		flush();
 	}
 
-	public void writeResources(String[] path, int[] type) throws IOException {
+	public void writeResources(String[] path, int[][] type) throws IOException {
 		writeEnum(MessageType.RESOURCE_DATA);
 		writeInt(path.length);
 		for (int i = 0; i < path.length; i++) {
 			BufferedImage img;
-			if (type[i] == 0)
+			if (type[i][1] == -1 && type[i][0] == 0)
 				img = toBufferedImage(ImageIO.read(new File(path[i])).getScaledInstance(TILE_SIZE, TILE_SIZE, Image.SCALE_SMOOTH));
-			else if (type[i] == 1)
+			else if (type[i][1] == -1 && type[i][0] == 1)
 				img = toBufferedImage(ImageIO.read(new File(path[i])).getScaledInstance(COMPRESSION, COMPRESSION, Image.SCALE_SMOOTH));
 			else
-				img = ImageIO.read(new File(path[i]));
+				img = toBufferedImage(ImageIO.read(new File(path[i])).getScaledInstance(type[i][0], type[i][1], Image.SCALE_SMOOTH));
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ImageIO.write(img, "jpg", baos);
 			String base64String = new String(Base64.getEncoder().encode(baos.toByteArray()));
@@ -178,7 +178,7 @@ public class Handle implements Closeable {
 		int height = readInt();
 		writeEnum(MessageType.TERRAIN_REQUEST);
 		writeInt(COMPRESSION);
-		writeIntArray2D(RPS.CHARACTER.w.getTerrain(x, y, width, height));
+		writeIntArray2D(RPS.CHARACTER.w.getTerrain(x / COMPRESSION - width / 2, y / COMPRESSION - height / 2, width, height));
 		flush();
 	}
 
