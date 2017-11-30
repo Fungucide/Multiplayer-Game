@@ -53,7 +53,7 @@ public class Server implements Runnable {
 				MAX_REFRESH_RATE = Integer.parseInt(in[1]);
 				break;
 			case "maxWorldUpdate":
-				MAX_WORLD_UPDATE=Long.parseLong(in[1]);
+				MAX_WORLD_UPDATE = Long.parseLong(in[1]);
 			}
 		}
 
@@ -77,6 +77,7 @@ public class Server implements Runnable {
 				log.log(LogMessageType.SERVER, "Begining Conection to:" + sock.getInetAddress().getHostAddress());
 				Connection c = new Connection(idStack.pop(), sock.getInetAddress().getHostAddress(), "", 0, "");
 				RemoteProcessServer rps = new RemoteProcessServer(sock, this, c, MAX_REFRESH_RATE, TOKEN, PROTOCOL_VERSION, COMPRESSION, TILE_SIZE);
+				c.setRPS(rps);
 				clients.getConnectionTableModel().c.add(c);
 				connectionUpdate();
 				log.log(LogMessageType.SERVER, "Handle object created for " + sock.getInetAddress().getHostAddress());
@@ -87,16 +88,28 @@ public class Server implements Runnable {
 
 	}
 
-	public void remove(Connection c) {
+	public boolean remove(Connection c) {
+		boolean res = false;
 		for (int i = 0; i < clients.getConnectionTableModel().c.size(); i++) {
 			if (clients.getConnectionTableModel().c.get(i).ID == c.ID) {
 				clients.getConnectionTableModel().c.remove(i);
+				res = true;
 				break;
 			}
 		}
 		active.remove(c.USERNAME);
 		idStack.push(c.ID);
 		connectionUpdate();
+		return res;
+	}
+
+	public Connection get(String username) {
+		for (int i = 0; i < clients.getConnectionTableModel().c.size(); i++) {
+			if (clients.getConnectionTableModel().c.get(i).USERNAME.equals(username)) {
+				return clients.getConnectionTableModel().c.get(i);
+			}
+		}
+		return null;
 	}
 
 	public void connectionUpdate() {

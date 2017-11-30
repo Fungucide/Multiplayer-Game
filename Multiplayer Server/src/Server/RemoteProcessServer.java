@@ -1,5 +1,6 @@
 package Server;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
@@ -9,13 +10,14 @@ import GUI.Connection;
 import GUI.LogMessageType;
 import GUI.Server;
 
-public class RemoteProcessServer implements Runnable {
+public class RemoteProcessServer implements Runnable, Closeable {
 
 	private Handle h;
 	private Socket socket;
 	private final int PROTOCOL_VERSION, TILE_SIZE, COMPRESSION, MAX_REFRESH_RATE;
 	public Connection connection;
 	public final Server SERVER;
+	private boolean serverStop = false;
 
 	/**
 	 * Temporary Code For Testing Char Object will most likely be moved to another
@@ -59,23 +61,40 @@ public class RemoteProcessServer implements Runnable {
 			CHARACTER.setWorld(SERVER.STARTING_WORLD);
 			connection.setChar(CHARACTER);
 			long time;
-			h.writeResources(SERVER.STARTING_WORLD.getResources(),SERVER.STARTING_WORLD.getType());
+			h.writeResources(SERVER.STARTING_WORLD.getResources(), SERVER.STARTING_WORLD.getType());
 			while (true) {
 				time = System.currentTimeMillis();
 				h.writeCharacter();
 				h.getCharacterMove();
 				h.terraintRequest();
-				while (System.currentTimeMillis() - time < MAX_REFRESH_RATE);
+				while (System.currentTimeMillis() - time < MAX_REFRESH_RATE)
+					;
 				connection.REFRESH_RATE = System.currentTimeMillis() - time;
 			}
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block
 			h.close();
+			try {
+				socket.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 			SERVER.remove(connection);
-			SERVER.log.log(LogMessageType.SERVER, "Connection to " + socket.getInetAddress().getHostAddress() + " Terminated from client side\n");
-			connection.STATUS=false;
+			if (!serverStop)
+				SERVER.log.log(LogMessageType.SERVER, "Connection to " + socket.getInetAddress().getHostAddress() + " Terminated from client side");
+			connection.STATUS = false;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void close() throws IOException {
+		// TODO Auto-generated method stub
+		serverStop = true;
+		h.close();
+		socket.close();
+		SERVER.remove(connection);
+		connection.STATUS = false;
 	}
 }

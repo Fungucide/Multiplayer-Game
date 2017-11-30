@@ -4,5 +4,7 @@ public enum LogMessageType {
 	SERVER,
 	CLIENT,
 	DATA,
-	COMMAND
+	COMMAND,
+	MESSAGE,
+	ERROR
 }

@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 
 import Framework.Char;
+import Server.RemoteProcessServer;
 
 public class Connection {
 	public final int ID;
@@ -15,6 +16,7 @@ public class Connection {
 	public final JButton BUTTON;
 	public Char c;
 	public boolean STATUS= true;
+	public RemoteProcessServer rps;
 
 	public Connection(int id, String address, String username, long refreshRate, String characterClass) {
 		ID = id;
@@ -34,6 +36,10 @@ public class Connection {
 		});
 	}
 
+	public void setRPS(RemoteProcessServer rps) {
+		this.rps=rps;
+	}
+	
 	public void setChar(Char c) {
 		this.c = c;
 	}
