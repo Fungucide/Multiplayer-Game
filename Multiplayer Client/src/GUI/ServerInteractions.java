@@ -2,8 +2,11 @@ package GUI;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.SocketException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
+import javax.swing.JOptionPane;
 
 import Client.RemoteProcessClient;
 import Client.Terrain;
@@ -65,7 +68,8 @@ public class ServerInteractions implements Runnable {
 				r.data = terrain.data;
 				r.repaint();
 			} catch (IOException e) {
-				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Connection To Server Lost", "Warning", JOptionPane.ERROR_MESSAGE);
+				break;
 			}
 		}
 	}

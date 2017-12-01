@@ -2,6 +2,7 @@ package GUI;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.Socket;
 
 import javax.swing.JButton;
 
@@ -9,21 +10,23 @@ import Framework.Char;
 import Server.RemoteProcessServer;
 
 public class Connection {
+	public final Socket SOCKET;
 	public final int ID;
 	public final String ADDRESS;
 	public long REFRESH_RATE;
 	public String CHARACTER_CLASS, USERNAME;
 	public final JButton BUTTON;
 	public Char c;
-	public boolean STATUS= true;
+	public boolean STATUS = true;
 	public RemoteProcessServer rps;
 
-	public Connection(int id, String address, String username, long refreshRate, String characterClass) {
+	public Connection(int id, String address, String username, long refreshRate, String characterClass, Socket socket) {
 		ID = id;
 		ADDRESS = address;
 		USERNAME = username;
 		REFRESH_RATE = refreshRate;
 		CHARACTER_CLASS = characterClass;
+		SOCKET = socket;
 		BUTTON = new JButton();
 		BUTTON.setText("Details");
 		PlayerDetailWindow pdw = new PlayerDetailWindow(this);
@@ -37,9 +40,9 @@ public class Connection {
 	}
 
 	public void setRPS(RemoteProcessServer rps) {
-		this.rps=rps;
+		this.rps = rps;
 	}
-	
+
 	public void setChar(Char c) {
 		this.c = c;
 	}

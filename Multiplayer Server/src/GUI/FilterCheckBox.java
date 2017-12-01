@@ -9,7 +9,6 @@ public class FilterCheckBox extends JCheckBoxMenuItem {
 	private boolean[] filter;
 	private JLogArea jla;
 	
-	//Take in JMenu and call the event when the button is pressed so that the log can update the text
 	public FilterCheckBox(String s,boolean[] filter,JLogArea jla) {
 		super(s);
 		this.filter= filter;

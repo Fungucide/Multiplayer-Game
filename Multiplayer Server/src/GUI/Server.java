@@ -1,31 +1,35 @@
 package GUI;
 
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Stack;
 
 import Framework.World;
 import Server.RemoteProcessServer;
 
-public class Server implements Runnable {
+public class Server implements Runnable, Closeable {
 	private int MAXCONNECTIONS, PORT, PROTOCOL_VERSION, TILE_SIZE, COMPRESSION, MAX_REFRESH_RATE;
-	private long MAX_WORLD_UPDATE;
+	protected long MAX_WORLD_UPDATE;
 	private String TOKEN;
 	public JLogArea log;
 	public ConnectionTable clients;
 	private final Stack<Integer> idStack;
 	public final HashSet<String> active;
 	public final World STARTING_WORLD;
+	public final HashMap<String, World> WORLDS;
 
 	public Server(String path, ConnectionTable clients, String worldPath) throws IOException {
 		this.clients = clients;
 		idStack = new Stack<Integer>();
 		active = new HashSet<String>();
+		WORLDS = new HashMap<String,World>();
 		BufferedReader br = new BufferedReader(new FileReader(new File(path)));
 		String[] in;
 		while (br.ready()) {
@@ -58,6 +62,7 @@ public class Server implements Runnable {
 		}
 
 		STARTING_WORLD = new World(worldPath, MAX_WORLD_UPDATE);
+		WORLDS.put("STARTING_WORLD", STARTING_WORLD);
 		br.close();
 	}
 
@@ -75,7 +80,7 @@ public class Server implements Runnable {
 				log.log(LogMessageType.SERVER, "Waiting for connection....");
 				Socket sock = serverSocket.accept();
 				log.log(LogMessageType.SERVER, "Begining Conection to:" + sock.getInetAddress().getHostAddress());
-				Connection c = new Connection(idStack.pop(), sock.getInetAddress().getHostAddress(), "", 0, "");
+				Connection c = new Connection(idStack.pop(), sock.getInetAddress().getHostAddress(), "", 0, "", sock);
 				RemoteProcessServer rps = new RemoteProcessServer(sock, this, c, MAX_REFRESH_RATE, TOKEN, PROTOCOL_VERSION, COMPRESSION, TILE_SIZE);
 				c.setRPS(rps);
 				clients.getConnectionTableModel().c.add(c);
@@ -124,6 +129,17 @@ public class Server implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void close() throws IOException {
+		log.log(LogMessageType.SERVER, "Begining to disconnect " + clients.getConnectionTableModel().c.size() + " users");
+		for (Connection c : clients.getConnectionTableModel().c) {
+			c.SOCKET.close();
+			log.log(LogMessageType.SERVER, "User " + c.USERNAME + " disconnected");
+		}
+		clients.getConnectionTableModel().c.clear();
+		log.log(LogMessageType.SERVER, "User List Cleared");
 	}
 
 }

@@ -2,9 +2,15 @@ package GUI;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JTextField;
+
+import Framework.World;
 
 public class CommandLine extends JTextField {
 
@@ -19,36 +25,81 @@ public class CommandLine extends JTextField {
 		addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent arg0) {
-				if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
-					command = getText();
-					setText("");
-					if (command.startsWith("/") && !command.startsWith("//")) {
-						String[] seg = command.split(" ");
-						Connection c;
-						switch (seg[0].toLowerCase()) {
-						case "/disconnect":
-							c = server.get(seg[1]);
-							if (c != null) {
-								try {
-									c.rps.close();
-								} catch (IOException e) {
-									e.printStackTrace();
+				try {
+					if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
+						command = getText();
+						setText("");
+						if (command.startsWith("/") && !command.startsWith("//")) {
+							ArrayList<String> seg = new ArrayList<String>();
+							Matcher m = Pattern.compile("\"([^\"]*)\"|(\\S+)").matcher(command);
+							while (m.find()) {
+								if (m.group(1) != null) {
+									seg.add(m.group(1));
+								} else {
+									seg.add(m.group(2));
 								}
-								logArea.log(LogMessageType.COMMAND, "User " + seg[1] + " connection closed successful");
-							} else {
-								logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.ERROR }, "User " + seg[1] + " connection closed unsuccessful");
 							}
-							break;
+							switch (seg.get(0).toLowerCase()) {
+							case "/disconnect":
+								if (disconnect(seg.get(1)))
+									logArea.log(LogMessageType.COMMAND, "User " + seg.get(1) + " connection closed successful");
+								else
+									logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.ERROR }, "User " + seg.get(1) + " connection closed unsuccessful");
+								break;
+							case "/close":
+								server.close();
+								break;
 
-						default:
-							logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.ERROR },"No Such Command \""+seg[0]+"\" Exists");
-							break;
+							case "/loadworld":
+								loadWorld(seg.get(1), seg.get(2));
+								break;
+							default:
+								logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.ERROR }, "No Such Command \"" + seg.get(0) + "\" Exists");
+								break;
+							}
+						} else {
+							logArea.log(LogMessageType.MESSAGE, command);
 						}
-					} else {
-						logArea.log(LogMessageType.MESSAGE, command);
 					}
+				} catch (IOException e) {
+
 				}
 			}
 		});
+	}
+
+	public boolean disconnect(String username) {
+		Connection c = server.get(username);
+		if (c != null) {
+			try {
+				c.rps.close();
+				return true;
+			} catch (IOException e) {
+				e.printStackTrace();
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	public void loadWorld(String name, String path) {
+		File f = new File(path);
+		if (!f.exists()) {
+			logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.ERROR }, " File " + path + " not found");
+			return;
+		} else if (server.WORLDS.containsKey(name)) {
+			logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.ERROR }, " World " + name + " exists already");
+			return;
+		}
+		World w;
+		try {
+			w = new World(path, server.MAX_WORLD_UPDATE);
+		} catch (IOException e) {
+			logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.ERROR }, " Error reading file " + path);
+			return;
+		}
+		server.WORLDS.put(name, w);
+		logArea.log(LogMessageType.COMMAND, " World " + name + " loaded sucessfully");
 	}
 }

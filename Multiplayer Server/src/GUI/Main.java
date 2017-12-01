@@ -1,6 +1,7 @@
 package GUI;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.EventQueue;
 import java.io.IOException;
 
@@ -60,15 +61,15 @@ public class Main {
 	 */
 	private void initialize() {
 
+		connectionScrollPane = new JScrollPane();
+		logScrollPane = new JScrollPane();
 		frmConnectionManager = new JFrame();
 		tm = new ConnectionTableModel();
 		connectionTable = new ConnectionTable(tm);
 		logTextArea = new JLogArea();
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		logPanel = new JPanel();
-		logScrollPane = new JScrollPane();
 		connectionPanel = new JPanel();
-		connectionScrollPane = new JScrollPane();
 		menuBar = new JMenuBar();
 		filterMenu = new JMenu("Filter");
 		filters = new FilterCheckBox[LogMessageType.values().length];
@@ -111,7 +112,6 @@ public class Main {
 
 		logTextArea.setEditable(false);
 		logScrollPane.setViewportView(logTextArea);
-		
 		
 		tabbedPane.addTab("Connections", null, connectionPanel, null);
 		connectionPanel.setLayout(new BorderLayout(0, 0));
