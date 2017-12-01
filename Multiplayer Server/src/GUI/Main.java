@@ -111,7 +111,8 @@ public class Main {
 
 		logTextArea.setEditable(false);
 		logScrollPane.setViewportView(logTextArea);
-
+		
+		
 		tabbedPane.addTab("Connections", null, connectionPanel, null);
 		connectionPanel.setLayout(new BorderLayout(0, 0));
 

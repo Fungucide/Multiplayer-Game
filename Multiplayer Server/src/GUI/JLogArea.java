@@ -1,13 +1,18 @@
 package GUI;
 
+import java.awt.Color;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 
-public class JLogArea extends JTextArea {
+public class JLogArea extends JTextPane {
 	private ArrayList<LogMessage> log;
 	private final int MAX_SIZE = 10000;
 
@@ -15,12 +20,11 @@ public class JLogArea extends JTextArea {
 	private int type = 0;// Union=0 Intersect=1
 
 	public JLogArea() {
+		super();
 		log = new ArrayList<LogMessage>();
-	}
-
-	@Deprecated
-	public void append(String s) {
-		super.append(s);
+		setText("Test");
+		setVisible(true);
+		System.out.println(getHeight() + " " + getWidth());
 	}
 
 	public void log(LogMessageType lmt, String message) {
@@ -49,7 +53,7 @@ public class JLogArea extends JTextArea {
 
 	public void update() {
 		setText("");
-		for (int i = log.size() - 1; i >= 0; i--) {
+		for (int i = 0; i < log.size(); i++) {
 			LogMessage lm = log.get(i);
 			boolean flag;
 			if (type == 0) {
@@ -79,12 +83,25 @@ public class JLogArea extends JTextArea {
 			}
 			if (!flag)
 				continue;
-			super.append(" [" + lm.time + "]");
+			append(" [" + lm.time + "]", Color.BLACK);
 			for (LogMessageType lmt : lm.lmt) {
-				super.append("[" + lmt.toString() + "]");
+				append("[" + lmt.toString() + "]", lmt.getColor());
 			}
-			super.append(": " + lm.message + "\n");
+			append(": " + lm.message + "\n", Color.BLACK);
 		}
+	}
+
+	private void append(String msg, Color c) {
+		StyleContext sc = StyleContext.getDefaultStyleContext();
+		AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, c);
+
+		aset = sc.addAttribute(aset, StyleConstants.FontFamily, "Lucida Console");
+		aset = sc.addAttribute(aset, StyleConstants.Alignment, StyleConstants.ALIGN_JUSTIFIED);
+
+		int len = getDocument().getLength();
+		setCaretPosition(len);
+		setCharacterAttributes(aset, false);
+		replaceSelection(msg);
 	}
 }
 

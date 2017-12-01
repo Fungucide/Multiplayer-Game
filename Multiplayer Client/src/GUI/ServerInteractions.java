@@ -46,7 +46,8 @@ public class ServerInteractions implements Runnable {
 
 	public void update() {
 		/**
-		 * Temporary Will Add extra message to know if extra resources need to be loaded in.
+		 * Temporary Will Add extra message to know if extra resources need to be loaded
+		 * in.
 		 */
 		try {
 			r.setResources(rpc.getResources());

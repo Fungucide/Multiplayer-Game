@@ -26,7 +26,7 @@ public class CommandLine extends JTextField {
 						String[] seg = command.split(" ");
 						Connection c;
 						switch (seg[0].toLowerCase()) {
-						case "/close":
+						case "/disconnect":
 							c = server.get(seg[1]);
 							if (c != null) {
 								try {
@@ -41,6 +41,7 @@ public class CommandLine extends JTextField {
 							break;
 
 						default:
+							logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.ERROR },"No Such Command \""+seg[0]+"\" Exists");
 							break;
 						}
 					} else {
