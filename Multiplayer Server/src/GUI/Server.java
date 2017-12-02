@@ -62,7 +62,7 @@ public class Server implements Runnable, Closeable {
 		}
 
 		STARTING_WORLD = new World(worldPath, MAX_WORLD_UPDATE);
-		WORLDS.put("STARTING_WORLD", STARTING_WORLD);
+		WORLDS.put("STARTING WORLD", STARTING_WORLD);
 		br.close();
 	}
 

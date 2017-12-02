@@ -48,18 +48,10 @@ public class ServerInteractions implements Runnable {
 	}
 
 	public void update() {
-		/**
-		 * Temporary Will Add extra message to know if extra resources need to be loaded
-		 * in.
-		 */
-		try {
-			r.setResources(rpc.getResources());
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
 		while (true) {
 			try {
+				if (rpc.dataUpdate())
+					r.setResources(rpc.getResources());
 				rpc.getCharacter();
 				rpc.moveCharacter(xMove, yMove, 0, false);
 				terrain = rpc.requestTerrain(r.getWidth() / r.getCompression() + 2, r.getHeight() / r.getCompression() + 1);

@@ -3,7 +3,16 @@ package GUI;
 import java.awt.Color;
 
 public enum LogMessageType {
-	SERVER(Color.BLACK), CLIENT(Color.BLACK), DATA(Color.BLACK), COMMAND(Color.BLACK), MESSAGE(Color.BLACK), ERROR(Color.RED);
+	SERVER(Color.BLUE),
+	CLIENT(Color.GREEN),
+	DATA(Color.BLACK),
+	COMMAND(Color.GRAY),
+	MESSAGE(Color.BLACK),
+	ERROR(Color.RED),
+	DISCONNECT(Color.GRAY),
+	CLOSE(Color.GRAY),
+	LOAD_WORLD(Color.GRAY),
+	SET_WORLD(Color.GRAY);
 
 	private final Color c;
 

@@ -12,6 +12,7 @@ import GUI.Server;
 
 public class RemoteProcessServer implements Runnable, Closeable {
 
+	public boolean updateResources = true;
 	private Handle h;
 	private Socket socket;
 	private final int PROTOCOL_VERSION, TILE_SIZE, COMPRESSION, MAX_REFRESH_RATE;
@@ -61,8 +62,10 @@ public class RemoteProcessServer implements Runnable, Closeable {
 			CHARACTER.setWorld(SERVER.STARTING_WORLD);
 			connection.setChar(CHARACTER);
 			long time;
-			h.writeResources(SERVER.STARTING_WORLD.getResources(), SERVER.STARTING_WORLD.getType());
 			while (true) {
+				h.dataUpdate(updateResources);
+				if (updateResources)
+					h.writeResources(connection.c.w.getResources(), connection.c.w.getType());
 				time = System.currentTimeMillis();
 				h.writeCharacter();
 				h.getCharacterMove();

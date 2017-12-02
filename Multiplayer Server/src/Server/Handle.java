@@ -82,6 +82,12 @@ public class Handle implements Closeable {
 		flush();
 	}
 
+	public void dataUpdate(boolean update) throws IOException {
+		writeEnum(MessageType.DATA_UPDATE);
+		writeBoolean(update);
+		flush();
+	}
+
 	public void writeResources(String[] path, int[][] type) throws IOException {
 		writeEnum(MessageType.RESOURCE_DATA);
 		writeInt(path.length);

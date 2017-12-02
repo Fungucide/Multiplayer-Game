@@ -57,6 +57,11 @@ public class RemoteProcessClient implements Closeable {
 		flush();
 	}
 
+	public boolean dataUpdate() throws IOException {
+		ensureMessageType(readEnum(MessageType.class), MessageType.DATA_UPDATE);
+		return readBoolean();
+	}
+
 	public int[] getGraphic() throws IOException {
 		ensureMessageType(readEnum(MessageType.class), MessageType.GRAPHIC_DATA);
 		int[] data = new int[2];

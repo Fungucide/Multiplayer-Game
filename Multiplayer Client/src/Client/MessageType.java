@@ -8,5 +8,6 @@ public enum MessageType {
     LOGIN_REQUEST,
     CHARACTER_DATA,
     CHARACTER_MOVE,
-    TERRAIN_REQUEST
+    TERRAIN_REQUEST,
+    DATA_UPDATE
 }
