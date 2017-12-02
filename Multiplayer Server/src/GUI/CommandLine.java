@@ -74,7 +74,7 @@ public class CommandLine extends JTextField {
 		Connection c = server.get(username);
 		if (c != null) {
 			try {
-				c.rps.close();
+				c.ci.close();
 				logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DISCONNECT }, "User " + username + " connection closed successful");
 			} catch (IOException e) {
 				logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DISCONNECT, LogMessageType.ERROR }, "User " + username + " not found");
@@ -115,7 +115,7 @@ public class CommandLine extends JTextField {
 		}
 
 		c.c.setWorld(w);
-		c.rps.updateResources = true;
+		c.ci.updateResources = true;
 		logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.SET_WORLD }, " User " + user + " successfully moved to world " + world);
 
 	}

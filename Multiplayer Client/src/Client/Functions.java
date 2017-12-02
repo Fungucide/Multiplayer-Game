@@ -1,17 +1,14 @@
-package Server;
+package Client;
 
-import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -20,15 +17,7 @@ import java.util.Base64;
 
 import javax.imageio.ImageIO;
 
-import GUI.LogMessageType;
-
-public class Handle implements Closeable {
-
-	private final String TOKEN;
-	private final int PROTOCOL_VERSION;
-	private final int COMPRESSION;
-	private final int TILE_SIZE;
-	private final RemoteProcessServer RPS;
+public class Functions implements Closeable {
 
 	private static final int BUFFER_SIZE_BYTES = 1 << 20;
 	private static final ByteOrder PROTOCOL_BYTE_ORDER = ByteOrder.LITTLE_ENDIAN;
@@ -37,154 +26,101 @@ public class Handle implements Closeable {
 
 	private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
+	private final Socket socket;
 	private final InputStream inputStream;
 	private final OutputStream outputStream;
 	private final ByteArrayOutputStream outputStreamBuffer;
-	private final Socket SOCKET;
 
-	public Handle(RemoteProcessServer rps, Socket socket, String t, int pv, int c, int ts) throws IOException {
-		RPS = rps;
-		SOCKET = socket;
-		TOKEN = t;
-		PROTOCOL_VERSION = pv;
-		COMPRESSION = c;
-		TILE_SIZE = ts;
+	public Char c = new Char();
+
+	public Functions(String host, int port) throws IOException {
+		socket = new Socket();
 		socket.setSendBufferSize(BUFFER_SIZE_BYTES);
 		socket.setReceiveBufferSize(BUFFER_SIZE_BYTES);
 		socket.setTcpNoDelay(true);
+		socket.connect(new InetSocketAddress(host, port));
 
 		inputStream = socket.getInputStream();
 		outputStream = socket.getOutputStream();
 		outputStreamBuffer = new ByteArrayOutputStream(BUFFER_SIZE_BYTES);
-
 	}
 
-	public boolean verifyToken() throws IOException {
-		ensureMessageType(readEnum(MessageType.class), MessageType.AUTHENTICATION_TOKEN);
-		if (readString().equals(TOKEN))
-			return true;
-		else
-			return false;
-	}
-
-	public boolean verifyProtocolVersion() throws IOException {
-		ensureMessageType(readEnum(MessageType.class), MessageType.PROTOCOL_VERSION);
-		if (readInt() == PROTOCOL_VERSION)
-			return true;
-		else
-			return false;
-	}
-
-	public void writeGraphic() throws IOException {
-		writeEnum(MessageType.GRAPHIC_DATA);
-		writeInt(TILE_SIZE);
-		writeInt(COMPRESSION);
+	public void writeTokenMessage(String token) throws IOException {
+		writeEnum(MessageType.AUTHENTICATION_TOKEN);
+		writeString(token);
 		flush();
 	}
 
-	public void dataUpdate(boolean update) throws IOException {
-		writeEnum(MessageType.DATA_UPDATE);
-		writeBoolean(update);
+	public void writeProtocolVersionMessage() throws IOException {
+		writeEnum(MessageType.PROTOCOL_VERSION);
+		writeInt(0);
 		flush();
 	}
 
-	public void writeResources(String[] path, int[][] type) throws IOException {
-		writeEnum(MessageType.RESOURCE_DATA);
-		writeInt(path.length);
-		for (int i = 0; i < path.length; i++) {
-			BufferedImage img;
-			if (type[i][1] == -1 && type[i][0] == 0)
-				img = toBufferedImage(ImageIO.read(new File(path[i])).getScaledInstance(TILE_SIZE, TILE_SIZE, Image.SCALE_SMOOTH));
-			else if (type[i][1] == -1 && type[i][0] == 1)
-				img = toBufferedImage(ImageIO.read(new File(path[i])).getScaledInstance(COMPRESSION, COMPRESSION, Image.SCALE_SMOOTH));
-			else
-				img = toBufferedImage(ImageIO.read(new File(path[i])).getScaledInstance(type[i][0], type[i][1], Image.SCALE_SMOOTH));
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ImageIO.write(img, "jpg", baos);
-			String base64String = new String(Base64.getEncoder().encode(baos.toByteArray()));
-			writeString(base64String);
+	public boolean dataUpdate() throws IOException {
+		ensureMessageType(readEnum(MessageType.class), MessageType.DATA_UPDATE);
+		return readBoolean();
+	}
+
+	public int[] getGraphic() throws IOException {
+		ensureMessageType(readEnum(MessageType.class), MessageType.GRAPHIC_DATA);
+		int[] data = new int[2];
+		data[0] = readInt();
+		data[1] = readInt();
+		return data;
+	}
+
+	public BufferedImage[] getResources() throws IOException {
+		BufferedImage[] resources;
+		ensureMessageType(readEnum(MessageType.class), MessageType.RESOURCE_DATA);
+		resources = new BufferedImage[readInt()];
+		for (int i = 0; i < resources.length; i++) {
+			byte[] arr = Base64.getDecoder().decode(readString());
+			resources[i] = ImageIO.read(new ByteArrayInputStream(arr));
 		}
-		flush();
+		return resources;
 	}
 
-	private static BufferedImage toBufferedImage(Image img) {
-		if (img instanceof BufferedImage)
-			return (BufferedImage) img;
-		BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
-		Graphics2D bGr = bimage.createGraphics();
-		bGr.drawImage(img, 0, 0, null);
-		bGr.dispose();
-		return bimage;
-	}
-
-	public void waitForLogin() throws IOException {
-		while (true) {
-			ensureMessageType(readEnum(MessageType.class), MessageType.LOGIN_REQUEST);
-			String user = readString();
-			String pass = readString();
-			if (RPS.SERVER.active.contains(user)) {
-				RPS.SERVER.log.log(LogMessageType.DATA, "Player already loged in with same username: " + user);
-				writeLoginStatus(false);
-				continue;
-			}
-			File f = new File("Data/Player/" + user + "/Password.pass");
-			if (!f.exists()) {
-				RPS.SERVER.log.log(LogMessageType.DATA, "Player does not exist: " + user);
-				writeLoginStatus(false);
-				continue;
-			}
-			FileReader fr = new FileReader(f);
-			BufferedReader br = new BufferedReader(fr);
-			if (pass.equals(br.readLine())) {
-				RPS.SERVER.log.log(LogMessageType.DATA, "Player loged in successfully: " + user);
-				RPS.connection.USERNAME = user;
-				RPS.SERVER.active.add(user);
-				RPS.SERVER.connectionUpdate();
-				writeLoginStatus(true);
-				break;
-			} else {
-				RPS.SERVER.log.log(LogMessageType.DATA, "Player login rejected: " + user);
-				writeLoginStatus(false);
-			}
-		}
-	}
-
-	public void writeLoginStatus(boolean status) throws IOException {
+	public void loginRequest(String user, String pass) throws IOException {
 		writeEnum(MessageType.LOGIN_REQUEST);
-		writeBoolean(status);
+		writeString(user);
+		writeString(pass);
 		flush();
 	}
 
-	public void writeCharacter() throws IOException {
-		writeEnum(MessageType.CHARACTER_DATA);
-		writeInt(RPS.CHARACTER.getX());
-		writeInt(RPS.CHARACTER.getY());
-		writeInt(RPS.CHARACTER.getMaxHealth());
-		writeInt(RPS.CHARACTER.getHealth());
-		writeInt(RPS.CHARACTER.getAttack());
-		writeInt(RPS.CHARACTER.getMaxMana());
-		writeInt(RPS.CHARACTER.getMana());
-		writeInt(RPS.CHARACTER.getPower());
-		writeInt(RPS.CHARACTER.getSpeed());
-		flush();
+	public boolean loginStatus() throws IOException {
+		ensureMessageType(readEnum(MessageType.class), MessageType.LOGIN_REQUEST);
+		return readBoolean();
 	}
 
-	public void getCharacterMove() throws IOException {
-		ensureMessageType(readEnum(MessageType.class), MessageType.CHARACTER_MOVE);
-		RPS.CHARACTER.move(readInt(), readInt());
-		readInt();
-		readBoolean();
-	}
-
-	public void terraintRequest() throws IOException {
-		ensureMessageType(readEnum(MessageType.class), MessageType.TERRAIN_REQUEST);
-		int x = readInt();
-		int y = readInt();
-		int width = readInt();
-		int height = readInt();
+	public Terrain requestTerrain(int width, int height) throws IOException {
 		writeEnum(MessageType.TERRAIN_REQUEST);
-		writeInt(COMPRESSION);
-		writeIntArray2D(RPS.CHARACTER.w.getTerrain(x / COMPRESSION - width / 2, y / COMPRESSION - height / 2, width, height));
+		writeInt(c.getX());
+		writeInt(c.getY());
+		writeInt(width);
+		writeInt(height);
+		flush();
+
+		return readTerrain();
+	}
+
+	private Terrain readTerrain() throws IOException {
+		ensureMessageType(readEnum(MessageType.class), MessageType.TERRAIN_REQUEST);
+		int compress = readInt();
+		return new Terrain(readIntArray2D(), compress);
+	}
+
+	public void getCharacter() throws IOException {
+		ensureMessageType(readEnum(MessageType.class), MessageType.CHARACTER_DATA);
+		c.setStats(readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt());
+	}
+
+	public void moveCharacter(int xMove, int yMove, int direction, boolean attack) throws IOException {
+		writeEnum(MessageType.CHARACTER_MOVE);
+		writeInt(xMove);// X Movement
+		writeInt(yMove);// Y Movement
+		writeInt(direction);// Attack Direction
+		writeBoolean(attack);// Attacking?
 		flush();
 	}
 
@@ -456,6 +392,7 @@ public class Handle implements Closeable {
 		outputStreamBuffer.write(bytes);
 	}
 
+	@SuppressWarnings("NumericCastThatLosesPrecision")
 	private byte readByte() throws IOException {
 		int value = inputStream.read();
 
@@ -480,23 +417,19 @@ public class Handle implements Closeable {
 		outputStream.flush();
 	}
 
+	@SuppressWarnings("InterfaceNeverImplemented")
 	private interface ElementReader<E> {
 		E read() throws IOException;
 	}
 
+	@SuppressWarnings("InterfaceNeverImplemented")
 	private interface ElementWriter<E> {
 		void write(E element) throws IOException;
 	}
 
 	@Override
-	public void close() {
-		// TODO Auto-generated method stub
-		try {
-			SOCKET.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public void close() throws IOException {
+		socket.close();
 	}
 
 }

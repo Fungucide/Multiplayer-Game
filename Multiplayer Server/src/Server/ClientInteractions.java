@@ -10,10 +10,10 @@ import GUI.Connection;
 import GUI.LogMessageType;
 import GUI.Server;
 
-public class RemoteProcessServer implements Runnable, Closeable {
+public class ClientInteractions implements Runnable, Closeable {
 
 	public boolean updateResources = true;
-	private Handle h;
+	private Functions f;
 	private Socket socket;
 	private final int PROTOCOL_VERSION, TILE_SIZE, COMPRESSION, MAX_REFRESH_RATE;
 	public Connection connection;
@@ -26,7 +26,7 @@ public class RemoteProcessServer implements Runnable, Closeable {
 	 */
 	public Char CHARACTER;
 
-	public RemoteProcessServer(Socket socket, Server s, Connection connection, int mrr, String t, int pv, int c, int ts) {
+	public ClientInteractions(Socket socket, Server s, Connection connection, int mrr, String t, int pv, int c, int ts) {
 		/**
 		 * Temporary Stuff
 		 */
@@ -39,13 +39,13 @@ public class RemoteProcessServer implements Runnable, Closeable {
 		COMPRESSION = c;
 		try {
 
-			h = new Handle(this, socket, t, PROTOCOL_VERSION, COMPRESSION, TILE_SIZE);
+			f = new Functions(this, socket, t, PROTOCOL_VERSION, COMPRESSION, TILE_SIZE);
 			// Make sure everything is up to date
-			if (!h.verifyToken())
-				h.close();
-			if (!h.verifyProtocolVersion())
-				h.close();
-			h.writeGraphic();
+			if (!f.verifyToken())
+				f.close();
+			if (!f.verifyProtocolVersion())
+				f.close();
+			f.writeGraphic();
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -57,26 +57,26 @@ public class RemoteProcessServer implements Runnable, Closeable {
 	public void run() {
 		try {
 
-			h.waitForLogin();
+			f.waitForLogin();
 			CHARACTER = new Char(connection.USERNAME, 0);// Index value will be inputed later
 			CHARACTER.setWorld(SERVER.STARTING_WORLD);
 			connection.setChar(CHARACTER);
 			long time;
 			while (true) {
-				h.dataUpdate(updateResources);
+				f.dataUpdate(updateResources);
 				if (updateResources)
-					h.writeResources(connection.c.w.getResources(), connection.c.w.getType());
+					f.writeResources(connection.c.w.getResources(), connection.c.w.getType());
 				time = System.currentTimeMillis();
-				h.writeCharacter();
-				h.getCharacterMove();
-				h.terraintRequest();
+				f.writeCharacter();
+				f.getCharacterMove();
+				f.terraintRequest();
 				while (System.currentTimeMillis() - time < MAX_REFRESH_RATE)
 					;
 				connection.REFRESH_RATE = System.currentTimeMillis() - time;
 			}
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block
-			h.close();
+			f.close();
 			try {
 				socket.close();
 			} catch (IOException e1) {
@@ -95,7 +95,7 @@ public class RemoteProcessServer implements Runnable, Closeable {
 	public void close() throws IOException {
 		// TODO Auto-generated method stub
 		serverStop = true;
-		h.close();
+		f.close();
 		socket.close();
 		SERVER.remove(connection);
 		connection.STATUS = false;

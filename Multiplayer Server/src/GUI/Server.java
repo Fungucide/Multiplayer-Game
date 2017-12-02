@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.Stack;
 
 import Framework.World;
-import Server.RemoteProcessServer;
+import Server.ClientInteractions;
 
 public class Server implements Runnable, Closeable {
 	private int MAXCONNECTIONS, PORT, PROTOCOL_VERSION, TILE_SIZE, COMPRESSION, MAX_REFRESH_RATE;
@@ -81,12 +81,12 @@ public class Server implements Runnable, Closeable {
 				Socket sock = serverSocket.accept();
 				log.log(LogMessageType.SERVER, "Begining Conection to:" + sock.getInetAddress().getHostAddress());
 				Connection c = new Connection(idStack.pop(), sock.getInetAddress().getHostAddress(), "", 0, "", sock);
-				RemoteProcessServer rps = new RemoteProcessServer(sock, this, c, MAX_REFRESH_RATE, TOKEN, PROTOCOL_VERSION, COMPRESSION, TILE_SIZE);
-				c.setRPS(rps);
+				ClientInteractions ci = new ClientInteractions(sock, this, c, MAX_REFRESH_RATE, TOKEN, PROTOCOL_VERSION, COMPRESSION, TILE_SIZE);
+				c.setCI(ci);
 				clients.getConnectionTableModel().c.add(c);
 				connectionUpdate();
 				log.log(LogMessageType.SERVER, "Handle object created for " + sock.getInetAddress().getHostAddress());
-				Thread t = new Thread(rps);
+				Thread t = new Thread(ci);
 				t.start();
 				log.log(LogMessageType.SERVER, "Connection to " + sock.getInetAddress().getHostAddress() + " passed on");
 			}

@@ -2,13 +2,12 @@ package GUI;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.net.SocketException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import javax.swing.JOptionPane;
 
-import Client.RemoteProcessClient;
+import Client.Functions;
 import Client.Terrain;
 
 public class ServerInteractions implements Runnable {
@@ -18,24 +17,24 @@ public class ServerInteractions implements Runnable {
 	private Render r;
 
 	private Terrain terrain;
-	private RemoteProcessClient rpc;
+	private Functions f;
 	public int xMove, yMove;
 
 	public boolean attemptLogin(String adress, int port, String username, char[] password) throws IOException, NoSuchAlgorithmException {
 		boolean result;
 		try {
-			rpc = new RemoteProcessClient(adress, port);
-			rpc.writeTokenMessage(TOKEN);
-			rpc.writeProtocolVersionMessage();
-			info = rpc.getGraphic();
+			f = new Functions(adress, port);
+			f.writeTokenMessage(TOKEN);
+			f.writeProtocolVersionMessage();
+			info = f.getGraphic();
 			byte[] bytes = new String(password).getBytes("UTF-8");
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			byte[] hash = md.digest(bytes);
 			BigInteger foo = new BigInteger(hash);
-			rpc.loginRequest(username, foo.toString(16));
-			result = rpc.loginStatus();
+			f.loginRequest(username, foo.toString(16));
+			result = f.loginStatus();
 		} finally {
-			if (rpc == null) {
+			if (f == null) {
 				return false;
 			}
 		}
@@ -50,11 +49,11 @@ public class ServerInteractions implements Runnable {
 	public void update() {
 		while (true) {
 			try {
-				if (rpc.dataUpdate())
-					r.setResources(rpc.getResources());
-				rpc.getCharacter();
-				rpc.moveCharacter(xMove, yMove, 0, false);
-				terrain = rpc.requestTerrain(r.getWidth() / r.getCompression() + 2, r.getHeight() / r.getCompression() + 1);
+				if (f.dataUpdate())
+					r.setResources(f.getResources());
+				f.getCharacter();
+				f.moveCharacter(xMove, yMove, 0, false);
+				terrain = f.requestTerrain(r.getWidth() / r.getCompression() + 2, r.getHeight() / r.getCompression() + 1);
 				r.x = getX();
 				r.y = getY();
 				r.data = terrain.data;
@@ -67,11 +66,11 @@ public class ServerInteractions implements Runnable {
 	}
 
 	public int getX() {
-		return rpc.c.getX();
+		return f.c.getX();
 	}
 
 	public int getY() {
-		return rpc.c.getY();
+		return f.c.getY();
 	}
 
 	@Override

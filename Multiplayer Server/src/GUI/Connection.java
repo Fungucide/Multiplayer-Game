@@ -7,7 +7,7 @@ import java.net.Socket;
 import javax.swing.JButton;
 
 import Framework.Char;
-import Server.RemoteProcessServer;
+import Server.ClientInteractions;
 
 public class Connection {
 	public final Socket SOCKET;
@@ -18,7 +18,7 @@ public class Connection {
 	public final JButton BUTTON;
 	public Char c;
 	public boolean STATUS = true;
-	public RemoteProcessServer rps;
+	public ClientInteractions ci;
 
 	public Connection(int id, String address, String username, long refreshRate, String characterClass, Socket socket) {
 		ID = id;
@@ -39,8 +39,8 @@ public class Connection {
 		});
 	}
 
-	public void setRPS(RemoteProcessServer rps) {
-		this.rps = rps;
+	public void setCI(ClientInteractions ci) {
+		this.ci = ci;
 	}
 
 	public void setChar(Char c) {

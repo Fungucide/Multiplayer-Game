@@ -1,14 +1,17 @@
-package Client;
+package Server;
 
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -17,7 +20,15 @@ import java.util.Base64;
 
 import javax.imageio.ImageIO;
 
-public class RemoteProcessClient implements Closeable {
+import GUI.LogMessageType;
+
+public class Functions implements Closeable {
+
+	private final String TOKEN;
+	private final int PROTOCOL_VERSION;
+	private final int COMPRESSION;
+	private final int TILE_SIZE;
+	private final ClientInteractions CI;
 
 	private static final int BUFFER_SIZE_BYTES = 1 << 20;
 	private static final ByteOrder PROTOCOL_BYTE_ORDER = ByteOrder.LITTLE_ENDIAN;
@@ -26,101 +37,154 @@ public class RemoteProcessClient implements Closeable {
 
 	private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
-	private final Socket socket;
 	private final InputStream inputStream;
 	private final OutputStream outputStream;
 	private final ByteArrayOutputStream outputStreamBuffer;
+	private final Socket SOCKET;
 
-	public Char c = new Char();
-
-	public RemoteProcessClient(String host, int port) throws IOException {
-		socket = new Socket();
+	public Functions(ClientInteractions rps, Socket socket, String t, int pv, int c, int ts) throws IOException {
+		CI = rps;
+		SOCKET = socket;
+		TOKEN = t;
+		PROTOCOL_VERSION = pv;
+		COMPRESSION = c;
+		TILE_SIZE = ts;
 		socket.setSendBufferSize(BUFFER_SIZE_BYTES);
 		socket.setReceiveBufferSize(BUFFER_SIZE_BYTES);
 		socket.setTcpNoDelay(true);
-		socket.connect(new InetSocketAddress(host, port));
 
 		inputStream = socket.getInputStream();
 		outputStream = socket.getOutputStream();
 		outputStreamBuffer = new ByteArrayOutputStream(BUFFER_SIZE_BYTES);
+
 	}
 
-	public void writeTokenMessage(String token) throws IOException {
-		writeEnum(MessageType.AUTHENTICATION_TOKEN);
-		writeString(token);
+	public boolean verifyToken() throws IOException {
+		ensureMessageType(readEnum(MessageType.class), MessageType.AUTHENTICATION_TOKEN);
+		if (readString().equals(TOKEN))
+			return true;
+		else
+			return false;
+	}
+
+	public boolean verifyProtocolVersion() throws IOException {
+		ensureMessageType(readEnum(MessageType.class), MessageType.PROTOCOL_VERSION);
+		if (readInt() == PROTOCOL_VERSION)
+			return true;
+		else
+			return false;
+	}
+
+	public void writeGraphic() throws IOException {
+		writeEnum(MessageType.GRAPHIC_DATA);
+		writeInt(TILE_SIZE);
+		writeInt(COMPRESSION);
 		flush();
 	}
 
-	public void writeProtocolVersionMessage() throws IOException {
-		writeEnum(MessageType.PROTOCOL_VERSION);
-		writeInt(0);
+	public void dataUpdate(boolean update) throws IOException {
+		writeEnum(MessageType.DATA_UPDATE);
+		writeBoolean(update);
 		flush();
 	}
 
-	public boolean dataUpdate() throws IOException {
-		ensureMessageType(readEnum(MessageType.class), MessageType.DATA_UPDATE);
-		return readBoolean();
-	}
-
-	public int[] getGraphic() throws IOException {
-		ensureMessageType(readEnum(MessageType.class), MessageType.GRAPHIC_DATA);
-		int[] data = new int[2];
-		data[0] = readInt();
-		data[1] = readInt();
-		return data;
-	}
-
-	public BufferedImage[] getResources() throws IOException {
-		BufferedImage[] resources;
-		ensureMessageType(readEnum(MessageType.class), MessageType.RESOURCE_DATA);
-		resources = new BufferedImage[readInt()];
-		for (int i = 0; i < resources.length; i++) {
-			byte[] arr = Base64.getDecoder().decode(readString());
-			resources[i] = ImageIO.read(new ByteArrayInputStream(arr));
+	public void writeResources(String[] path, int[][] type) throws IOException {
+		writeEnum(MessageType.RESOURCE_DATA);
+		writeInt(path.length);
+		for (int i = 0; i < path.length; i++) {
+			BufferedImage img;
+			if (type[i][1] == -1 && type[i][0] == 0)
+				img = toBufferedImage(ImageIO.read(new File(path[i])).getScaledInstance(TILE_SIZE, TILE_SIZE, Image.SCALE_SMOOTH));
+			else if (type[i][1] == -1 && type[i][0] == 1)
+				img = toBufferedImage(ImageIO.read(new File(path[i])).getScaledInstance(COMPRESSION, COMPRESSION, Image.SCALE_SMOOTH));
+			else
+				img = toBufferedImage(ImageIO.read(new File(path[i])).getScaledInstance(type[i][0], type[i][1], Image.SCALE_SMOOTH));
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ImageIO.write(img, "jpg", baos);
+			String base64String = new String(Base64.getEncoder().encode(baos.toByteArray()));
+			writeString(base64String);
 		}
-		return resources;
+		flush();
 	}
 
-	public void loginRequest(String user, String pass) throws IOException {
+	private static BufferedImage toBufferedImage(Image img) {
+		if (img instanceof BufferedImage)
+			return (BufferedImage) img;
+		BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+		Graphics2D bGr = bimage.createGraphics();
+		bGr.drawImage(img, 0, 0, null);
+		bGr.dispose();
+		return bimage;
+	}
+
+	public void waitForLogin() throws IOException {
+		while (true) {
+			ensureMessageType(readEnum(MessageType.class), MessageType.LOGIN_REQUEST);
+			String user = readString();
+			String pass = readString();
+			if (CI.SERVER.active.contains(user)) {
+				CI.SERVER.log.log(LogMessageType.DATA, "Player already loged in with same username: " + user);
+				writeLoginStatus(false);
+				continue;
+			}
+			File f = new File("Data/Player/" + user + "/Password.pass");
+			if (!f.exists()) {
+				CI.SERVER.log.log(LogMessageType.DATA, "Player does not exist: " + user);
+				writeLoginStatus(false);
+				continue;
+			}
+			FileReader fr = new FileReader(f);
+			BufferedReader br = new BufferedReader(fr);
+			if (pass.equals(br.readLine())) {
+				CI.SERVER.log.log(LogMessageType.DATA, "Player loged in successfully: " + user);
+				CI.connection.USERNAME = user;
+				CI.SERVER.active.add(user);
+				CI.SERVER.connectionUpdate();
+				writeLoginStatus(true);
+				break;
+			} else {
+				CI.SERVER.log.log(LogMessageType.DATA, "Player login rejected: " + user);
+				writeLoginStatus(false);
+			}
+		}
+	}
+
+	public void writeLoginStatus(boolean status) throws IOException {
 		writeEnum(MessageType.LOGIN_REQUEST);
-		writeString(user);
-		writeString(pass);
+		writeBoolean(status);
 		flush();
 	}
 
-	public boolean loginStatus() throws IOException {
-		ensureMessageType(readEnum(MessageType.class), MessageType.LOGIN_REQUEST);
-		return readBoolean();
-	}
-
-	public Terrain requestTerrain(int width, int height) throws IOException {
-		writeEnum(MessageType.TERRAIN_REQUEST);
-		writeInt(c.getX());
-		writeInt(c.getY());
-		writeInt(width);
-		writeInt(height);
+	public void writeCharacter() throws IOException {
+		writeEnum(MessageType.CHARACTER_DATA);
+		writeInt(CI.CHARACTER.getX());
+		writeInt(CI.CHARACTER.getY());
+		writeInt(CI.CHARACTER.getMaxHealth());
+		writeInt(CI.CHARACTER.getHealth());
+		writeInt(CI.CHARACTER.getAttack());
+		writeInt(CI.CHARACTER.getMaxMana());
+		writeInt(CI.CHARACTER.getMana());
+		writeInt(CI.CHARACTER.getPower());
+		writeInt(CI.CHARACTER.getSpeed());
 		flush();
-
-		return readTerrain();
 	}
 
-	private Terrain readTerrain() throws IOException {
+	public void getCharacterMove() throws IOException {
+		ensureMessageType(readEnum(MessageType.class), MessageType.CHARACTER_MOVE);
+		CI.CHARACTER.move(readInt(), readInt());
+		readInt();
+		readBoolean();
+	}
+
+	public void terraintRequest() throws IOException {
 		ensureMessageType(readEnum(MessageType.class), MessageType.TERRAIN_REQUEST);
-		int compress = readInt();
-		return new Terrain(readIntArray2D(), compress);
-	}
-
-	public void getCharacter() throws IOException {
-		ensureMessageType(readEnum(MessageType.class), MessageType.CHARACTER_DATA);
-		c.setStats(readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt());
-	}
-
-	public void moveCharacter(int xMove, int yMove, int direction, boolean attack) throws IOException {
-		writeEnum(MessageType.CHARACTER_MOVE);
-		writeInt(xMove);// X Movement
-		writeInt(yMove);// Y Movement
-		writeInt(direction);// Attack Direction
-		writeBoolean(attack);// Attacking?
+		int x = readInt();
+		int y = readInt();
+		int width = readInt();
+		int height = readInt();
+		writeEnum(MessageType.TERRAIN_REQUEST);
+		writeInt(COMPRESSION);
+		writeIntArray2D(CI.CHARACTER.w.getTerrain(x / COMPRESSION - width / 2, y / COMPRESSION - height / 2, width, height));
 		flush();
 	}
 
@@ -392,7 +456,6 @@ public class RemoteProcessClient implements Closeable {
 		outputStreamBuffer.write(bytes);
 	}
 
-	@SuppressWarnings("NumericCastThatLosesPrecision")
 	private byte readByte() throws IOException {
 		int value = inputStream.read();
 
@@ -417,19 +480,23 @@ public class RemoteProcessClient implements Closeable {
 		outputStream.flush();
 	}
 
-	@SuppressWarnings("InterfaceNeverImplemented")
 	private interface ElementReader<E> {
 		E read() throws IOException;
 	}
 
-	@SuppressWarnings("InterfaceNeverImplemented")
 	private interface ElementWriter<E> {
 		void write(E element) throws IOException;
 	}
 
 	@Override
-	public void close() throws IOException {
-		socket.close();
+	public void close() {
+		// TODO Auto-generated method stub
+		try {
+			SOCKET.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }

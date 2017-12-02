@@ -5,11 +5,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 
-import Client.RemoteProcessClient;
+import Client.Functions;
 
 public class Runner {
 
-	private final RemoteProcessClient remoteProcessClient;
+	private final Functions remoteProcessClient;
 	private final String token;
 
 	public static void main(String[] args) throws IOException {
@@ -17,7 +17,7 @@ public class Runner {
 	}
 
 	private Runner(String[] args) throws IOException {
-		remoteProcessClient = new RemoteProcessClient(args[0], Integer.parseInt(args[1]));
+		remoteProcessClient = new Functions(args[0], Integer.parseInt(args[1]));
 		token = args[2];
 	}
 
