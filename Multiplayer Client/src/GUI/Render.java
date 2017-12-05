@@ -23,6 +23,8 @@ public class Render extends JPanel {
 	private int rx, ry;
 	public int[][] data;
 	private int[][] rdata;
+	public int[][] charData;
+	private int[][] rCharData;
 	private BufferedImage[] worldResources, charResources;
 
 	public void setData(int tileSize, int compression) {
@@ -46,6 +48,7 @@ public class Render extends JPanel {
 		rx = x;
 		ry = y;
 		rdata = data;
+		rCharData = charData;
 		int xOff = -(rx % COMPRESSION);
 		int yOff = -(ry % COMPRESSION);
 		if (rdata != null && worldResources != null) {
@@ -65,6 +68,9 @@ public class Render extends JPanel {
 
 		if (charResources != null && CHARACTER != null) {
 			g.drawImage(charResources[CHARACTER.getGraphics()], (getWidth()) / 2 - Char.PLAYER_SIZE / 4, (getHeight()) / 2 - Char.PLAYER_SIZE / 4, this);
+			for (int i = 0; rCharData != null && i < rCharData.length; i++) {
+				g.drawImage(charResources[rCharData[i][0]], rCharData[i][1], rCharData[i][2], this);
+			}
 		}
 		g.drawOval(getWidth() / 2, getHeight() / 2, 1, 1);
 		g.setColor(Color.DARK_GRAY);

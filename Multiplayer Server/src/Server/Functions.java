@@ -16,6 +16,7 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Base64;
 
 import javax.imageio.ImageIO;
@@ -215,6 +216,23 @@ public class Functions implements Closeable {
 		if (actualType != expectedType) {
 			throw new IllegalArgumentException(String.format("Received wrong message [actual=%s, expected=%s].", actualType, expectedType));
 		}
+	}
+
+	public void characterDisplayRequest() throws IOException {
+		ensureMessageType(readEnum(MessageType.class), MessageType.CHAR_DISPLAY_REQUEST);
+		int tx = readInt();
+		int ty = readInt();
+		int bx = readInt();
+		int by = readInt();
+		ArrayList<int[]> al = CI.CHARACTER.w.getRenderData(tx, ty, bx, by);
+		writeEnum(MessageType.CHAR_DISPLAY_DATA);
+		writeInt(al.size());
+		for (int[] a : al) {
+			writeInt(a[0]);
+			writeInt(a[1]);
+			writeInt(a[2]);
+		}
+		flush();
 	}
 
 	private <E> E[] readArray(Class<E> elementClass, ElementReader<E> elementReader) throws IOException {

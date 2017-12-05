@@ -128,6 +128,28 @@ public class Functions implements Closeable {
 		return new Terrain(readIntArray2D(), compress);
 	}
 
+	public int[][] getCharDisplay(int width, int height) throws IOException {
+		writeEnum(MessageType.CHAR_DISPLAY_REQUEST);
+		writeInt(c.getX() + width / 2);
+		writeInt(c.getY() + height / 2);
+		writeInt(c.getX() - width / 2);
+		writeInt(c.getY() - height / 2);
+		flush();
+		return readCharDisplay();
+	}
+
+	private int[][] readCharDisplay() throws IOException {
+		ensureMessageType(readEnum(MessageType.class), MessageType.CHAR_DISPLAY_DATA);
+		int size = readInt();
+		int[][] a = new int[size][3];
+		for (int i = 0; i < size; i++) {
+			a[i][0] = readInt();
+			a[i][1] = readInt();
+			a[i][2] = readInt();
+		}
+		return a;
+	}
+
 	public void getCharacter() throws IOException {
 		ensureMessageType(readEnum(MessageType.class), MessageType.CHARACTER_DATA);
 		c.setStats(readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt());
