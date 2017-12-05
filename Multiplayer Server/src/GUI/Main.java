@@ -74,10 +74,10 @@ public class Main {
 		filterMenu = new JMenu("Filter");
 		filters = new FilterCheckBox[LogMessageType.values().length];
 		filter = new boolean[filters.length];
+		logTextArea.setFilter(filter);
 
 		try {
-			s = new Server("Data/Server/Server.dat", connectionTable, "Data/Server/StartWorld.world");
-			s.setLog(logTextArea);
+			s = new Server("Data/Server/Server.dat", connectionTable,logTextArea);
 			Thread t = new Thread(s);
 			t.start();
 		} catch (IOException e) {
@@ -134,11 +134,11 @@ public class Main {
 			filterMenu.add(filters[i]);
 		}
 
+		logTextArea.updateLog(true);
+		
 		typeBox = new FilterTypeCheckBox("Exact", logTextArea, type);
 		filterMenu.addSeparator();
 		filterMenu.add(typeBox);
-
-		logTextArea.setFilter(filter);
 
 		menuBar.add(filterMenu);
 		logScrollPane.setColumnHeaderView(menuBar);

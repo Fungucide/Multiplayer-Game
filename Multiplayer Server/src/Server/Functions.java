@@ -117,6 +117,26 @@ public class Functions implements Closeable {
 		return bimage;
 	}
 
+	@Deprecated
+	public void charGraphicUpdate(boolean update) throws IOException {
+		writeEnum(MessageType.CHAR_UPDATE);
+		writeBoolean(update);
+		flush();
+	}
+
+	public void charGraphics(String[] path) throws IOException {
+		writeEnum(MessageType.RESOURCE_DATA);
+		writeInt(path.length);
+		for (int i = 0; i < path.length; i++) {
+			BufferedImage img = toBufferedImage(ImageIO.read(new File(path[i])).getScaledInstance(TILE_SIZE, TILE_SIZE, Image.SCALE_SMOOTH));
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ImageIO.write(img, "jpg", baos);
+			String base64String = new String(Base64.getEncoder().encode(baos.toByteArray()));
+			writeString(base64String);
+		}
+		flush();
+	}
+
 	public void waitForLogin() throws IOException {
 		while (true) {
 			ensureMessageType(readEnum(MessageType.class), MessageType.LOGIN_REQUEST);

@@ -41,17 +41,17 @@ public class CommandLine extends JTextField {
 							}
 							switch (seg.get(0).toLowerCase()) {
 							case "/disconnect":
-								disconnect(seg.get(1));
+								server.disconnect(seg.get(1));
 								break;
 							case "/close":
 								server.close();
 								break;
 
 							case "/loadworld":
-								loadWorld(seg.get(1), seg.get(2));
+								server.loadWorld(seg.get(1), seg.get(2));
 								break;
 							case "/setworld":
-								setWorld(seg.get(1), seg.get(2));
+								server.setWorld(seg.get(1), seg.get(2));
 								break;
 							default:
 								logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.ERROR }, "No Such Command \"" + seg.get(0).substring(1) + "\" Exists");
@@ -70,53 +70,4 @@ public class CommandLine extends JTextField {
 		});
 	}
 
-	public void disconnect(String username) {
-		Connection c = server.get(username);
-		if (c != null) {
-			try {
-				c.ci.close();
-				logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DISCONNECT }, "User " + username + " connection closed successful");
-			} catch (IOException e) {
-				logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DISCONNECT, LogMessageType.ERROR }, "User " + username + " not found");
-			}
-		} else
-			logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DISCONNECT, LogMessageType.ERROR }, "User " + username + " connection closed unsuccessful");
-	}
-
-	public void loadWorld(String name, String path) {
-		File f = new File(path);
-		if (!f.exists()) {
-			logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.LOAD_WORLD, LogMessageType.ERROR }, " File " + path + " not found");
-			return;
-		} else if (server.WORLDS.containsKey(name)) {
-			logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.LOAD_WORLD, LogMessageType.ERROR }, " World " + name + " exists already");
-			return;
-		}
-		World w;
-		try {
-			w = new World(path, server.MAX_WORLD_UPDATE);
-		} catch (IOException e) {
-			logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.LOAD_WORLD, LogMessageType.ERROR }, " Error reading file " + path);
-			return;
-		}
-		server.WORLDS.put(name, w);
-		logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.LOAD_WORLD }, " World " + name + " loaded sucessfully");
-	}
-
-	public void setWorld(String user, String world) {
-		Connection c = server.get(user);
-		World w = server.WORLDS.get(world);
-		if (c == null) {
-			logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.SET_WORLD, LogMessageType.ERROR }, " User with username " + user + " not found");
-			return;
-		} else if (w == null) {
-			logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.SET_WORLD, LogMessageType.ERROR }, " World " + world + " does not exist");
-			return;
-		}
-
-		c.c.setWorld(w);
-		c.ci.updateResources = true;
-		logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.SET_WORLD }, " User " + user + " successfully moved to world " + world);
-
-	}
 }

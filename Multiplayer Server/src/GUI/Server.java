@@ -7,6 +7,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Stack;
@@ -17,20 +21,23 @@ import Server.ClientInteractions;
 public class Server implements Runnable, Closeable {
 	private int MAXCONNECTIONS, PORT, PROTOCOL_VERSION, TILE_SIZE, COMPRESSION, MAX_REFRESH_RATE;
 	protected long MAX_WORLD_UPDATE;
-	private String TOKEN;
+	private String TOKEN, CHAR_RESOURCES;
 	public JLogArea log;
 	public ConnectionTable clients;
 	private final Stack<Integer> idStack;
 	public final HashSet<String> active;
-	public final World STARTING_WORLD;
 	public final HashMap<String, World> WORLDS;
+	public final HashMap<String, Integer> CHAR_PIC;
 
-	public Server(String path, ConnectionTable clients, String worldPath) throws IOException {
+	public Server(String path, ConnectionTable clients,JLogArea log) throws IOException {
 		this.clients = clients;
+		this.log = log;
 		idStack = new Stack<Integer>();
 		active = new HashSet<String>();
-		WORLDS = new HashMap<String,World>();
+		WORLDS = new HashMap<String, World>();
+		CHAR_PIC = new HashMap<String, Integer>();
 		BufferedReader br = new BufferedReader(new FileReader(new File(path)));
+		String worldPath = "";
 		String[] in;
 		while (br.ready()) {
 			in = br.readLine().split("=");
@@ -58,16 +65,35 @@ public class Server implements Runnable, Closeable {
 				break;
 			case "maxWorldUpdate":
 				MAX_WORLD_UPDATE = Long.parseLong(in[1]);
+				break;
+			case "startWorld":
+				worldPath = in[1];
+				WORLDS.put("STARTING WORLD", new World(worldPath, MAX_WORLD_UPDATE));
+				break;
+			case "loadWorld":
+				loadWorld(in[1], in[2]);
+				break;
+			case "charResources":
+				CHAR_RESOURCES = in[1];
+				System.out.println("Path "+in[1]);
+				charResources();
+				break;
 			}
 		}
-
-		STARTING_WORLD = new World(worldPath, MAX_WORLD_UPDATE);
-		WORLDS.put("STARTING WORLD", STARTING_WORLD);
 		br.close();
 	}
 
-	public void setLog(JLogArea log) {
-		this.log = log;
+	private void charResources() throws IOException {
+		ArrayList<String> path = new ArrayList<String>();
+		Files.walk(Paths.get(CHAR_RESOURCES)).forEach(filePath -> {
+			if (Files.isRegularFile(filePath))
+			{
+				String name = filePath.getFileName().toString();
+				System.out.println(name.substring(0, name.indexOf('.')));
+				CHAR_PIC.put(name.substring(0, name.indexOf('.')), path.size());
+				path.add(filePath.toString());
+			}
+		});
 	}
 
 	public void open() throws IOException {
@@ -129,6 +155,56 @@ public class Server implements Runnable, Closeable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	public void disconnect(String username) {
+		Connection c = get(username);
+		if (c != null) {
+			try {
+				c.ci.close();
+				log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DISCONNECT }, "User " + username + " connection closed successful");
+			} catch (IOException e) {
+				log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DISCONNECT, LogMessageType.ERROR }, "User " + username + " not found");
+			}
+		} else
+			log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DISCONNECT, LogMessageType.ERROR }, "User " + username + " connection closed unsuccessful");
+	}
+
+	public void loadWorld(String name, String path) {
+		File f = new File(path);
+		if (!f.exists()) {
+			log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.LOAD_WORLD, LogMessageType.ERROR }, " File " + path + " not found");
+			return;
+		} else if (WORLDS.containsKey(name)) {
+			log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.LOAD_WORLD, LogMessageType.ERROR }, " World " + name + " exists already");
+			return;
+		}
+		World w;
+		try {
+			w = new World(path, MAX_WORLD_UPDATE);
+		} catch (IOException e) {
+			log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.LOAD_WORLD, LogMessageType.ERROR }, " Error reading file " + path);
+			return;
+		}
+		WORLDS.put(name, w);
+		log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.LOAD_WORLD }, " World " + name + " loaded sucessfully");
+	}
+
+	public void setWorld(String user, String world) {
+		Connection c = get(user);
+		World w = WORLDS.get(world);
+		if (c == null) {
+			log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.SET_WORLD, LogMessageType.ERROR }, " User with username " + user + " not found");
+			return;
+		} else if (w == null) {
+			log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.SET_WORLD, LogMessageType.ERROR }, " World " + world + " does not exist");
+			return;
+		}
+
+		c.c.setWorld(w);
+		c.ci.updateResources = true;
+		log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.SET_WORLD }, " User " + user + " successfully moved to world " + world);
+
 	}
 
 	@Override

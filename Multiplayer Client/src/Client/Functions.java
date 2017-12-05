@@ -57,11 +57,6 @@ public class Functions implements Closeable {
 		flush();
 	}
 
-	public boolean dataUpdate() throws IOException {
-		ensureMessageType(readEnum(MessageType.class), MessageType.DATA_UPDATE);
-		return readBoolean();
-	}
-
 	public int[] getGraphic() throws IOException {
 		ensureMessageType(readEnum(MessageType.class), MessageType.GRAPHIC_DATA);
 		int[] data = new int[2];
@@ -70,6 +65,11 @@ public class Functions implements Closeable {
 		return data;
 	}
 
+	public boolean dataUpdate() throws IOException {
+		ensureMessageType(readEnum(MessageType.class), MessageType.DATA_UPDATE);
+		return readBoolean();
+	}
+	
 	public BufferedImage[] getResources() throws IOException {
 		BufferedImage[] resources;
 		ensureMessageType(readEnum(MessageType.class), MessageType.RESOURCE_DATA);
@@ -81,6 +81,23 @@ public class Functions implements Closeable {
 		return resources;
 	}
 
+	@Deprecated
+	public boolean charGraphicsUpdate() throws IOException {
+		ensureMessageType(readEnum(MessageType.class), MessageType.CHAR_UPDATE);
+		return readBoolean();
+	}
+	
+	public BufferedImage[] charGraphics() throws IOException {
+		BufferedImage[] resources;
+		ensureMessageType(readEnum(MessageType.class), MessageType.RESOURCE_DATA);
+		resources = new BufferedImage[readInt()];
+		for (int i = 0; i < resources.length; i++) {
+			byte[] arr = Base64.getDecoder().decode(readString());
+			resources[i] = ImageIO.read(new ByteArrayInputStream(arr));
+		}
+		return resources;
+	}
+	
 	public void loginRequest(String user, String pass) throws IOException {
 		writeEnum(MessageType.LOGIN_REQUEST);
 		writeString(user);

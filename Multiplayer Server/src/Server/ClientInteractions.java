@@ -59,9 +59,10 @@ public class ClientInteractions implements Runnable, Closeable {
 
 			f.waitForLogin();
 			CHARACTER = new Char(connection.USERNAME, 0);// Index value will be inputed later
-			CHARACTER.setWorld(SERVER.STARTING_WORLD);
+			CHARACTER.setWorld(SERVER.WORLDS.get("STARTING WORLD"));
 			connection.setChar(CHARACTER);
 			long time;
+			//f.charGraphics(path);
 			while (true) {
 				f.dataUpdate(updateResources);
 				if (updateResources)
@@ -70,8 +71,7 @@ public class ClientInteractions implements Runnable, Closeable {
 				f.writeCharacter();
 				f.getCharacterMove();
 				f.terraintRequest();
-				while (System.currentTimeMillis() - time < MAX_REFRESH_RATE)
-					;
+				while (System.currentTimeMillis() - time < MAX_REFRESH_RATE);
 				connection.REFRESH_RATE = System.currentTimeMillis() - time;
 			}
 		} catch (SocketException e) {
