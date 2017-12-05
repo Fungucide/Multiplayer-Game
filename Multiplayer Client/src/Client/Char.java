@@ -1,7 +1,10 @@
 package Client;
 
 public class Char {
-	private int x, y, maxHealth = 100, health = 100, attack = 10, maxMana = 100, mana = 100, power = 10, speed = 10;
+
+	public static int PLAYER_SIZE = 100;
+
+	private int x, y, maxHealth = 100, health = 100, attack = 10, maxMana = 100, mana = 100, power = 10, speed = 10, graphics = -1;
 
 	public int getX() {
 		return x;
@@ -39,7 +42,11 @@ public class Char {
 		return speed;
 	}
 
-	public void setStats(int x, int y, int maxHealth, int health, int attack, int maxMana, int mana, int power, int speed) {
+	public int getGraphics() {
+		return graphics;
+	}
+
+	public void setStats(int x, int y, int maxHealth, int health, int attack, int maxMana, int mana, int power, int speed, int graphics) {
 		this.x = x;
 		this.y = y;
 		this.maxHealth = maxHealth;
@@ -49,6 +56,7 @@ public class Char {
 		this.mana = mana;
 		this.power = power;
 		this.speed = speed;
+		this.graphics = graphics;
 	}
 
 }

@@ -1,4 +1,4 @@
-package GUI;
+package Client;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -7,8 +7,7 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.swing.JOptionPane;
 
-import Client.Functions;
-import Client.Terrain;
+import GUI.Render;
 
 public class ServerInteractions implements Runnable {
 
@@ -46,11 +45,16 @@ public class ServerInteractions implements Runnable {
 		this.r.setData(info[0], info[1]);
 	}
 
+	public void setChar() {
+		r.setChar(f.c);
+	}
+
 	public void update() {
-		while (true) {
-			try {
+		try {
+			r.setCharResources(f.charGraphics());
+			while (true) {
 				if (f.dataUpdate())
-					r.setResources(f.getResources());
+					r.setWorldResources(f.getResources());
 				f.getCharacter();
 				f.moveCharacter(xMove, yMove, 0, false);
 				terrain = f.requestTerrain(r.getWidth() / r.getCompression() + 2, r.getHeight() / r.getCompression() + 1);
@@ -58,10 +62,9 @@ public class ServerInteractions implements Runnable {
 				r.y = getY();
 				r.data = terrain.data;
 				r.repaint();
-			} catch (IOException e) {
-				JOptionPane.showMessageDialog(null, "Connection To Server Lost", "Warning", JOptionPane.ERROR_MESSAGE);
-				break;
 			}
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(null, "Connection To Server Lost", "Warning", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 

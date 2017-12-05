@@ -1,4 +1,4 @@
-package GUI;
+package Server;
 
 import java.io.BufferedReader;
 import java.io.Closeable;
@@ -15,8 +15,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Stack;
 
+import Framework.Char;
 import Framework.World;
-import Server.ClientInteractions;
+import GUI.Connection;
+import GUI.ConnectionTable;
+import GUI.JLogArea;
+import GUI.LogMessageType;
 
 public class Server implements Runnable, Closeable {
 	private int MAXCONNECTIONS, PORT, PROTOCOL_VERSION, TILE_SIZE, COMPRESSION, MAX_REFRESH_RATE;
@@ -27,7 +31,6 @@ public class Server implements Runnable, Closeable {
 	private final Stack<Integer> idStack;
 	public final HashSet<String> active;
 	public final HashMap<String, World> WORLDS;
-	public final HashMap<String, Integer> CHAR_PIC;
 
 	public Server(String path, ConnectionTable clients,JLogArea log) throws IOException {
 		this.clients = clients;
@@ -35,7 +38,6 @@ public class Server implements Runnable, Closeable {
 		idStack = new Stack<Integer>();
 		active = new HashSet<String>();
 		WORLDS = new HashMap<String, World>();
-		CHAR_PIC = new HashMap<String, Integer>();
 		BufferedReader br = new BufferedReader(new FileReader(new File(path)));
 		String worldPath = "";
 		String[] in;
@@ -60,6 +62,9 @@ public class Server implements Runnable, Closeable {
 			case "compression":
 				COMPRESSION = Integer.parseInt(in[1]);
 				break;
+			case "playerSize":
+				Char.PLAYER_SIZE=Integer.parseInt(in[1]);
+				break;
 			case "maxRefreshRate":
 				MAX_REFRESH_RATE = Integer.parseInt(in[1]);
 				break;
@@ -75,8 +80,10 @@ public class Server implements Runnable, Closeable {
 				break;
 			case "charResources":
 				CHAR_RESOURCES = in[1];
-				System.out.println("Path "+in[1]);
 				charResources();
+				break;
+			case "charData":
+				Char.PATH=in[1];
 				break;
 			}
 		}
@@ -84,14 +91,12 @@ public class Server implements Runnable, Closeable {
 	}
 
 	private void charResources() throws IOException {
-		ArrayList<String> path = new ArrayList<String>();
 		Files.walk(Paths.get(CHAR_RESOURCES)).forEach(filePath -> {
 			if (Files.isRegularFile(filePath))
 			{
 				String name = filePath.getFileName().toString();
-				System.out.println(name.substring(0, name.indexOf('.')));
-				CHAR_PIC.put(name.substring(0, name.indexOf('.')), path.size());
-				path.add(filePath.toString());
+				Char.CHAR_PIC.put(name.substring(0, name.indexOf('.')), Char.CHAR_PIC_AL.size());
+				Char.CHAR_PIC_AL.add(filePath.toString());
 			}
 		});
 	}
@@ -211,7 +216,7 @@ public class Server implements Runnable, Closeable {
 	public void close() throws IOException {
 		log.log(LogMessageType.SERVER, "Begining to disconnect " + clients.getConnectionTableModel().c.size() + " users");
 		for (Connection c : clients.getConnectionTableModel().c) {
-			c.SOCKET.close();
+			c.close();
 			log.log(LogMessageType.SERVER, "User " + c.USERNAME + " disconnected");
 		}
 		clients.getConnectionTableModel().c.clear();

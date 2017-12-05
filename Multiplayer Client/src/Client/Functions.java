@@ -59,9 +59,10 @@ public class Functions implements Closeable {
 
 	public int[] getGraphic() throws IOException {
 		ensureMessageType(readEnum(MessageType.class), MessageType.GRAPHIC_DATA);
-		int[] data = new int[2];
+		int[] data = new int[3];
 		data[0] = readInt();
 		data[1] = readInt();
+		data[2] = readInt();
 		return data;
 	}
 
@@ -69,7 +70,7 @@ public class Functions implements Closeable {
 		ensureMessageType(readEnum(MessageType.class), MessageType.DATA_UPDATE);
 		return readBoolean();
 	}
-	
+
 	public BufferedImage[] getResources() throws IOException {
 		BufferedImage[] resources;
 		ensureMessageType(readEnum(MessageType.class), MessageType.RESOURCE_DATA);
@@ -86,7 +87,7 @@ public class Functions implements Closeable {
 		ensureMessageType(readEnum(MessageType.class), MessageType.CHAR_UPDATE);
 		return readBoolean();
 	}
-	
+
 	public BufferedImage[] charGraphics() throws IOException {
 		BufferedImage[] resources;
 		ensureMessageType(readEnum(MessageType.class), MessageType.RESOURCE_DATA);
@@ -97,7 +98,7 @@ public class Functions implements Closeable {
 		}
 		return resources;
 	}
-	
+
 	public void loginRequest(String user, String pass) throws IOException {
 		writeEnum(MessageType.LOGIN_REQUEST);
 		writeString(user);
@@ -129,7 +130,7 @@ public class Functions implements Closeable {
 
 	public void getCharacter() throws IOException {
 		ensureMessageType(readEnum(MessageType.class), MessageType.CHARACTER_DATA);
-		c.setStats(readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt());
+		c.setStats(readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt());
 	}
 
 	public void moveCharacter(int xMove, int yMove, int direction, boolean attack) throws IOException {

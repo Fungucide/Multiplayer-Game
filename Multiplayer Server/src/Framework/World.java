@@ -108,12 +108,21 @@ public class World {
 	public int[][] getType() {
 		return type;
 	}
+	
+	public ArrayList<int[]> getRenderData(int tx,int ty,int bx,int by){
+		ArrayList<int[]> res = new ArrayList<int[]>();
+		for(Char c:pu.players) {
+			if(c.getX()>=bx&&c.getX()<=tx&&c.getY()>=by&&c.getY()<=ty)
+				res.add(new int[] {c.getX(),c.getY(),c.getGraphics()});
+		}
+		return res;
+	}
 }
 
 class PlayerUpdate implements Runnable {
 
 	final long UPDATE_DELAY;
-	private ArrayList<Char> players;
+	protected ArrayList<Char> players;
 
 	public PlayerUpdate(long ud) {
 		UPDATE_DELAY = ud;
@@ -131,7 +140,6 @@ class PlayerUpdate implements Runnable {
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
 		long time;
 		while (true) {
 			time = System.currentTimeMillis();

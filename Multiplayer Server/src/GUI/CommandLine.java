@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import javax.swing.JTextField;
 
 import Framework.World;
+import Server.Server;
 
 public class CommandLine extends JTextField {
 

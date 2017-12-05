@@ -8,7 +8,6 @@ import java.net.SocketException;
 import Framework.Char;
 import GUI.Connection;
 import GUI.LogMessageType;
-import GUI.Server;
 
 public class ClientInteractions implements Runnable, Closeable {
 
@@ -62,7 +61,7 @@ public class ClientInteractions implements Runnable, Closeable {
 			CHARACTER.setWorld(SERVER.WORLDS.get("STARTING WORLD"));
 			connection.setChar(CHARACTER);
 			long time;
-			//f.charGraphics(path);
+			f.charGraphics(Char.CHAR_PIC_AL.toArray(new String[Char.CHAR_PIC_AL.size()]));
 			while (true) {
 				f.dataUpdate(updateResources);
 				if (updateResources)
@@ -78,7 +77,7 @@ public class ClientInteractions implements Runnable, Closeable {
 			// TODO Auto-generated catch block
 			f.close();
 			try {
-				socket.close();
+				connection.close();
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -96,8 +95,8 @@ public class ClientInteractions implements Runnable, Closeable {
 		// TODO Auto-generated method stub
 		serverStop = true;
 		f.close();
-		socket.close();
 		SERVER.remove(connection);
 		connection.STATUS = false;
+		connection.close();
 	}
 }

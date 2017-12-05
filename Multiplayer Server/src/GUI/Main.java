@@ -13,6 +13,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SpringLayout;
 
+import Server.Server;
+
 public class Main {
 
 	private JFrame frmConnectionManager;

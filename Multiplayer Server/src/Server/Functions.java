@@ -20,6 +20,7 @@ import java.util.Base64;
 
 import javax.imageio.ImageIO;
 
+import Framework.Char;
 import GUI.LogMessageType;
 
 public class Functions implements Closeable {
@@ -79,6 +80,7 @@ public class Functions implements Closeable {
 		writeEnum(MessageType.GRAPHIC_DATA);
 		writeInt(TILE_SIZE);
 		writeInt(COMPRESSION);
+		writeInt(Char.PLAYER_SIZE);
 		flush();
 	}
 
@@ -128,7 +130,7 @@ public class Functions implements Closeable {
 		writeEnum(MessageType.RESOURCE_DATA);
 		writeInt(path.length);
 		for (int i = 0; i < path.length; i++) {
-			BufferedImage img = toBufferedImage(ImageIO.read(new File(path[i])).getScaledInstance(TILE_SIZE, TILE_SIZE, Image.SCALE_SMOOTH));
+			BufferedImage img = toBufferedImage(ImageIO.read(new File(path[i])).getScaledInstance(Char.PLAYER_SIZE, Char.PLAYER_SIZE, Image.SCALE_SMOOTH));
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ImageIO.write(img, "jpg", baos);
 			String base64String = new String(Base64.getEncoder().encode(baos.toByteArray()));
@@ -147,7 +149,7 @@ public class Functions implements Closeable {
 				writeLoginStatus(false);
 				continue;
 			}
-			File f = new File("Data/Player/" + user + "/Password.pass");
+			File f = new File(Char.PATH + user + "/Password.pass");
 			if (!f.exists()) {
 				CI.SERVER.log.log(LogMessageType.DATA, "Player does not exist: " + user);
 				writeLoginStatus(false);
@@ -186,6 +188,7 @@ public class Functions implements Closeable {
 		writeInt(CI.CHARACTER.getMana());
 		writeInt(CI.CHARACTER.getPower());
 		writeInt(CI.CHARACTER.getSpeed());
+		writeInt(CI.CHARACTER.getGraphics());
 		flush();
 	}
 

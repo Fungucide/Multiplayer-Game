@@ -6,19 +6,25 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Char implements Closeable {
+	public static String PATH = "";
+	public static int PLAYER_SIZE = 100;
+	public static HashMap<String, Integer> CHAR_PIC = new HashMap<String, Integer>();
+	public static ArrayList<String> CHAR_PIC_AL = new ArrayList<String>();
 	private final String USERNAME;
 	private final int INDEX;
 	private double DIAGONAL_MOD = Math.sqrt(.5d);
 	private int xMove = 0, yMove = 0;
-	private int x = 0, y = 0, maxHealth = 100, health = 100, attack = 10, maxMana = 100, mana = 100, power = 10, speed = 5;
+	private int x = 0, y = 0, maxHealth = 100, health = 100, attack = 10, maxMana = 100, mana = 100, power = 10, speed = 5, graphics = 0;
 	public World w;
 
 	public Char(String userName, int x, int y, int maxHealth, int health, int attack, int maxMana, int mana, int power, int speed) {
 		USERNAME = userName;
 		int i;
-		for (i = 0; new File("Data/Player/" + userName + "/Characters/Character" + i + ".dat").exists(); i++);
+		for (i = 0; new File(PATH + userName + "/Characters/Character" + i + ".dat").exists(); i++);
 		INDEX = i;
 		this.x = x;
 		this.y = y;
@@ -29,20 +35,50 @@ public class Char implements Closeable {
 		this.mana = mana;
 		this.power = power;
 		this.speed = speed;
+
 	}
 
 	public Char(String userName, int index) throws IOException {
 		USERNAME = userName;
 		INDEX = index;
-		String FILE_PATH = "Data/Player/" + userName + "/Characters/Character" + index + ".dat";
+		String FILE_PATH = PATH + userName + "/Characters/Character" + index + ".dat";
 		File f = new File(FILE_PATH);
 		f.createNewFile();
 		BufferedReader br = new BufferedReader(new FileReader(f));
 		String[] input;
 		while (br.ready()) {
-			input = br.readLine().split(" ");
-			if (input[0].equals("Health:")) {
+			input = br.readLine().split("=");
+			switch (input[0]) {
+			case "X":
+				x = Integer.parseInt(input[1]);
+				break;
+			case "Y":
+				y = Integer.parseInt(input[1]);
+				break;
+			case "MaxHealth":
+				maxHealth = Integer.parseInt(input[1]);
+				break;
+			case "Health":
 				health = Integer.parseInt(input[1]);
+				break;
+			case "Attack":
+				attack = Integer.parseInt(input[1]);
+				break;
+			case "MaxMana":
+				maxMana = Integer.parseInt(input[1]);
+				break;
+			case "Mana":
+				mana = Integer.parseInt(input[1]);
+				break;
+			case "Power":
+				power = Integer.parseInt(input[1]);
+				break;
+			case "Speed":
+				speed = Integer.parseInt(input[1]);
+				break;
+			case "graphics":
+				graphics = CHAR_PIC.get(input[1]);
+				break;
 			}
 		}
 	}
@@ -81,6 +117,10 @@ public class Char implements Closeable {
 
 	public int getSpeed() {
 		return speed;
+	}
+
+	public int getGraphics() {
+		return graphics;
 	}
 
 	public void move(int x, int y) {
@@ -134,16 +174,18 @@ public class Char implements Closeable {
 
 	@Override
 	public void close() throws IOException {
-		FileWriter fw = new FileWriter("Data/Player/" + USERNAME + "/Characters/Character" + INDEX + ".dat");
-		fw.write("x=" + x);
-		fw.write("y=" + y);
-		fw.write("maxHealth=" + maxHealth);
-		fw.write("health=" + health);
-		fw.write("attack=" + attack);
-		fw.write("maxMana=" + maxMana);
-		fw.write("mana=" + mana);
-		fw.write("power=" + power);
-		fw.write("speed=" + speed);
+		FileWriter fw = new FileWriter(PATH + USERNAME + "/Characters/Character" + INDEX + ".dat");
+		fw.write("x=" + x + "\n");
+		fw.write("y=" + y + "\n");
+		fw.write("maxHealth=" + maxHealth + "\n");
+		fw.write("health=" + health + "\n");
+		fw.write("attack=" + attack + "\n");
+		fw.write("maxMana=" + maxMana + "\n");
+		fw.write("mana=" + mana + "\n");
+		fw.write("power=" + power + "\n");
+		fw.write("speed=" + speed + "\n");
+		File f = new File(CHAR_PIC_AL.get(graphics));
+		fw.write("graphics=" + f.getName().substring(0, f.getName().indexOf('.')));
 		fw.close();
 	}
 

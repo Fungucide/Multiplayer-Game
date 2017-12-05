@@ -2,6 +2,8 @@ package GUI;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Closeable;
+import java.io.IOException;
 import java.net.Socket;
 
 import javax.swing.JButton;
@@ -9,7 +11,7 @@ import javax.swing.JButton;
 import Framework.Char;
 import Server.ClientInteractions;
 
-public class Connection {
+public class Connection implements Closeable {
 	public final Socket SOCKET;
 	public final int ID;
 	public final String ADDRESS;
@@ -45,5 +47,12 @@ public class Connection {
 
 	public void setChar(Char c) {
 		this.c = c;
+	}
+
+	@Override
+	public void close() throws IOException {
+		// TODO Auto-generated method stub
+		SOCKET.close();
+		c.close();
 	}
 }

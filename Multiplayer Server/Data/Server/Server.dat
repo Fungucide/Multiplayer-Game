@@ -4,8 +4,10 @@ token=Token
 protocolVersion=0
 tileSize=100
 compression=50
+playerSize=50
 maxRefreshRate=10
 maxWorldUpdate=20
 startWorld=Data/Server/StartWorld.world
 loadWorld=World1=Data/Server/World1.world
-charResources=Data/Server/Character
+charResources=Data/Server/Character/
+charData=Data/Player/

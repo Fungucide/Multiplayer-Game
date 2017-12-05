@@ -16,6 +16,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
+import Client.ServerInteractions;
+
 import java.awt.Canvas;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -33,6 +35,8 @@ public class Main {
 	private JLabel lblPassowrd;
 	private Render render;
 	private SpringLayout springLayout;
+	private JLabel lblPort;
+	private JTextField textFieldPort;
 
 	/**
 	 * Launch the application.
@@ -85,17 +89,30 @@ public class Main {
 		frame.getContentPane().add(textFieldServerAdress);
 		textFieldServerAdress.setColumns(10);
 
+		lblPort = new JLabel("Port:");
+		springLayout.putConstraint(SpringLayout.NORTH, lblPort, 10, SpringLayout.SOUTH, lblServerAdress);
+		springLayout.putConstraint(SpringLayout.WEST, lblPort, 0, SpringLayout.WEST, lblServerAdress);
+		springLayout.putConstraint(SpringLayout.EAST, lblPort, 0, SpringLayout.EAST, lblServerAdress);
+		frame.getContentPane().add(lblPort);
+
+		textFieldPort = new JTextField("31001");
+		springLayout.putConstraint(SpringLayout.NORTH, textFieldPort, 10, SpringLayout.SOUTH, textFieldServerAdress);
+		springLayout.putConstraint(SpringLayout.WEST, textFieldPort, 0, SpringLayout.WEST, textFieldServerAdress);
+		springLayout.putConstraint(SpringLayout.EAST, textFieldPort, 0, SpringLayout.EAST, textFieldServerAdress);
+		frame.getContentPane().add(textFieldPort);
+		textFieldPort.setColumns(10);
+
 		lblUsername = new JLabel("Username:");
-		springLayout.putConstraint(SpringLayout.NORTH, lblUsername, 10, SpringLayout.SOUTH, lblServerAdress);
-		springLayout.putConstraint(SpringLayout.WEST, lblUsername, 0, SpringLayout.WEST, lblServerAdress);
-		springLayout.putConstraint(SpringLayout.EAST, lblUsername, 0, SpringLayout.EAST, lblServerAdress);
+		springLayout.putConstraint(SpringLayout.NORTH, lblUsername, 10, SpringLayout.SOUTH, lblPort);
+		springLayout.putConstraint(SpringLayout.WEST, lblUsername, 0, SpringLayout.WEST, lblPort);
+		springLayout.putConstraint(SpringLayout.EAST, lblUsername, 0, SpringLayout.EAST, lblPort);
 		frame.getContentPane().add(lblUsername);
 
 		textFieldUsername = new JTextField("Admin");
+		springLayout.putConstraint(SpringLayout.NORTH, textFieldUsername, 10, SpringLayout.SOUTH, textFieldPort);
+		springLayout.putConstraint(SpringLayout.WEST, textFieldUsername, 0, SpringLayout.WEST, textFieldPort);
+		springLayout.putConstraint(SpringLayout.EAST, textFieldUsername, 0, SpringLayout.EAST, textFieldPort);
 		springLayout.putConstraint(SpringLayout.SOUTH, lblUsername, 0, SpringLayout.SOUTH, textFieldUsername);
-		springLayout.putConstraint(SpringLayout.NORTH, textFieldUsername, 10, SpringLayout.SOUTH, textFieldServerAdress);
-		springLayout.putConstraint(SpringLayout.WEST, textFieldUsername, 0, SpringLayout.WEST, textFieldServerAdress);
-		springLayout.putConstraint(SpringLayout.EAST, textFieldUsername, 0, SpringLayout.EAST, textFieldServerAdress);
 		textFieldUsername.setColumns(10);
 		frame.getContentPane().add(textFieldUsername);
 
@@ -135,6 +152,8 @@ public class Main {
 		login = new ArrayList<Component>();
 		login.add(lblServerAdress);
 		login.add(textFieldServerAdress);
+		login.add(lblPort);
+		login.add(textFieldPort);
 		login.add(lblUsername);
 		login.add(textFieldUsername);
 		login.add(lblPassowrd);
@@ -156,7 +175,7 @@ public class Main {
 
 	private void login() {
 		try {
-			if (si.attemptLogin(textFieldServerAdress.getText(), 31001, textFieldUsername.getText(), textFieldPassword.getPassword())) {
+			if (si.attemptLogin(textFieldServerAdress.getText(), Integer.parseInt(textFieldPort.getText()), textFieldUsername.getText(), textFieldPassword.getPassword())) {
 				hide(login);
 				render.setVisible(true);
 				render.repaint();
@@ -172,11 +191,8 @@ public class Main {
 
 	private void run() {
 
-		/*RenderUpdate cu = new RenderUpdate(render, 50);
-		Thread cut = new Thread(cu);
-		cut.start();*/
-
 		si.setRender(render);
+		si.setChar();
 		Thread t = new Thread(si);
 		t.start();
 
