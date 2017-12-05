@@ -124,6 +124,10 @@ public class JLogArea extends JTextPane {
 		replaceSelection(msg);
 		setEditable(false);
 	}
+	
+	public void clear() {
+		log.clear();
+	}
 }
 
 class LogMessage {

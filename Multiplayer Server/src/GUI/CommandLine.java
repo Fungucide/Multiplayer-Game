@@ -54,6 +54,9 @@ public class CommandLine extends JTextField {
 							case "/setworld":
 								server.setWorld(seg.get(1), seg.get(2));
 								break;
+							case "/clear":
+								logArea.clear();
+								break;
 							default:
 								logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.ERROR }, "No Such Command \"" + seg.get(0).substring(1) + "\" Exists");
 								break;
@@ -70,5 +73,6 @@ public class CommandLine extends JTextField {
 			}
 		});
 	}
+
 
 }

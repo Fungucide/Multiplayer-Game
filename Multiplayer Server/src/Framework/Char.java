@@ -174,6 +174,7 @@ public class Char implements Closeable {
 
 	@Override
 	public void close() throws IOException {
+		w.removePlayer(this);
 		FileWriter fw = new FileWriter(PATH + USERNAME + "/Characters/Character" + INDEX + ".dat");
 		fw.write("x=" + x + "\n");
 		fw.write("y=" + y + "\n");

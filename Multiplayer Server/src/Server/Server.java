@@ -24,6 +24,7 @@ import GUI.LogMessageType;
 
 public class Server implements Runnable, Closeable {
 	private int MAXCONNECTIONS, PORT, PROTOCOL_VERSION, TILE_SIZE, COMPRESSION, MAX_REFRESH_RATE;
+	private ServerSocket serverSocket;
 	protected long MAX_WORLD_UPDATE;
 	private String TOKEN, CHAR_RESOURCES;
 	public JLogArea log;
@@ -102,7 +103,7 @@ public class Server implements Runnable, Closeable {
 	}
 
 	public void open() throws IOException {
-		ServerSocket serverSocket = new ServerSocket(PORT);
+		serverSocket = new ServerSocket(PORT);
 		for (int i = MAXCONNECTIONS - 1; i >= 0; i--) {
 			idStack.push(i);
 		}
@@ -221,6 +222,7 @@ public class Server implements Runnable, Closeable {
 		}
 		clients.getConnectionTableModel().c.clear();
 		log.log(LogMessageType.SERVER, "User List Cleared");
+		serverSocket.close();
 	}
 
 }
