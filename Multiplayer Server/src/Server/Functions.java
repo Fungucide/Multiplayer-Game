@@ -224,7 +224,7 @@ public class Functions implements Closeable {
 		int ty = readInt();
 		int bx = readInt();
 		int by = readInt();
-		ArrayList<int[]> al = CI.CHARACTER.w.getRenderData(tx, ty, bx, by);
+		ArrayList<int[]> al = CI.CHARACTER.w.getRenderData(tx, ty, bx, by,CI.CHARACTER);
 		writeEnum(MessageType.CHAR_DISPLAY_DATA);
 		writeInt(al.size());
 		for (int[] a : al) {

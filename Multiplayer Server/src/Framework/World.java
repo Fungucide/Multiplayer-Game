@@ -108,13 +108,12 @@ public class World {
 	public int[][] getType() {
 		return type;
 	}
-	
-	public ArrayList<int[]> getRenderData(int tx,int ty,int bx,int by){
+
+	public ArrayList<int[]> getRenderData(int tx, int ty, int bx, int by, Char character) {
 		ArrayList<int[]> res = new ArrayList<int[]>();
-		for(Char c:pu.players) {
-			if(c.getX()>=bx&&c.getX()<=tx&&c.getY()>=by&&c.getY()<=ty)
-				res.add(new int[] {c.getX(),c.getY(),c.getGraphics()});
-		}
+		for (Char c : pu.players)
+			if (c.getX() >= bx && c.getX() <= tx && c.getY() >= by && c.getY() <= ty && !c.equals(character))
+				res.add(new int[] { c.getX(), c.getY(), c.getGraphics() });
 		return res;
 	}
 }

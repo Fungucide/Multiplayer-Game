@@ -184,7 +184,6 @@ public class Main {
 				JOptionPane.showMessageDialog(frame, "Login Failed", "Login Error", JOptionPane.ERROR_MESSAGE);
 			}
 		} catch (NoSuchAlgorithmException | IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

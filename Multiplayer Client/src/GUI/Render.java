@@ -21,6 +21,7 @@ public class Render extends JPanel {
 
 	public int x, y;
 	private int rx, ry;
+	private int drawX, drawY;
 	public int[][] data;
 	private int[][] rdata;
 	public int[][] charData;
@@ -30,6 +31,8 @@ public class Render extends JPanel {
 	public void setData(int tileSize, int compression) {
 		TILE_SIZE = tileSize;
 		COMPRESSION = compression;
+		drawX = getWidth() / 2 - Char.PLAYER_SIZE / 4;
+		drawY = getHeight() / 2 - Char.PLAYER_SIZE / 4;
 	}
 
 	public void setWorldResources(BufferedImage[] resources) {
@@ -47,6 +50,7 @@ public class Render extends JPanel {
 	public void paint(Graphics g) {
 		rx = x;
 		ry = y;
+
 		rdata = data;
 		rCharData = charData;
 		int xOff = -(rx % COMPRESSION);
@@ -67,9 +71,9 @@ public class Render extends JPanel {
 		}
 
 		if (charResources != null && CHARACTER != null) {
-			g.drawImage(charResources[CHARACTER.getGraphics()], (getWidth()) / 2 - Char.PLAYER_SIZE / 4, (getHeight()) / 2 - Char.PLAYER_SIZE / 4, this);
+			g.drawImage(charResources[CHARACTER.getGraphics()], drawX, drawY, this);
 			for (int i = 0; rCharData != null && i < rCharData.length; i++) {
-				g.drawImage(charResources[rCharData[i][0]], rCharData[i][1], rCharData[i][2], this);
+				g.drawImage(charResources[rCharData[i][2]], rCharData[i][0]-rx+drawX, rCharData[i][1]-ry+drawY, this);
 			}
 		}
 		g.drawOval(getWidth() / 2, getHeight() / 2, 1, 1);
