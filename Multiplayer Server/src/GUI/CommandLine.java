@@ -49,7 +49,6 @@ public class CommandLine extends JTextField {
 							case "/close":
 								server.close();
 								break;
-
 							case "/loadworld":
 								server.loadWorld(seg.get(1), seg.get(2));
 								break;
@@ -60,7 +59,10 @@ public class CommandLine extends JTextField {
 								logArea.clear();
 								break;
 							case "/listusers":
-								
+								server.listUsers();
+								break;
+							case "/listworlds":
+								server.listWorlds();
 								break;
 							default:
 								logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.ERROR }, "No Such Command \"" + seg.get(0).substring(1) + "\" Exists");
@@ -78,6 +80,5 @@ public class CommandLine extends JTextField {
 			}
 		});
 	}
-
 
 }

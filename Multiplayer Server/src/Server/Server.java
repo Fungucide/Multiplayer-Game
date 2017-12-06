@@ -32,13 +32,15 @@ public class Server implements Runnable, Closeable {
 	private final Stack<Integer> idStack;
 	public final HashSet<String> active;
 	public final HashMap<String, World> WORLDS;
+	public final ArrayList<String> WORLD_NAMES;
 
-	public Server(String path, ConnectionTable clients,JLogArea log) throws IOException {
+	public Server(String path, ConnectionTable clients, JLogArea log) throws IOException {
 		this.clients = clients;
 		this.log = log;
 		idStack = new Stack<Integer>();
 		active = new HashSet<String>();
 		WORLDS = new HashMap<String, World>();
+		WORLD_NAMES = new ArrayList<String>();
 		BufferedReader br = new BufferedReader(new FileReader(new File(path)));
 		String worldPath = "";
 		String[] in;
@@ -64,7 +66,7 @@ public class Server implements Runnable, Closeable {
 				COMPRESSION = Integer.parseInt(in[1]);
 				break;
 			case "playerSize":
-				Char.PLAYER_SIZE=Integer.parseInt(in[1]);
+				Char.PLAYER_SIZE = Integer.parseInt(in[1]);
 				break;
 			case "maxRefreshRate":
 				MAX_REFRESH_RATE = Integer.parseInt(in[1]);
@@ -75,6 +77,7 @@ public class Server implements Runnable, Closeable {
 			case "startWorld":
 				worldPath = in[1];
 				WORLDS.put("STARTING WORLD", new World(worldPath, MAX_WORLD_UPDATE));
+				WORLD_NAMES.add("STARTING WORLD");
 				break;
 			case "loadWorld":
 				loadWorld(in[1], in[2]);
@@ -84,7 +87,7 @@ public class Server implements Runnable, Closeable {
 				charResources();
 				break;
 			case "charData":
-				Char.PATH=in[1];
+				Char.PATH = in[1];
 				break;
 			}
 		}
@@ -93,8 +96,7 @@ public class Server implements Runnable, Closeable {
 
 	private void charResources() throws IOException {
 		Files.walk(Paths.get(CHAR_RESOURCES)).forEach(filePath -> {
-			if (Files.isRegularFile(filePath))
-			{
+			if (Files.isRegularFile(filePath)) {
 				String name = filePath.getFileName().toString();
 				Char.CHAR_PIC.put(name.substring(0, name.indexOf('.')), Char.CHAR_PIC_AL.size());
 				Char.CHAR_PIC_AL.add(filePath.toString());
@@ -193,6 +195,7 @@ public class Server implements Runnable, Closeable {
 			return;
 		}
 		WORLDS.put(name, w);
+		WORLD_NAMES.add(name);
 		log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.LOAD_WORLD }, " World " + name + " loaded sucessfully");
 	}
 
@@ -211,6 +214,22 @@ public class Server implements Runnable, Closeable {
 		c.ci.updateResources = true;
 		log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.SET_WORLD }, " User " + user + " successfully moved to world " + world);
 
+	}
+
+	public void listUsers() {
+		String message = " " + clients.getConnectionTableModel().c.size() + " Users:";
+		for (Connection c : clients.getConnectionTableModel().c) {
+			message += "\n\tID: " + c.ID + "\t Username: " + c.USERNAME;
+		}
+		log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.LIST_USERS }, message);
+	}
+
+	public void listWorlds() {
+		String message = " " + WORLD_NAMES.size() + " Worlds:";
+		for (String name : WORLD_NAMES) {
+			message += "\n\t" + name;
+		}
+		log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.LIST_WORLDS }, message);
 	}
 
 	@Override

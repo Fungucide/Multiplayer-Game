@@ -9,10 +9,13 @@ public enum LogMessageType {
 	COMMAND(Color.GRAY),
 	MESSAGE(Color.BLACK),
 	ERROR(Color.RED),
+	WARNNING(Color.ORANGE),
 	DISCONNECT(Color.GRAY),
 	CLOSE(Color.GRAY),
 	LOAD_WORLD(Color.GRAY),
-	SET_WORLD(Color.GRAY);
+	SET_WORLD(Color.GRAY),
+	LIST_USERS(Color.GRAY),
+	LIST_WORLDS(Color.GRAY);
 
 	private final Color c;
 
