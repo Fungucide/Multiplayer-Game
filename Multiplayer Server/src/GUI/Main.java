@@ -13,6 +13,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SpringLayout;
 
+import Log.FilterCheckBox;
+import Log.FilterTypeCheckBox;
+import Log.JLogArea;
+import Log.LogMessageType;
 import Server.Server;
 
 public class Main {

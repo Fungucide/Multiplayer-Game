@@ -11,6 +11,8 @@ import java.util.regex.Pattern;
 import javax.swing.JTextField;
 
 import Framework.World;
+import Log.JLogArea;
+import Log.LogMessageType;
 import Server.Server;
 
 public class CommandLine extends JTextField {
@@ -56,6 +58,9 @@ public class CommandLine extends JTextField {
 								break;
 							case "/clear":
 								logArea.clear();
+								break;
+							case "/listusers":
+								
 								break;
 							default:
 								logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.ERROR }, "No Such Command \"" + seg.get(0).substring(1) + "\" Exists");

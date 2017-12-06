@@ -22,7 +22,7 @@ import java.util.Base64;
 import javax.imageio.ImageIO;
 
 import Framework.Char;
-import GUI.LogMessageType;
+import Log.LogMessageType;
 
 public class Functions implements Closeable {
 

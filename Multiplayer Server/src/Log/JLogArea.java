@@ -1,4 +1,4 @@
-package GUI;
+package Log;
 
 import java.awt.Color;
 import java.text.DateFormat;

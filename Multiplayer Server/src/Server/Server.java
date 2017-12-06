@@ -19,8 +19,8 @@ import Framework.Char;
 import Framework.World;
 import GUI.Connection;
 import GUI.ConnectionTable;
-import GUI.JLogArea;
-import GUI.LogMessageType;
+import Log.JLogArea;
+import Log.LogMessageType;
 
 public class Server implements Runnable, Closeable {
 	private int MAXCONNECTIONS, PORT, PROTOCOL_VERSION, TILE_SIZE, COMPRESSION, MAX_REFRESH_RATE;

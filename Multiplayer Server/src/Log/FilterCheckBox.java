@@ -1,4 +1,4 @@
-package GUI;
+package Log;
 
 import java.awt.event.MouseEvent;
 

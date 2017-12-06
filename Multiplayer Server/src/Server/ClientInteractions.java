@@ -7,7 +7,7 @@ import java.net.SocketException;
 
 import Framework.Char;
 import GUI.Connection;
-import GUI.LogMessageType;
+import Log.LogMessageType;
 
 public class ClientInteractions implements Runnable, Closeable {
 
