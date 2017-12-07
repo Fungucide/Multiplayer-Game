@@ -96,8 +96,6 @@ public class ClientInteractions implements Runnable, Closeable {
 		// TODO Auto-generated method stub
 		serverStop = true;
 		f.close();
-		SERVER.remove(connection);
 		connection.STATUS = false;
-		connection.close();
 	}
 }

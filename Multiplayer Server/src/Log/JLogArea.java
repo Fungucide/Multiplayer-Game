@@ -19,7 +19,6 @@ public class JLogArea extends JTextPane {
 	private final ReentrantLock lock;
 	private ArrayList<LogMessage> log;
 	private final int MAX_SIZE = 10000;
-	private final JLogUpdater lu;
 	private final Queue<LogMessage> queue;
 	// private boolean updating = false;
 	private boolean[] filter;
@@ -29,10 +28,7 @@ public class JLogArea extends JTextPane {
 		super();
 		queue = new LinkedList<LogMessage>();
 		log = new ArrayList<LogMessage>();
-		lu = new JLogUpdater(this);
 		lock = new ReentrantLock();
-		Thread t = new Thread(lu);
-		t.start();
 	}
 
 	public void log(LogMessageType lmt, String message) {
@@ -149,27 +145,4 @@ class LogMessage {
 		this.lmt = lmt;
 		this.message = message;
 	}
-}
-
-class JLogUpdater implements Runnable {
-
-	private final JLogArea jla;
-
-	public JLogUpdater(JLogArea jla) {
-		this.jla = jla;
-	}
-
-	@Override
-	public void run() {
-		while (true) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			// jla.updateLog();
-		}
-	}
-
 }

@@ -81,6 +81,7 @@ public class Char implements Closeable {
 				break;
 			}
 		}
+		br.close();
 	}
 
 	public int getX() {

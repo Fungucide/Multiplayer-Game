@@ -20,19 +20,46 @@ public class CommandLine extends JTextField {
 	private String command;
 	private final JLogArea logArea;
 	private final Server server;
+	private final ArrayList<String> prev;
+	private final int MAX_MEM = 100;
+	private int idx = -1;
+	private String cur = "";
 
 	public CommandLine(JLogArea logArea, Server server) {
 		super();
 		this.logArea = logArea;
 		this.server = server;
+		prev = new ArrayList<String>();
 		addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent arg0) {
 				ArrayList<String> seg = new ArrayList<String>();
 				try {
-					if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
+					if (arg0.getKeyCode() == KeyEvent.VK_UP) {
+						if (idx == -1) {
+							cur = getText();
+							idx++;
+							setText(prev.get(prev.size() - 1 - idx));
+						} else if (idx < prev.size() - 1) {
+							idx++;
+							setText(prev.get(prev.size() - 1 - idx));
+						}
+					} else if (arg0.getKeyCode() == KeyEvent.VK_DOWN) {
+						if (idx == 0) {
+							setText(cur);
+							idx--;
+						} else if (idx >= 0) {
+							idx--;
+							setText(prev.get(prev.size() - 1 - idx));
+						}
+					} else if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
 						command = getText();
+						prev.add(command);
+						while (prev.size() > MAX_MEM)
+							prev.remove(0);
 						setText("");
+						idx = -1;
+						cur = "";
 						if (command.startsWith("/") && !command.startsWith("//")) {
 							Matcher m = Pattern.compile("\"([^\"]*)\"|(\\S+)").matcher(command);
 							while (m.find()) {
@@ -44,7 +71,10 @@ public class CommandLine extends JTextField {
 							}
 							switch (seg.get(0).toLowerCase()) {
 							case "/disconnect":
-								server.disconnect(seg.get(1));
+								if (seg.get(1).equals("/id") || seg.get(1).equals("-id"))
+									server.disconnect(Integer.parseInt(seg.get(2)));
+								else
+									server.disconnect(seg.get(1));
 								break;
 							case "/close":
 								server.close();

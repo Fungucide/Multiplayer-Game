@@ -54,5 +54,6 @@ public class Connection implements Closeable {
 		// TODO Auto-generated method stub
 		SOCKET.close();
 		c.close();
+		ci.close();
 	}
 }

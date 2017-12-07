@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -105,6 +106,7 @@ public class Server implements Runnable, Closeable {
 	}
 
 	public void open() throws IOException {
+		try {
 		serverSocket = new ServerSocket(PORT);
 		for (int i = MAXCONNECTIONS - 1; i >= 0; i--) {
 			idStack.push(i);
@@ -124,7 +126,9 @@ public class Server implements Runnable, Closeable {
 				t.start();
 				log.log(LogMessageType.SERVER, "Connection to " + sock.getInetAddress().getHostAddress() + " passed on");
 			}
-
+		}catch(SocketException e) {
+			log.log(LogMessageType.SERVER, "Server Socket Successfully Closed");
+		}
 	}
 
 	public boolean remove(Connection c) {
@@ -142,9 +146,18 @@ public class Server implements Runnable, Closeable {
 		return res;
 	}
 
-	public Connection get(String username) {
+	public Connection getByUsername(String username) {
 		for (int i = 0; i < clients.getConnectionTableModel().c.size(); i++) {
 			if (clients.getConnectionTableModel().c.get(i).USERNAME.equals(username)) {
+				return clients.getConnectionTableModel().c.get(i);
+			}
+		}
+		return null;
+	}
+
+	public Connection getByID(int ID) {
+		for (int i = 0; i < clients.getConnectionTableModel().c.size(); i++) {
+			if (clients.getConnectionTableModel().c.get(i).ID == ID) {
 				return clients.getConnectionTableModel().c.get(i);
 			}
 		}
@@ -165,11 +178,27 @@ public class Server implements Runnable, Closeable {
 		}
 	}
 
-	public void disconnect(String username) {
-		Connection c = get(username);
+	public void disconnect(int ID) {
+		Connection c = getByID(ID);
 		if (c != null) {
 			try {
 				c.ci.close();
+				remove(c);
+				log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DISCONNECT }, "User " + c.USERNAME + " connection closed successful");
+			} catch (IOException e) {
+				log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DISCONNECT, LogMessageType.ERROR }, "User " + c.USERNAME + " connection closed unsuccessful");
+			}
+		} else {
+			log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DISCONNECT, LogMessageType.ERROR }, "User with ID " + ID + " not found");
+		}
+	}
+
+	public void disconnect(String username) {
+		Connection c = getByUsername(username);
+		if (c != null) {
+			try {
+				c.close();
+				remove(c);
 				log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DISCONNECT }, "User " + username + " connection closed successful");
 			} catch (IOException e) {
 				log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DISCONNECT, LogMessageType.ERROR }, "User " + username + " not found");
@@ -200,7 +229,7 @@ public class Server implements Runnable, Closeable {
 	}
 
 	public void setWorld(String user, String world) {
-		Connection c = get(user);
+		Connection c = getByUsername(user);
 		World w = WORLDS.get(world);
 		if (c == null) {
 			log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.SET_WORLD, LogMessageType.ERROR }, " User with username " + user + " not found");
@@ -242,6 +271,8 @@ public class Server implements Runnable, Closeable {
 		clients.getConnectionTableModel().c.clear();
 		log.log(LogMessageType.SERVER, "User List Cleared");
 		serverSocket.close();
+		while (!idStack.empty())
+			idStack.pop();
 	}
 
 }
