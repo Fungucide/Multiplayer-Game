@@ -11,7 +11,8 @@ import java.util.HashMap;
 
 public class Char implements Closeable {
 	public static String PATH = "";
-	public static int PLAYER_SIZE = 100;
+	private static int PLAYER_SIZE = 100;
+	private static int PLAYER_SIZE_HALF = 50;
 	public static HashMap<String, Integer> CHAR_PIC = new HashMap<String, Integer>();
 	public static ArrayList<String> CHAR_PIC_AL = new ArrayList<String>();
 	private final String USERNAME;
@@ -84,6 +85,10 @@ public class Char implements Closeable {
 		br.close();
 	}
 
+	public static int getCharSize() {
+		return PLAYER_SIZE;
+	}
+
 	public int getX() {
 		return x;
 	}
@@ -140,14 +145,47 @@ public class Char implements Closeable {
 			yMove = -1;
 	}
 
-	public void update() {
-		if (xMove != 0 && yMove != 0) {
-			moveX((int) Math.floor(DIAGONAL_MOD * (double) speed * (double) xMove));
-			moveY((int) Math.floor(DIAGONAL_MOD * (double) speed * (double) yMove));
-		} else {
-			moveX(xMove * speed);
-			moveY(yMove * speed);
+	int lQx = -1;
+	int lQy = -1;
+
+	private int[] correction(int sx, int sy, int ex, int ey) {
+		/*
+		 * int xQuad = ex / w.COMPRESSION; int yQuad = ey / w.COMPRESSION; int xDirec;
+		 * int yDirec; if (ex > sx) xDirec = 1; else if (ex < sx) xDirec = -1; else
+		 * xDirec = 0; if (ey > sy) yDirec = 1; else if (ex < sx) yDirec = -1; else
+		 * yDirec = 0; if (w.isBlocked(xQuad, yQuad)) { if (xDirec == 1) ex = xQuad *
+		 * w.COMPRESSION; else if (xDirec == -1) ex = (xQuad + 1) * w.COMPRESSION; if
+		 * (yDirec == 1) ey = yQuad * w.COMPRESSION; else if (yDirec == -1) ex = (yQuad
+		 * + 1) * w.COMPRESSION; } return new int[] { ex, ey };
+		 */
+		int xQuad = ex / w.COMPRESSION;
+		int yQuad = ey / w.COMPRESSION;
+		if (xQuad != lQx || yQuad != lQy) {
+			System.out.println(xQuad + " " + yQuad);
+			lQx = xQuad;
+			lQy = yQuad;
 		}
+		if (w.isBlocked(xQuad, yQuad)) {
+			return new int[] { sx, sy };
+		}
+		return new int[] { ex, ey };
+	}
+
+	public void update() {
+		if (xMove == 0 && yMove == 0)
+			return;
+		int totalX;
+		int totalY;
+		if (xMove != 0 && yMove != 0) {
+			totalX = x + (int) Math.floor(DIAGONAL_MOD * (double) speed * (double) xMove);
+			totalY = y + (int) Math.floor(DIAGONAL_MOD * (double) speed * (double) yMove);
+		} else {
+			totalX = x + xMove * speed;
+			totalY = y + yMove * speed;
+		}
+		int[] cor = correction(x, y, totalX, totalY);
+		moveX(cor[0] - x);
+		moveY(cor[1] - y);
 	}
 
 	private void moveX(int dis) {
@@ -171,6 +209,11 @@ public class Char implements Closeable {
 			this.w.removePlayer(this);
 		this.w = w;
 		this.w.addPlayer(this);
+	}
+
+	public static void setCharSize(int size) {
+		PLAYER_SIZE = size;
+		PLAYER_SIZE_HALF = size / 2;
 	}
 
 	@Override

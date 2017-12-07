@@ -81,7 +81,7 @@ public class Functions implements Closeable {
 		writeEnum(MessageType.GRAPHIC_DATA);
 		writeInt(TILE_SIZE);
 		writeInt(COMPRESSION);
-		writeInt(Char.PLAYER_SIZE);
+		writeInt(Char.getCharSize());
 		flush();
 	}
 
@@ -131,7 +131,7 @@ public class Functions implements Closeable {
 		writeEnum(MessageType.RESOURCE_DATA);
 		writeInt(path.length);
 		for (int i = 0; i < path.length; i++) {
-			BufferedImage img = toBufferedImage(ImageIO.read(new File(path[i])).getScaledInstance(Char.PLAYER_SIZE, Char.PLAYER_SIZE, Image.SCALE_SMOOTH));
+			BufferedImage img = toBufferedImage(ImageIO.read(new File(path[i])).getScaledInstance(Char.getCharSize(), Char.getCharSize(), Image.SCALE_SMOOTH));
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ImageIO.write(img, "jpg", baos);
 			String base64String = new String(Base64.getEncoder().encode(baos.toByteArray()));
@@ -224,7 +224,7 @@ public class Functions implements Closeable {
 		int ty = readInt();
 		int bx = readInt();
 		int by = readInt();
-		ArrayList<int[]> al = CI.CHARACTER.w.getRenderData(tx, ty, bx, by,CI.CHARACTER);
+		ArrayList<int[]> al = CI.CHARACTER.w.getRenderData(tx, ty, bx, by, CI.CHARACTER);
 		writeEnum(MessageType.CHAR_DISPLAY_DATA);
 		writeInt(al.size());
 		for (int[] a : al) {

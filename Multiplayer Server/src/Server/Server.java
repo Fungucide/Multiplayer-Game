@@ -67,7 +67,7 @@ public class Server implements Runnable, Closeable {
 				COMPRESSION = Integer.parseInt(in[1]);
 				break;
 			case "playerSize":
-				Char.PLAYER_SIZE = Integer.parseInt(in[1]);
+				Char.setCharSize(Integer.parseInt(in[1]));
 				break;
 			case "maxRefreshRate":
 				MAX_REFRESH_RATE = Integer.parseInt(in[1]);
@@ -107,26 +107,26 @@ public class Server implements Runnable, Closeable {
 
 	public void open() throws IOException {
 		try {
-		serverSocket = new ServerSocket(PORT);
-		for (int i = MAXCONNECTIONS - 1; i >= 0; i--) {
-			idStack.push(i);
-		}
-		while (true)
-			while (!idStack.isEmpty()) {
-				log.log(LogMessageType.SERVER, "Waiting for connection....");
-				Socket sock = serverSocket.accept();
-				log.log(LogMessageType.SERVER, "Begining Conection to:" + sock.getInetAddress().getHostAddress());
-				Connection c = new Connection(idStack.pop(), sock.getInetAddress().getHostAddress(), "", 0, "", sock);
-				ClientInteractions ci = new ClientInteractions(sock, this, c, MAX_REFRESH_RATE, TOKEN, PROTOCOL_VERSION, COMPRESSION, TILE_SIZE);
-				c.setCI(ci);
-				clients.getConnectionTableModel().c.add(c);
-				connectionUpdate();
-				log.log(LogMessageType.SERVER, "Handle object created for " + sock.getInetAddress().getHostAddress());
-				Thread t = new Thread(ci);
-				t.start();
-				log.log(LogMessageType.SERVER, "Connection to " + sock.getInetAddress().getHostAddress() + " passed on");
+			serverSocket = new ServerSocket(PORT);
+			for (int i = MAXCONNECTIONS - 1; i >= 0; i--) {
+				idStack.push(i);
 			}
-		}catch(SocketException e) {
+			while (true)
+				while (!idStack.isEmpty()) {
+					log.log(LogMessageType.SERVER, "Waiting for connection....");
+					Socket sock = serverSocket.accept();
+					log.log(LogMessageType.SERVER, "Begining Conection to:" + sock.getInetAddress().getHostAddress());
+					Connection c = new Connection(idStack.pop(), sock.getInetAddress().getHostAddress(), "", 0, "", sock);
+					ClientInteractions ci = new ClientInteractions(sock, this, c, MAX_REFRESH_RATE, TOKEN, PROTOCOL_VERSION, COMPRESSION, TILE_SIZE);
+					c.setCI(ci);
+					clients.getConnectionTableModel().c.add(c);
+					connectionUpdate();
+					log.log(LogMessageType.SERVER, "Handle object created for " + sock.getInetAddress().getHostAddress());
+					Thread t = new Thread(ci);
+					t.start();
+					log.log(LogMessageType.SERVER, "Connection to " + sock.getInetAddress().getHostAddress() + " passed on");
+				}
+		} catch (SocketException e) {
 			log.log(LogMessageType.SERVER, "Server Socket Successfully Closed");
 		}
 	}

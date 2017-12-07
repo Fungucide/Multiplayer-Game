@@ -5,9 +5,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class World {
-	private final int COMPRESSION;
+	public final int COMPRESSION;
 	private final long UPDATE_DELAY;
 	private final String[] path;
 	private final int[][] type;
@@ -16,11 +17,11 @@ public class World {
 	private PlayerUpdate pu;
 
 	public World(int width, int height, int c, long ud, String[] path, int[][] type) {
-		this(width, height, new Terrain(width, height, c), ud, path, type);
+		this(width, height, new Terrain(width, height, c, new HashSet<Integer>()), ud, path, type);
 	}
 
 	public World(int width, int height, int[][] data, int c, long ud, String[] path, int[][] type) {
-		this(width, height, new Terrain(data, c), ud, path, type);
+		this(width, height, new Terrain(data, c, new HashSet<Integer>()), ud, path, type);
 	}
 
 	public World(int width, int height, Terrain t, long ud, String[] path, int[][] type) {
@@ -53,19 +54,22 @@ public class World {
 		int size = Integer.parseInt(worldRead.readLine());
 		this.path = new String[size];
 		type = new int[size][2];
+		HashSet<Integer> pass = new HashSet<Integer>();
 		for (int i = 0; i < size; i++) {
 			String[] in = worldRead.readLine().split(" ");
-			if (in.length == 2) {
-				type[i][0] = Integer.parseInt(in[1]);
+			if (in[0].equals("P"))
+				pass.add(i);
+			if (in.length == 3) {
+				type[i][0] = Integer.parseInt(in[2]);
 				type[i][1] = -1;
 			} else {
-				type[i][0] = Integer.parseInt(in[1]);
-				type[i][1] = Integer.parseInt(in[2]);
+				type[i][0] = Integer.parseInt(in[2]);
+				type[i][1] = Integer.parseInt(in[3]);
 			}
-			this.path[i] = in[0];
+			this.path[i] = in[1];
 		}
 		worldRead.close();
-		terrain = new Terrain(data, COMPRESSION);
+		terrain = new Terrain(data, COMPRESSION, pass);
 		if (terrain.width != width || terrain.height != height)
 			throw new IllegalArgumentException(String.format("World size [x=%d y=%d] does not match Terrain size [x=%d y=%d]", width, height, terrain.width, terrain.height));
 		setPlayerUpdate(UPDATE_DELAY);
@@ -115,6 +119,10 @@ public class World {
 			if (c.getX() >= bx && c.getX() <= tx && c.getY() >= by && c.getY() <= ty && !c.equals(character))
 				res.add(new int[] { c.getX(), c.getY(), c.getGraphics() });
 		return res;
+	}
+
+	public boolean isBlocked(int qx, int qy) {
+		return terrain.isBlocked(qx, qy);
 	}
 }
 
