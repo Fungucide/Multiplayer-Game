@@ -15,7 +15,8 @@ public enum LogMessageType {
 	LOAD_WORLD(Color.GRAY),
 	SET_WORLD(Color.GRAY),
 	LIST_USERS(Color.GRAY),
-	LIST_WORLDS(Color.GRAY);
+	LIST_WORLDS(Color.GRAY),
+	TP(Color.GRAY);
 
 	private final Color c;
 

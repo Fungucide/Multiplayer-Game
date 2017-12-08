@@ -76,6 +76,8 @@ public class ClientInteractions implements Runnable, Closeable {
 			}
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block
+			if (!serverStop)
+				SERVER.log.log(LogMessageType.SERVER, "Connection to " + socket.getInetAddress().getHostAddress() + " Terminated from client side");
 			f.close();
 			try {
 				connection.close();
@@ -83,8 +85,6 @@ public class ClientInteractions implements Runnable, Closeable {
 				e1.printStackTrace();
 			}
 			SERVER.remove(connection);
-			if (!serverStop)
-				SERVER.log.log(LogMessageType.SERVER, "Connection to " + socket.getInetAddress().getHostAddress() + " Terminated from client side");
 			connection.STATUS = false;
 		} catch (IOException e) {
 			e.printStackTrace();

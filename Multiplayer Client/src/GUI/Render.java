@@ -18,6 +18,9 @@ public class Render extends JPanel {
 	private int TILE_SIZE;
 	private int COMPRESSION;
 	private Char CHARACTER;
+	private int MIDDLE_Q_X;
+	private int MIDDLE_Q_Y;
+	private int Y_OFF = 5;
 
 	public int x, y;
 	private int rx, ry;
@@ -33,6 +36,8 @@ public class Render extends JPanel {
 		COMPRESSION = compression;
 		drawX = getWidth() / 2 - Char.PLAYER_SIZE / 2;
 		drawY = getHeight() / 2 - Char.PLAYER_SIZE / 2;
+		MIDDLE_Q_X = drawX / COMPRESSION + 1;
+		MIDDLE_Q_Y = drawY / COMPRESSION + 1;
 	}
 
 	public void setWorldResources(BufferedImage[] resources) {
@@ -63,23 +68,35 @@ public class Render extends JPanel {
 			}
 			for (int i = 0; i < data.length; i++) {
 				for (int j = 0; j < data[0].length; j++) {
-					if (rdata[i][j] == 1) {
-						g.drawImage(worldResources[1], xOff + COMPRESSION * (i - 1), yOff + COMPRESSION * (j - 1) + 5, this);
+					if (rdata[i][j] != 0) {
+						g.drawImage(worldResources[rdata[i][j]], xOff + COMPRESSION * (i - 1), yOff + COMPRESSION * (j - 1) + Y_OFF, this);
 					}
 				}
 			}
 		}
 
 		if (charResources != null && CHARACTER != null) {
+
 			g.drawImage(charResources[CHARACTER.getGraphics()], drawX, drawY, this);
+
+			if (rdata[MIDDLE_Q_X + 1][MIDDLE_Q_Y + 2] != 0 && ry % COMPRESSION > COMPRESSION / 2)//Below Player
+				g.drawImage(worldResources[rdata[MIDDLE_Q_X + 1][MIDDLE_Q_Y + 2]], xOff + MIDDLE_Q_X * COMPRESSION, yOff + (MIDDLE_Q_Y + 1) * COMPRESSION + Y_OFF, this);
+			if (rdata[MIDDLE_Q_X + 2][MIDDLE_Q_Y + 2] != 0 && ry % COMPRESSION > COMPRESSION / 2)//To the right? of the player
+				g.drawImage(worldResources[rdata[MIDDLE_Q_X + 2][MIDDLE_Q_Y + 2]], xOff + (MIDDLE_Q_X + 1) * COMPRESSION, yOff + (MIDDLE_Q_Y + 1) * COMPRESSION + Y_OFF, this);
+			if (rdata[MIDDLE_Q_X][MIDDLE_Q_Y + 2] != 0 && ry % COMPRESSION > COMPRESSION / 2)//To the left? of the player
+				g.drawImage(worldResources[rdata[MIDDLE_Q_X][MIDDLE_Q_Y + 2]], xOff + (MIDDLE_Q_X - 1) * COMPRESSION, yOff + (MIDDLE_Q_Y + 1) * COMPRESSION + Y_OFF, this);
+
 			for (int i = 0; rCharData != null && i < rCharData.length; i++) {
 				int dx = rCharData[i][0] - rx + drawX;
 				int dy = rCharData[i][1] - ry + drawY;
 				int qX = dx / COMPRESSION;
 				int qY = dy / COMPRESSION;
-				if (rdata[qX][qY] != 0 && dx % COMPRESSION > COMPRESSION / 2)
-					g.drawImage(worldResources[rdata[qX][qY]], qX * COMPRESSION, qY * COMPRESSION, this);
 				g.drawImage(charResources[rCharData[i][2]], dx, dy, this);
+				if (rdata[qX][qY + 1] != 0 || true) {
+					System.out.println(dy % COMPRESSION + " " + COMPRESSION / 2);
+				}
+				if (rdata[qX][qY + 1] != 0 && dy % COMPRESSION > COMPRESSION / 2)
+					g.drawImage(worldResources[rdata[qX][qY + 1]], qX * COMPRESSION, (qY + 1) * COMPRESSION, this);
 			}
 		}
 		g.drawOval(getWidth() / 2, getHeight() / 2, 1, 1);

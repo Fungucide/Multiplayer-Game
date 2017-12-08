@@ -149,26 +149,20 @@ public class Char implements Closeable {
 	int lQy = -1;
 
 	private int[] correction(int sx, int sy, int ex, int ey) {
-		/*
-		 * int xQuad = ex / w.COMPRESSION; int yQuad = ey / w.COMPRESSION; int xDirec;
-		 * int yDirec; if (ex > sx) xDirec = 1; else if (ex < sx) xDirec = -1; else
-		 * xDirec = 0; if (ey > sy) yDirec = 1; else if (ex < sx) yDirec = -1; else
-		 * yDirec = 0; if (w.isBlocked(xQuad, yQuad)) { if (xDirec == 1) ex = xQuad *
-		 * w.COMPRESSION; else if (xDirec == -1) ex = (xQuad + 1) * w.COMPRESSION; if
-		 * (yDirec == 1) ey = yQuad * w.COMPRESSION; else if (yDirec == -1) ex = (yQuad
-		 * + 1) * w.COMPRESSION; } return new int[] { ex, ey };
-		 */
 		int xQuad = ex / w.COMPRESSION;
 		int yQuad = ey / w.COMPRESSION;
-		if (xQuad != lQx || yQuad != lQy) {
-			System.out.println(xQuad + " " + yQuad);
-			lQx = xQuad;
-			lQy = yQuad;
-		}
+		int rx = ex;
+		int ry = ey;
 		if (w.isBlocked(xQuad, yQuad)) {
-			return new int[] { sx, sy };
+			if (w.isBlocked(xQuad, ey/w.COMPRESSION)) {
+				rx = sx;
+			}
+			if (w.isBlocked(sx/w.COMPRESSION, yQuad)) {
+				ry = sy;
+			}
 		}
-		return new int[] { ex, ey };
+
+		return new int[] { rx, ry };
 	}
 
 	public void update() {
@@ -214,6 +208,11 @@ public class Char implements Closeable {
 	public static void setCharSize(int size) {
 		PLAYER_SIZE = size;
 		PLAYER_SIZE_HALF = size / 2;
+	}
+	
+	public void tp(int x,int y) {
+		this.x=x;
+		this.y=y;
 	}
 
 	@Override

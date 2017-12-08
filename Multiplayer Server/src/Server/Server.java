@@ -179,32 +179,24 @@ public class Server implements Runnable, Closeable {
 	}
 
 	public void disconnect(int ID) {
-		Connection c = getByID(ID);
+		disconnect(getByID(ID), "with ID " + ID);
+	}
+
+	public void disconnect(String username) {
+		disconnect(getByUsername(username), username);
+	}
+
+	private void disconnect(Connection c, String val) {
 		if (c != null) {
 			try {
-				c.ci.close();
+				c.close();
 				remove(c);
 				log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DISCONNECT }, "User " + c.USERNAME + " connection closed successful");
 			} catch (IOException e) {
 				log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DISCONNECT, LogMessageType.ERROR }, "User " + c.USERNAME + " connection closed unsuccessful");
 			}
-		} else {
-			log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DISCONNECT, LogMessageType.ERROR }, "User with ID " + ID + " not found");
-		}
-	}
-
-	public void disconnect(String username) {
-		Connection c = getByUsername(username);
-		if (c != null) {
-			try {
-				c.close();
-				remove(c);
-				log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DISCONNECT }, "User " + username + " connection closed successful");
-			} catch (IOException e) {
-				log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DISCONNECT, LogMessageType.ERROR }, "User " + username + " not found");
-			}
 		} else
-			log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DISCONNECT, LogMessageType.ERROR }, "User " + username + " connection closed unsuccessful");
+			log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DISCONNECT, LogMessageType.ERROR }, "User " + val + " not found");
 	}
 
 	public void loadWorld(String name, String path) {
@@ -259,6 +251,23 @@ public class Server implements Runnable, Closeable {
 			message += "\n\t" + name;
 		}
 		log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.LIST_WORLDS }, message);
+	}
+
+	public void tp(String user, int x, int y) {
+		tp(getByUsername(user), x, y, user);
+	}
+
+	public void tp(int ID, int x, int y) {
+		tp(getByID(ID), x, y, "with ID " + ID);
+	}
+
+	private void tp(Connection c, int x, int y, String val) {
+		if (c != null) {
+			c.c.tp(x, y);
+			log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.TP }, "User " + c.USERNAME + " successfully tp to (" + x + "," + y + ")");
+		} else {
+			log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.TP, LogMessageType.ERROR }, "User " + val + " not found");
+		}
 	}
 
 	@Override

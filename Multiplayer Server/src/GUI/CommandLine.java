@@ -94,6 +94,12 @@ public class CommandLine extends JTextField {
 							case "/listworlds":
 								server.listWorlds();
 								break;
+							case "/tp":
+								if (seg.get(1).equals("-id") || seg.get(1).equals("/id"))
+									server.tp(Integer.parseInt(seg.get(2)), Integer.parseInt(seg.get(3)), Integer.parseInt(seg.get(4)));
+								else
+									server.tp(seg.get(1), Integer.parseInt(seg.get(2)), Integer.parseInt(seg.get(3)));
+								break;
 							default:
 								logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.ERROR }, "No Such Command \"" + seg.get(0).substring(1) + "\" Exists");
 								break;
