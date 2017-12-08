@@ -79,24 +79,26 @@ public class Render extends JPanel {
 
 			g.drawImage(charResources[CHARACTER.getGraphics()], drawX, drawY, this);
 
-			if (rdata[MIDDLE_Q_X + 1][MIDDLE_Q_Y + 2] != 0 && ry % COMPRESSION > COMPRESSION / 2)//Below Player
+			if (rdata[MIDDLE_Q_X + 1][MIDDLE_Q_Y + 2] != 0 && ry % COMPRESSION > COMPRESSION / 2)// Below Player
 				g.drawImage(worldResources[rdata[MIDDLE_Q_X + 1][MIDDLE_Q_Y + 2]], xOff + MIDDLE_Q_X * COMPRESSION, yOff + (MIDDLE_Q_Y + 1) * COMPRESSION + Y_OFF, this);
-			if (rdata[MIDDLE_Q_X + 2][MIDDLE_Q_Y + 2] != 0 && ry % COMPRESSION > COMPRESSION / 2)//To the right? of the player
+			if (rdata[MIDDLE_Q_X + 2][MIDDLE_Q_Y + 2] != 0 && ry % COMPRESSION > COMPRESSION / 2)// To the right? of the player
 				g.drawImage(worldResources[rdata[MIDDLE_Q_X + 2][MIDDLE_Q_Y + 2]], xOff + (MIDDLE_Q_X + 1) * COMPRESSION, yOff + (MIDDLE_Q_Y + 1) * COMPRESSION + Y_OFF, this);
-			if (rdata[MIDDLE_Q_X][MIDDLE_Q_Y + 2] != 0 && ry % COMPRESSION > COMPRESSION / 2)//To the left? of the player
+			if (rdata[MIDDLE_Q_X][MIDDLE_Q_Y + 2] != 0 && ry % COMPRESSION > COMPRESSION / 2)// To the left? of the player
 				g.drawImage(worldResources[rdata[MIDDLE_Q_X][MIDDLE_Q_Y + 2]], xOff + (MIDDLE_Q_X - 1) * COMPRESSION, yOff + (MIDDLE_Q_Y + 1) * COMPRESSION + Y_OFF, this);
 
 			for (int i = 0; rCharData != null && i < rCharData.length; i++) {
 				int dx = rCharData[i][0] - rx + drawX;
 				int dy = rCharData[i][1] - ry + drawY;
-				int qX = dx / COMPRESSION;
-				int qY = dy / COMPRESSION;
+				int qX = dx / COMPRESSION + 1;
+				int qY = dy / COMPRESSION + 1;
 				g.drawImage(charResources[rCharData[i][2]], dx, dy, this);
-				if (rdata[qX][qY + 1] != 0 || true) {
-					System.out.println(dy % COMPRESSION + " " + COMPRESSION / 2);
-				}
-				if (rdata[qX][qY + 1] != 0 && dy % COMPRESSION > COMPRESSION / 2)
-					g.drawImage(worldResources[rdata[qX][qY + 1]], qX * COMPRESSION, (qY + 1) * COMPRESSION, this);
+
+				if (rdata[qX + 1][qY + 2] != 0 && (dy - yOff) % COMPRESSION > COMPRESSION / 2)// Below Player
+					g.drawImage(worldResources[rdata[qX + 1][qY + 2]], xOff + qX * COMPRESSION, yOff + (qY + 1) * COMPRESSION + Y_OFF, this);
+				if (rdata[qX + 2][qY + 2] != 0 && (dy - yOff) % COMPRESSION > COMPRESSION / 2)// To the right? of the player
+					g.drawImage(worldResources[rdata[qX + 2][qY + 2]], xOff + (qX + 1) * COMPRESSION, yOff + (qY + 1) * COMPRESSION + Y_OFF, this);
+				if (rdata[qX][qY + 2] != 0 && (dy - yOff) % COMPRESSION > COMPRESSION / 2)// To the left? of the player
+					g.drawImage(worldResources[rdata[qX][qY + 2]], xOff + (qX - 1) * COMPRESSION, yOff + (qY + 1) * COMPRESSION + Y_OFF, this);
 			}
 		}
 		g.drawOval(getWidth() / 2, getHeight() / 2, 1, 1);
