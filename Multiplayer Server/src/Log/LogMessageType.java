@@ -16,7 +16,8 @@ public enum LogMessageType {
 	SET_WORLD(Color.GRAY),
 	LIST_USERS(Color.GRAY),
 	LIST_WORLDS(Color.GRAY),
-	TP(Color.GRAY);
+	TP(Color.GRAY),
+	DUMMY(Color.ORANGE);
 
 	private final Color c;
 

@@ -71,8 +71,8 @@ public class PlayerDetailWindow extends JFrame {
 	@Override
 	public void repaint() {
 		lblRefreshRate.setText("Refresh Rate: " + c.REFRESH_RATE);
-		lblX.setText("X: "+c.c.getX());
-		lblY.setText("Y: "+c.c.getY());
+		lblX.setText("X: "+c.CHAR.getX());
+		lblY.setText("Y: "+c.CHAR.getY());
 		if(c.STATUS) {
 			lblStatus.setText("Status: Connected");
 		}else {

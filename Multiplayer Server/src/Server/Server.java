@@ -119,7 +119,7 @@ public class Server implements Runnable, Closeable {
 					Connection c = new Connection(idStack.pop(), sock.getInetAddress().getHostAddress(), "", 0, "", sock);
 					ClientInteractions ci = new ClientInteractions(sock, this, c, MAX_REFRESH_RATE, TOKEN, PROTOCOL_VERSION, COMPRESSION, TILE_SIZE);
 					c.setCI(ci);
-					clients.getConnectionTableModel().c.add(c);
+					clients.add(c);
 					connectionUpdate();
 					log.log(LogMessageType.SERVER, "Handle object created for " + sock.getInetAddress().getHostAddress());
 					Thread t = new Thread(ci);
@@ -132,36 +132,18 @@ public class Server implements Runnable, Closeable {
 	}
 
 	public boolean remove(Connection c) {
-		boolean res = false;
-		for (int i = 0; i < clients.getConnectionTableModel().c.size(); i++) {
-			if (clients.getConnectionTableModel().c.get(i).ID == c.ID) {
-				clients.getConnectionTableModel().c.remove(i);
-				res = true;
-				break;
-			}
+		if (clients.remove(c)) {
+			System.out.println(c.USERNAME);
+			System.out.println(active.remove(c.USERNAME));
+			idStack.push(c.ID);
+			connectionUpdate();
+			return true;
 		}
-		active.remove(c.USERNAME);
-		idStack.push(c.ID);
-		connectionUpdate();
-		return res;
-	}
-
-	public Connection getByUsername(String username) {
-		for (int i = 0; i < clients.getConnectionTableModel().c.size(); i++) {
-			if (clients.getConnectionTableModel().c.get(i).USERNAME.equals(username)) {
-				return clients.getConnectionTableModel().c.get(i);
-			}
-		}
-		return null;
+		return false;
 	}
 
 	public Connection getByID(int ID) {
-		for (int i = 0; i < clients.getConnectionTableModel().c.size(); i++) {
-			if (clients.getConnectionTableModel().c.get(i).ID == ID) {
-				return clients.getConnectionTableModel().c.get(i);
-			}
-		}
-		return null;
+		return clients.get(ID);
 	}
 
 	public void connectionUpdate() {
@@ -179,24 +161,18 @@ public class Server implements Runnable, Closeable {
 	}
 
 	public void disconnect(int ID) {
-		disconnect(getByID(ID), "with ID " + ID);
-	}
-
-	public void disconnect(String username) {
-		disconnect(getByUsername(username), username);
-	}
-
-	private void disconnect(Connection c, String val) {
+		Connection c = getByID(ID);
 		if (c != null) {
 			try {
 				c.close();
 				remove(c);
+				connectionUpdate();
 				log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DISCONNECT }, "User " + c.USERNAME + " connection closed successful");
 			} catch (IOException e) {
 				log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DISCONNECT, LogMessageType.ERROR }, "User " + c.USERNAME + " connection closed unsuccessful");
 			}
 		} else
-			log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DISCONNECT, LogMessageType.ERROR }, "User " + val + " not found");
+			log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DISCONNECT, LogMessageType.ERROR }, "User with ID " + ID + " not found");
 	}
 
 	public void loadWorld(String name, String path) {
@@ -220,26 +196,27 @@ public class Server implements Runnable, Closeable {
 		log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.LOAD_WORLD }, " World " + name + " loaded sucessfully");
 	}
 
-	public void setWorld(String user, String world) {
-		Connection c = getByUsername(user);
+	public void setWorld(int ID, String world) {
+		Connection c = getByID(ID);
 		World w = WORLDS.get(world);
 		if (c == null) {
-			log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.SET_WORLD, LogMessageType.ERROR }, " User with username " + user + " not found");
+			log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.SET_WORLD, LogMessageType.ERROR }, " User with ID " + ID + " not found");
 			return;
 		} else if (w == null) {
 			log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.SET_WORLD, LogMessageType.ERROR }, " World " + world + " does not exist");
 			return;
 		}
 
-		c.c.setWorld(w);
+		c.CHAR.setWorld(w);
 		c.ci.updateResources = true;
-		log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.SET_WORLD }, " User " + user + " successfully moved to world " + world);
+		log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.SET_WORLD }, " User " + c.USERNAME + " successfully moved to world " + world);
+		connectionUpdate();
 
 	}
 
 	public void listUsers() {
-		String message = " " + clients.getConnectionTableModel().c.size() + " Users:";
-		for (Connection c : clients.getConnectionTableModel().c) {
+		String message = " " + clients.getConnections().size() + " Users:";
+		for (Connection c : clients.getConnections()) {
 			message += "\n\tID: " + c.ID + "\t Username: " + c.USERNAME;
 		}
 		log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.LIST_USERS }, message);
@@ -253,31 +230,39 @@ public class Server implements Runnable, Closeable {
 		log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.LIST_WORLDS }, message);
 	}
 
-	public void tp(String user, int x, int y) {
-		tp(getByUsername(user), x, y, user);
-	}
-
 	public void tp(int ID, int x, int y) {
-		tp(getByID(ID), x, y, "with ID " + ID);
-	}
-
-	private void tp(Connection c, int x, int y, String val) {
+		Connection c = getByID(ID);
 		if (c != null) {
-			c.c.tp(x, y);
+			c.CHAR.tp(x, y);
 			log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.TP }, "User " + c.USERNAME + " successfully tp to (" + x + "," + y + ")");
 		} else {
-			log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.TP, LogMessageType.ERROR }, "User " + val + " not found");
+			log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.TP, LogMessageType.ERROR }, "User with ID" + ID + " not found");
 		}
+	}
+
+	public void addDummy(String name) {
+		Char c = new Char("Dummy:" + name, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+		c.setWorld(WORLDS.get("STARTING WORLD"));
+		Connection con = new Connection(idStack.pop(), "N/A", "Dummy:" + name, 0, "Dummy", null);
+		con.setChar(c);
+		clients.add(con);
+		connectionUpdate();
+		log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.DUMMY }, "Dummy:" + name + " successfully created");
+	}
+
+	public void removeDummy(String name) {
+		disconnect(clients.usernaeToID("Dummy:" + name));
 	}
 
 	@Override
 	public void close() throws IOException {
-		log.log(LogMessageType.SERVER, "Begining to disconnect " + clients.getConnectionTableModel().c.size() + " users");
-		for (Connection c : clients.getConnectionTableModel().c) {
+		log.log(LogMessageType.SERVER, "Begining to disconnect " + clients.getConnections().size() + " users");
+		ArrayList<Connection> al = clients.getConnections();
+		for (Connection c : al) {
 			c.close();
 			log.log(LogMessageType.SERVER, "User " + c.USERNAME + " disconnected");
 		}
-		clients.getConnectionTableModel().c.clear();
+		clients.clear();
 		log.log(LogMessageType.SERVER, "User List Cleared");
 		serverSocket.close();
 		while (!idStack.empty())

@@ -1,8 +1,7 @@
-package GUI;
+package Command;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -10,7 +9,6 @@ import java.util.regex.Pattern;
 
 import javax.swing.JTextField;
 
-import Framework.World;
 import Log.JLogArea;
 import Log.LogMessageType;
 import Server.Server;
@@ -71,10 +69,10 @@ public class CommandLine extends JTextField {
 							}
 							switch (seg.get(0).toLowerCase()) {
 							case "/disconnect":
-								if (seg.get(1).equals("/id") || seg.get(1).equals("-id"))
+								if (seg.contains("/id") || seg.contains("-id"))
 									server.disconnect(Integer.parseInt(seg.get(2)));
 								else
-									server.disconnect(seg.get(1));
+									server.disconnect(getID(seg.get(1)));
 								break;
 							case "/close":
 								server.close();
@@ -83,7 +81,10 @@ public class CommandLine extends JTextField {
 								server.loadWorld(seg.get(1), seg.get(2));
 								break;
 							case "/setworld":
-								server.setWorld(seg.get(1), seg.get(2));
+								if (seg.contains("/id") || seg.contains("-id"))
+									server.setWorld(Integer.parseInt(seg.get(1)), seg.get(2));
+								else
+									server.setWorld(getID(seg.get(1)), seg.get(2));
 								break;
 							case "/clear":
 								logArea.clear();
@@ -95,10 +96,16 @@ public class CommandLine extends JTextField {
 								server.listWorlds();
 								break;
 							case "/tp":
-								if (seg.get(1).equals("-id") || seg.get(1).equals("/id"))
+								if (seg.contains("-id") || seg.contains("/id"))
 									server.tp(Integer.parseInt(seg.get(2)), Integer.parseInt(seg.get(3)), Integer.parseInt(seg.get(4)));
 								else
-									server.tp(seg.get(1), Integer.parseInt(seg.get(2)), Integer.parseInt(seg.get(3)));
+									server.tp(getID(seg.get(1)), Integer.parseInt(seg.get(2)), Integer.parseInt(seg.get(3)));
+								break;
+							case "/dummy":
+								if (seg.get(1).contains("-add") || seg.get(1).contains("/add"))
+									server.addDummy(seg.get(2));
+								else if (seg.get(1).equals("-remove") || seg.get(1).equals("/remove"))
+									server.removeDummy(seg.get(2));
 								break;
 							default:
 								logArea.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.ERROR }, "No Such Command \"" + seg.get(0).substring(1) + "\" Exists");
@@ -115,6 +122,10 @@ public class CommandLine extends JTextField {
 				}
 			}
 		});
+	}
+
+	private int getID(String username) {
+		return server.clients.usernaeToID(username);
 	}
 
 }

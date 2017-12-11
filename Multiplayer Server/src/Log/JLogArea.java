@@ -17,6 +17,7 @@ import javax.swing.text.StyleContext;
 
 public class JLogArea extends JTextPane {
 	private final ReentrantLock lock;
+	private final ReentrantLock lock2;
 	private ArrayList<LogMessage> log;
 	private final int MAX_SIZE = 10000;
 	private final Queue<LogMessage> queue;
@@ -29,6 +30,7 @@ public class JLogArea extends JTextPane {
 		queue = new LinkedList<LogMessage>();
 		log = new ArrayList<LogMessage>();
 		lock = new ReentrantLock();
+		lock2 = new ReentrantLock();
 	}
 
 	public void log(LogMessageType lmt, String message) {
@@ -106,19 +108,24 @@ public class JLogArea extends JTextPane {
 	}
 
 	private void append(String msg, Color c, boolean bold) {
-		StyleContext sc = StyleContext.getDefaultStyleContext();
-		AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, c);
+		lock2.lock();
+		try {
+			StyleContext sc = StyleContext.getDefaultStyleContext();
+			AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, c);
 
-		aset = sc.addAttribute(aset, StyleConstants.FontFamily, "Arial");
-		aset = sc.addAttribute(aset, StyleConstants.Alignment, StyleConstants.ALIGN_JUSTIFIED);
-		aset = sc.addAttribute(aset, StyleConstants.Bold, bold);
+			aset = sc.addAttribute(aset, StyleConstants.FontFamily, "Arial");
+			aset = sc.addAttribute(aset, StyleConstants.Alignment, StyleConstants.ALIGN_JUSTIFIED);
+			aset = sc.addAttribute(aset, StyleConstants.Bold, bold);
 
-		setEditable(true);
-		int len = getDocument().getLength();
-		setCaretPosition(len);
-		setCharacterAttributes(aset, false);
-		replaceSelection(msg);
-		setEditable(false);
+			setEditable(true);
+			int len = getDocument().getLength();
+			setCaretPosition(len);
+			setCharacterAttributes(aset, false);
+			replaceSelection(msg);
+			setEditable(false);
+		} finally {
+			lock2.unlock();
+		}
 	}
 
 	public void clear() {

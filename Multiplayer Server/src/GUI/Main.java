@@ -13,6 +13,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SpringLayout;
 
+import Command.CommandLine;
 import Log.FilterCheckBox;
 import Log.FilterTypeCheckBox;
 import Log.JLogArea;

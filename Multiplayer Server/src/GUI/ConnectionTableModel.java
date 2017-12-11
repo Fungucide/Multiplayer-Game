@@ -1,15 +1,51 @@
 package GUI;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.table.AbstractTableModel;
 
 public class ConnectionTableModel extends AbstractTableModel {
 
-	public ArrayList<Connection> c;
+	private ArrayList<Connection> c;
+	private HashMap<String, Integer> userToID;
+	private HashMap<Integer, Connection> connections;
 
 	public ConnectionTableModel() {
 		c = new ArrayList<Connection>();
+		userToID = new HashMap<String, Integer>();
+		connections = new HashMap<Integer, Connection>();
+	}
+
+	protected ArrayList<Connection> getConnections() {
+		return c;
+	}
+
+	protected void clear() {
+		c.clear();
+		userToID.clear();
+		connections.clear();
+	}
+
+	protected void add(Connection con) {
+		c.add(con);
+		userToID.put(con.USERNAME, con.ID);
+		connections.put(con.ID, con);
+	}
+
+	protected boolean remove(Connection con) {
+		if (c.remove(con) && userToID.remove(con.USERNAME, con.ID) && connections.remove(con.ID, con))
+			return true;
+		return false;
+
+	}
+
+	protected int usernaeToID(String user) {
+		return userToID.get(user);
+	}
+
+	protected Connection get(int ID) {
+		return connections.get(ID);
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 
 public class World {
@@ -149,10 +150,14 @@ class PlayerUpdate implements Runnable {
 	public void run() {
 		long time;
 		while (true) {
-			time = System.currentTimeMillis();
-			for (Char c : players)
-				c.update();
-			while (System.currentTimeMillis() - time < UPDATE_DELAY);
+			try {
+				time = System.currentTimeMillis();
+				for (Char c : players)
+					c.update();
+				while (System.currentTimeMillis() - time < UPDATE_DELAY);
+			} catch (ConcurrentModificationException e) {
+
+			}
 		}
 	}
 

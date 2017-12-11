@@ -3,6 +3,7 @@ package GUI;
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JTable;
@@ -26,12 +27,34 @@ public class ConnectionTable extends JTable {
 		getColumn("Details").setCellRenderer(new ConnectionTableButtonRenderer());
 	}
 
+	public ArrayList<Connection> getConnections() {
+		return tm.getConnections();
+	}
+	public void clear() {
+		tm.clear();
+	}
+
+	public void add(Connection con) {
+		tm.add(con);
+	}
+
+	public boolean remove(Connection con) {
+		return tm.remove(con);
+	}
+
+	public int usernaeToID(String user) {
+		return tm.usernaeToID(user);
+	}
+
+	public Connection get(int ID) {
+		return tm.get(ID);
+	}
+
 }
 
 class ConnectionTableButtonRenderer implements TableCellRenderer {
 	@Override
-	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-			int row, int column) {
+	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 		JButton button = (JButton) value;
 		if (isSelected) {
 			button.setForeground(table.getSelectionForeground());

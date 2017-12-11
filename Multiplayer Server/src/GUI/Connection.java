@@ -18,7 +18,7 @@ public class Connection implements Closeable {
 	public long REFRESH_RATE;
 	public String CHARACTER_CLASS, USERNAME;
 	public final JButton BUTTON;
-	public Char c;
+	public Char CHAR;
 	public boolean STATUS = true;
 	public ClientInteractions ci;
 
@@ -46,14 +46,14 @@ public class Connection implements Closeable {
 	}
 
 	public void setChar(Char c) {
-		this.c = c;
+		this.CHAR = c;
 	}
 
 	@Override
 	public void close() throws IOException {
 		// TODO Auto-generated method stub
 		SOCKET.close();
-		c.close();
+		CHAR.close();
 		ci.close();
 	}
 }

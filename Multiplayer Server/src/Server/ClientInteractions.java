@@ -65,7 +65,7 @@ public class ClientInteractions implements Runnable, Closeable {
 			while (true) {
 				f.dataUpdate(updateResources);
 				if (updateResources)
-					f.writeResources(connection.c.w.getResources(), connection.c.w.getType());
+					f.writeResources(connection.CHAR.w.getResources(), connection.CHAR.w.getType());
 				time = System.currentTimeMillis();
 				f.writeCharacter();
 				f.getCharacterMove();
@@ -78,14 +78,12 @@ public class ClientInteractions implements Runnable, Closeable {
 			// TODO Auto-generated catch block
 			if (!serverStop)
 				SERVER.log.log(LogMessageType.SERVER, "Connection to " + socket.getInetAddress().getHostAddress() + " Terminated from client side");
-			f.close();
 			try {
-				connection.close();
+				close();
 			} catch (IOException e1) {
+				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			SERVER.remove(connection);
-			connection.STATUS = false;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -94,6 +92,7 @@ public class ClientInteractions implements Runnable, Closeable {
 	@Override
 	public void close() throws IOException {
 		// TODO Auto-generated method stub
+		SERVER.remove(connection);
 		serverStop = true;
 		f.close();
 		connection.STATUS = false;
