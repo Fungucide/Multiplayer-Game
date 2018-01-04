@@ -76,6 +76,14 @@ public class Render extends JPanel {
 				}
 			}
 		}
+		g.setColor(Color.BLACK);
+		for (int i = 1; i * COMPRESSION <= getWidth(); i++) {
+			g.drawLine(i * COMPRESSION + xOff, 0, i * COMPRESSION + xOff, getHeight());
+		}
+
+		for (int i = 1; i * COMPRESSION <= getHeight(); i++) {
+			g.drawLine(0, i * COMPRESSION + yOff, getWidth(), i * COMPRESSION + yOff);
+		}
 
 		if (charResources != null && CHARACTER != null) {
 
@@ -89,17 +97,19 @@ public class Render extends JPanel {
 				g.drawImage(worldResources[rdata[MIDDLE_Q_X][MIDDLE_Q_Y + 2]], xOff + (MIDDLE_Q_X - 1) * COMPRESSION, yOff + (MIDDLE_Q_Y + 1) * COMPRESSION + Y_OFF, this);
 
 			for (int i = 0; rCharData != null && i < rCharData.length; i++) {
-				int dX = rCharData[i][0] - rx + drawX;
-				int dY = rCharData[i][1] - ry + drawY;
-				int qX = dX / COMPRESSION + 1;
-				int qY = dY / COMPRESSION + 1;
+				int dX = rCharData[i][0] - rx + drawX+5;
+				int dY = rCharData[i][1] - ry + drawY+5;
+				dX=dX-dX%COMPRESSION+xOff;
+				dY=dY-dY%COMPRESSION+yOff;
+				int qX = (dX) / COMPRESSION + 1;
+				int qY = (dY) / COMPRESSION + 1;
 				g.drawImage(charResources[rCharData[i][2]], dX, dY, this);
 
 				if (qX != lXq || qY != lYq) {
 					lXq = qX;
 					lYq = qY;
-					System.out.println("Cord: " + (dX-drawX) + "," + (dY-drawY));
-					System.out.println("Quad:" + qX + " " + qY + "\n");
+					//System.out.println("Cord: " + dX + "," + dY);
+					//System.out.println("Quad:" + qX + " " + qY + "\n");
 				}
 
 				g.drawImage(worldResources[1], xOff + qX * COMPRESSION, yOff + (qY + 1) * COMPRESSION + Y_OFF, this);

@@ -1,4 +1,4 @@
-package GUI;
+package Server;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,7 +9,7 @@ import java.net.Socket;
 import javax.swing.JButton;
 
 import Framework.Char;
-import Server.ClientInteractions;
+import GUI.PlayerDetailWindow;
 
 public class Connection implements Closeable {
 	public final Socket SOCKET;

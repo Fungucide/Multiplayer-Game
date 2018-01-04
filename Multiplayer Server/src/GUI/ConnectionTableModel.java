@@ -5,6 +5,8 @@ import java.util.HashMap;
 
 import javax.swing.table.AbstractTableModel;
 
+import Server.Connection;
+
 public class ConnectionTableModel extends AbstractTableModel {
 
 	private ArrayList<Connection> c;

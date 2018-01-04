@@ -154,7 +154,7 @@ public class Char implements Closeable {
 		int rx = ex;
 		int ry = ey;
 		if (w.isBlocked(xQuad, yQuad)) {
-			if (w.isBlocked(xQuad, ey/w.COMPRESSION)) {
+			if (w.isBlocked(xQuad, sy/w.COMPRESSION)) {
 				rx = sx;
 			}
 			if (w.isBlocked(sx/w.COMPRESSION, yQuad)) {

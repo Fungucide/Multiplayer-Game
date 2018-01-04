@@ -4,6 +4,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.SpringLayout;
 
+import Server.Connection;
+
 public class PlayerDetailWindow extends JFrame {
 	private final Connection c;
 	private JLabel lblId;

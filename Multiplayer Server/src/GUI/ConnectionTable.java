@@ -10,6 +10,8 @@ import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.table.TableCellRenderer;
 
+import Server.Connection;
+
 public class ConnectionTable extends JTable {
 	private ConnectionTableModel tm;
 

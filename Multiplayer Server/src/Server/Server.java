@@ -18,7 +18,6 @@ import java.util.Stack;
 
 import Framework.Char;
 import Framework.World;
-import GUI.Connection;
 import GUI.ConnectionTable;
 import Log.JLogArea;
 import Log.LogMessageType;
@@ -119,7 +118,6 @@ public class Server implements Runnable, Closeable {
 					Connection c = new Connection(idStack.pop(), sock.getInetAddress().getHostAddress(), "", 0, "", sock);
 					ClientInteractions ci = new ClientInteractions(sock, this, c, MAX_REFRESH_RATE, TOKEN, PROTOCOL_VERSION, COMPRESSION, TILE_SIZE);
 					c.setCI(ci);
-					clients.add(c);
 					connectionUpdate();
 					log.log(LogMessageType.SERVER, "Handle object created for " + sock.getInetAddress().getHostAddress());
 					Thread t = new Thread(ci);
@@ -133,8 +131,7 @@ public class Server implements Runnable, Closeable {
 
 	public boolean remove(Connection c) {
 		if (clients.remove(c)) {
-			System.out.println(c.USERNAME);
-			System.out.println(active.remove(c.USERNAME));
+			active.remove(c.USERNAME);
 			idStack.push(c.ID);
 			connectionUpdate();
 			return true;

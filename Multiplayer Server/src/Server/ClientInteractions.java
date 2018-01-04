@@ -6,7 +6,6 @@ import java.net.Socket;
 import java.net.SocketException;
 
 import Framework.Char;
-import GUI.Connection;
 import Log.LogMessageType;
 
 public class ClientInteractions implements Runnable, Closeable {
@@ -57,6 +56,7 @@ public class ClientInteractions implements Runnable, Closeable {
 		try {
 
 			f.waitForLogin();
+			SERVER.clients.add(connection);
 			CHARACTER = new Char(connection.USERNAME, 0);// Index value will be inputed later
 			CHARACTER.setWorld(SERVER.WORLDS.get("STARTING WORLD"));
 			connection.setChar(CHARACTER);
