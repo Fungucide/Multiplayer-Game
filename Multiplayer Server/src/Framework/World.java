@@ -9,72 +9,56 @@ import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 
 public class World {
-	public final int COMPRESSION;
+	public final int COMPRESSION, C_WIDTH, C_HEIGHT;
 	private final long UPDATE_DELAY;
 	private final String[] path;
-	private final int[][] type;
 	private final int width, height;
-	private Terrain terrain;
 	private PlayerUpdate pu;
+	private final ArrayList<Displayable> display;
+	private final Terrain[][] TERRAIN;
 
-	public World(int width, int height, int c, long ud, String[] path, int[][] type) {
-		this(width, height, new Terrain(width, height, c, new HashSet<Integer>()), ud, path, type);
-	}
-
-	public World(int width, int height, int[][] data, int c, long ud, String[] path, int[][] type) {
-		this(width, height, new Terrain(data, c, new HashSet<Integer>()), ud, path, type);
-	}
-
-	public World(int width, int height, Terrain t, long ud, String[] path, int[][] type) {
+	public World(int width, int height, int c, long ud, String[] path, ArrayList<Terrain> t) throws Exception {
 		this.width = width;
 		this.height = height;
-		this.terrain = t;
 		this.path = path;
-		this.type = type;
-		COMPRESSION = t.COMPRESSION;
-		if (terrain.width != width || terrain.height != height)
-			throw new IllegalArgumentException(String.format("World size [x=%d y=%d] does not match Terrain size [x=%d y=%d]", width, height, terrain.width, terrain.height));
 		UPDATE_DELAY = ud;
+		COMPRESSION = c;
+		C_WIDTH = width / c;
+		C_HEIGHT = height / c;
 		setPlayerUpdate(UPDATE_DELAY);
+		display = new ArrayList<Displayable>();
+		display.addAll(t);
+		TERRAIN = new Terrain[C_WIDTH][C_HEIGHT];
+		for (Terrain ter : t) {
+			if (ter.validBound(C_WIDTH, C_HEIGHT))
+				TERRAIN[ter.getX()][ter.getY()] = ter;
+			else
+				throw new IndexOutOfBoundsException(String.format("Terrain location [x=%d y=%d] does not fit in World size [x=%d y=%d]", ter.getX(), ter.getY(), width, height));
+		}
 	}
 
-	public World(String path, long ud) throws IOException {
-		UPDATE_DELAY = ud;
-		BufferedReader worldRead = new BufferedReader(new FileReader(new File(path)));
-		width = Integer.parseInt(worldRead.readLine());
-		height = Integer.parseInt(worldRead.readLine());
-		COMPRESSION = Integer.parseInt(worldRead.readLine());
-		int[][] data = new int[width][height];
-		String[] input;
-		for (int i = 0; i < height / COMPRESSION; i++) {
-			input = worldRead.readLine().split(" ");
-			for (int j = 0; j < width / COMPRESSION; j++) {
-				data[j][i] = Integer.parseInt(input[j]);
-			}
-		}
-		int size = Integer.parseInt(worldRead.readLine());
-		this.path = new String[size];
-		type = new int[size][2];
-		HashSet<Integer> pass = new HashSet<Integer>();
-		for (int i = 0; i < size; i++) {
-			String[] in = worldRead.readLine().split(" ");
-			if (in[0].equals("P"))
-				pass.add(i);
-			if (in.length == 3) {
-				type[i][0] = Integer.parseInt(in[2]);
-				type[i][1] = -1;
-			} else {
-				type[i][0] = Integer.parseInt(in[2]);
-				type[i][1] = Integer.parseInt(in[3]);
-			}
-			this.path[i] = in[1];
-		}
-		worldRead.close();
-		terrain = new Terrain(data, COMPRESSION, pass);
-		if (terrain.width != width || terrain.height != height)
-			throw new IllegalArgumentException(String.format("World size [x=%d y=%d] does not match Terrain size [x=%d y=%d]", width, height, terrain.width, terrain.height));
-		setPlayerUpdate(UPDATE_DELAY);
-	}
+	/*
+	 * public World(String path, long ud) throws IOException { UPDATE_DELAY = ud;
+	 * BufferedReader worldRead = new BufferedReader(new FileReader(new
+	 * File(path))); width = Integer.parseInt(worldRead.readLine()); height =
+	 * Integer.parseInt(worldRead.readLine()); COMPRESSION =
+	 * Integer.parseInt(worldRead.readLine()); int[][] data = new
+	 * int[width][height]; String[] input; for (int i = 0; i < height / COMPRESSION;
+	 * i++) { input = worldRead.readLine().split(" "); for (int j = 0; j < width /
+	 * COMPRESSION; j++) { data[j][i] = Integer.parseInt(input[j]); } } int size =
+	 * Integer.parseInt(worldRead.readLine()); this.path = new String[size]; type =
+	 * new int[size][2]; HashSet<Integer> pass = new HashSet<Integer>(); for (int i
+	 * = 0; i < size; i++) { String[] in = worldRead.readLine().split(" "); if
+	 * (in[0].equals("P")) pass.add(i); if (in.length == 3) { type[i][0] =
+	 * Integer.parseInt(in[2]); type[i][1] = -1; } else { type[i][0] =
+	 * Integer.parseInt(in[2]); type[i][1] = Integer.parseInt(in[3]); } this.path[i]
+	 * = in[1]; } worldRead.close(); terrain = new Terrain(data, COMPRESSION, pass);
+	 * if (terrain.width != width || terrain.height != height) throw new
+	 * IllegalArgumentException(String.
+	 * format("World size [x=%d y=%d] does not match Terrain size [x=%d y=%d]",
+	 * width, height, terrain.width, terrain.height));
+	 * setPlayerUpdate(UPDATE_DELAY); }
+	 */
 
 	public void setPlayerUpdate(long updateDelay) {
 		pu = new PlayerUpdate(updateDelay);
@@ -98,20 +82,17 @@ public class World {
 		return height;
 	}
 
-	public int[][] getTerrain(int x, int y, int width, int height) {
-		return terrain.get(x, y, width, height);
-	}
-
-	public void changeTerrain(int x, int y, int type) {
-		terrain.change(x, y, type);
+	public ArrayList<Displayable> getDisplay(int x, int y, int width, int height) {
+		ArrayList<Displayable> display = new ArrayList<Displayable>();
+		for (Displayable d : this.display) {
+			if (d.isWithin(x, y, width, height, d))
+				display.add(d);
+		}
+		return display;
 	}
 
 	public String[] getResources() {
 		return path;
-	}
-
-	public int[][] getType() {
-		return type;
 	}
 
 	public ArrayList<int[]> getRenderData(int tx, int ty, int bx, int by, Char character) {
@@ -123,7 +104,7 @@ public class World {
 	}
 
 	public boolean isBlocked(int qx, int qy) {
-		return terrain.isBlocked(qx, qy);
+		return TERRAIN[qx][qy]!=null;
 	}
 }
 

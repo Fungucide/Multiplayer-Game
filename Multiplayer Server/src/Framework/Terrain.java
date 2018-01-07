@@ -1,50 +1,53 @@
 package Framework;
 
-import java.util.HashSet;
+public class Terrain implements Displayable {
+	private final int x, y, graphics, offset, size;
+	private boolean passable;
 
-public class Terrain {
-	private int[][] data;
-	public final int COMPRESSION;
-	public int width, height;
-	private final HashSet<Integer> passable;
-
-	public Terrain(int x, int y, int compression, HashSet<Integer> pass) {
-		width = x;
-		height = y;
-		data = new int[x][y];
-		COMPRESSION = compression;
-		passable = pass;
+	public Terrain(int x, int y, boolean passable, int size, int graphics) {
+		this(x, y, passable, graphics, size, 0);
 	}
 
-	public Terrain(int[][] data, int compression, HashSet<Integer> pass) {
-		width = data.length;
-		height = data[0].length;
-		this.data = data;
-		COMPRESSION = compression;
-		passable = pass;
+	public Terrain(int x, int y, boolean passable, int graphics, int size, int offset) {
+		this.x = x;
+		this.y = y;
+		this.passable = passable;
+		this.graphics = graphics;
+		this.size = size;
+		this.offset = offset;
 	}
 
-	public int[][] get(int x, int y, int width, int height) {
-		int[][] res = new int[width][height];
-		for (int i = 0; i < width; i++) {
-			for (int j = 0; j < height; j++) {
-				if (x + i < 0 || x + i >= data.length || y + j < 0 || y + j >= data.length)
-					res[i][j] = 0;
-				else
-					res[i][j] = data[x + i][y + j];
-			}
-		}
-		return res;
+	public int getX() {
+		return x;
 	}
 
-	protected void change(int x, int y, int type) {
-		data[x][y] = type;
+	public int getY() {
+		return y;
 	}
 
-	public boolean isBlocked(int qx, int qy) {
-		if (qx < 0 || qy < 0)
-			return false;
-		return !passable.contains(data[qx][qy]);
+	public int getOffSet() {
+		return offset;
+	}
+
+	public boolean isPassable() {
+		return passable;
+	}
+	
+	public int getSize() {
+		return size;
+	}
+
+	public boolean validBound(int width, int height) {
+		boolean xBound = x >= 0 && x < width;
+		boolean yBound = y >= 0 && y < height;
+		return xBound && yBound;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof Terrain)
+			return getX() == ((Terrain) o).getX() && getY() == ((Terrain) o).getY();
+		return false;
 	}
 
 }

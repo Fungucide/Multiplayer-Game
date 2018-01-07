@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Char implements Closeable {
+public class Char implements Closeable, Displayable {
 	public static String PATH = "";
 	private static int PLAYER_SIZE = 100;
 	private static int PLAYER_SIZE_HALF = 50;
@@ -154,10 +154,10 @@ public class Char implements Closeable {
 		int rx = ex;
 		int ry = ey;
 		if (w.isBlocked(xQuad, yQuad)) {
-			if (w.isBlocked(xQuad, sy/w.COMPRESSION)) {
+			if (w.isBlocked(xQuad, sy / w.COMPRESSION)) {
 				rx = sx;
 			}
-			if (w.isBlocked(sx/w.COMPRESSION, yQuad)) {
+			if (w.isBlocked(sx / w.COMPRESSION, yQuad)) {
 				ry = sy;
 			}
 		}
@@ -209,10 +209,10 @@ public class Char implements Closeable {
 		PLAYER_SIZE = size;
 		PLAYER_SIZE_HALF = size / 2;
 	}
-	
-	public void tp(int x,int y) {
-		this.x=x;
-		this.y=y;
+
+	public void tp(int x, int y) {
+		this.x = x;
+		this.y = y;
 	}
 
 	@Override
@@ -239,6 +239,11 @@ public class Char implements Closeable {
 			return ((Char) o).USERNAME.equals(USERNAME);
 		}
 		return false;
+	}
+
+	@Override
+	public int getSize() {
+		return PLAYER_SIZE;
 	}
 
 }

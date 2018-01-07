@@ -22,6 +22,8 @@ import java.util.Base64;
 import javax.imageio.ImageIO;
 
 import Framework.Char;
+import Framework.Displayable;
+import Framework.Terrain;
 import Log.LogMessageType;
 
 public class Functions implements Closeable {
@@ -58,7 +60,6 @@ public class Functions implements Closeable {
 		inputStream = socket.getInputStream();
 		outputStream = socket.getOutputStream();
 		outputStreamBuffer = new ByteArrayOutputStream(BUFFER_SIZE_BYTES);
-
 	}
 
 	public boolean verifyToken() throws IOException {
@@ -208,8 +209,24 @@ public class Functions implements Closeable {
 		int height = readInt();
 		writeEnum(MessageType.TERRAIN_REQUEST);
 		writeInt(COMPRESSION);
-		writeIntArray2D(CI.CHARACTER.w.getTerrain(x / COMPRESSION - width / 2, y / COMPRESSION - height / 2, width, height));
+		writeIntArray2D(displayableArray(CI.CHARACTER.w.getDisplay(x / COMPRESSION - width / 2, y / COMPRESSION - height / 2, width, height)));
 		flush();
+	}
+
+	private int[][] displayableArray(ArrayList<Displayable> al) {
+		int[][] array = new int[al.size()][4];// x,y,offset,passable
+		for (int i = 0; i < al.size(); i++) {
+			array[i][0] = al.get(i).getX();
+			array[i][1] = al.get(i).getY();
+			if (al.get(i) instanceof Terrain) {
+				array[i][2] = ((Terrain) al.get(i)).getOffSet();
+				array[i][3] = ((Terrain) al.get(i)).isPassable() ? 1 : 0;
+			} else {
+				array[i][2] = 0;
+				array[i][3] = 1;
+			}
+		}
+		return array;
 	}
 
 	private static void ensureMessageType(MessageType actualType, MessageType expectedType) {
