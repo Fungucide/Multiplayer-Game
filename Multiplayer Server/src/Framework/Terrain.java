@@ -55,4 +55,8 @@ public class Terrain implements Displayable {
 		return new int[] { GRAPHICS, frame };
 	}
 
+	public int getType() {
+		return 1;
+	}
+	
 }

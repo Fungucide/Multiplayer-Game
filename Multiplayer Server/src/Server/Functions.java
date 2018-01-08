@@ -205,16 +205,17 @@ public class Functions implements Closeable {
 	}
 
 	private int[][] displayableArray(ArrayList<Displayable> al) {
-		int[][] array = new int[al.size()][4];// x,y,offset,passable
+		int[][] array = new int[al.size()][5];// x,y,offset,passable
 		for (int i = 0; i < al.size(); i++) {
-			array[i][0] = al.get(i).getX();
-			array[i][1] = al.get(i).getY();
+			array[i][0] = al.get(i).getType();
+			array[i][1] = al.get(i).getX();
+			array[i][2] = al.get(i).getY();
 			if (al.get(i) instanceof Terrain) {
-				array[i][2] = ((Terrain) al.get(i)).getOffSet();
-				array[i][3] = ((Terrain) al.get(i)).isPassable() ? 1 : 0;
+				array[i][3] = ((Terrain) al.get(i)).getOffSet();
+				array[i][4] = ((Terrain) al.get(i)).isPassable() ? 1 : 0;
 			} else {
-				array[i][2] = 0;
-				array[i][3] = 1;
+				array[i][3] = 0;
+				array[i][4] = 1;
 			}
 		}
 		return array;

@@ -13,9 +13,13 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Base64;
 
 import javax.imageio.ImageIO;
+
+import Framework.Char;
+import Framework.Displayable;
 
 public class Functions implements Closeable {
 
@@ -111,7 +115,7 @@ public class Functions implements Closeable {
 		return readBoolean();
 	}
 
-	public Terrain requestTerrain(int width, int height) throws IOException {
+	public ArrayList<Displayable> requestTerrain(int width, int height) throws IOException {
 		writeEnum(MessageType.TERRAIN_REQUEST);
 		writeInt(c.getX());
 		writeInt(c.getY());
@@ -122,10 +126,14 @@ public class Functions implements Closeable {
 		return readTerrain();
 	}
 
-	private Terrain readTerrain() throws IOException {
+	private ArrayList<Displayable> readTerrain() throws IOException {
 		ensureMessageType(readEnum(MessageType.class), MessageType.TERRAIN_REQUEST);
-		int compress = readInt();
-		return new Terrain(readIntArray2D(), compress);
+		int[][] display = readIntArray2D();
+		ArrayList<Displayable> res = new ArrayList<Displayable>();
+		for (int i = 0; i < display.length; i++) {
+			res.add(new Displayable(display[i][0], display[i][1], display[i][2], display[i][3], display[i][4], display[i][5]));
+		}
+		return res;
 	}
 
 	public int[][] getCharDisplay(int width, int height) throws IOException {
@@ -152,7 +160,7 @@ public class Functions implements Closeable {
 
 	public void getCharacter() throws IOException {
 		ensureMessageType(readEnum(MessageType.class), MessageType.CHARACTER_DATA);
-		c.setStats(readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt());
+		c.setStats(readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt());
 	}
 
 	public void moveCharacter(int xMove, int yMove, int direction, boolean attack) throws IOException {

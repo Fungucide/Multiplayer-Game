@@ -243,5 +243,9 @@ public class Char implements Closeable, Displayable {
 	public int getSize() {
 		return PLAYER_SIZE;
 	}
+	
+	public int getType() {
+		return 0;
+	}
 
 }

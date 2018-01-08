@@ -3,10 +3,12 @@ package GUI;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
-import Client.Char;
+import Framework.Char;
+import Framework.Displayable;
 
 public class Render extends JPanel {
 
@@ -23,10 +25,9 @@ public class Render extends JPanel {
 	private int Y_OFF = 5;
 
 	public int x, y;
+	public ArrayList<Displayable> display;
 	private int rx, ry;
 	private int drawX, drawY;
-	public int[][] data;
-	private int[][] rdata;
 	public int[][] charData;
 	private int[][] rCharData;
 	private BufferedImage[] worldResources, charResources;
@@ -58,22 +59,20 @@ public class Render extends JPanel {
 		rx = x;
 		ry = y;
 
-		rdata = data;
 		rCharData = charData;
 		int xOff = -(rx % COMPRESSION);
 		int yOff = -(ry % COMPRESSION);
-		if (rdata != null && worldResources != null) {
+		if (worldResources != null) {
 			for (int i = 0; i * TILE_SIZE <= getWidth() + TILE_SIZE; i++) {
 				for (int j = 0; j * TILE_SIZE <= getHeight() + TILE_SIZE; j++) {
 					g.drawImage(worldResources[0], xOff + i * TILE_SIZE, yOff + j * TILE_SIZE, this);
 				}
 			}
-			for (int i = 0; i < data.length; i++) {
-				for (int j = 0; j < data[0].length; j++) {
-					if (rdata[i][j] != 0) {
-						g.drawImage(worldResources[rdata[i][j]], xOff + COMPRESSION * (i - 1), yOff + COMPRESSION * (j - 1) + Y_OFF, this);
-					}
-				}
+			for(Displayable d:display) {
+				if(d.getType()==0)//Player
+					g.drawImage(charResources[d.getGraphics()[0]], d.getX(), d.getY(),this);
+				else if(d.getType()==1)
+					g.drawImage(worldResources, xOff, yOff, observer)
 			}
 		}
 		g.setColor(Color.BLACK);

@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
+import Framework.Displayable;
 import GUI.Render;
 
 public class ServerInteractions implements Runnable {
@@ -15,7 +17,7 @@ public class ServerInteractions implements Runnable {
 	private int[] info;
 	private Render r;
 
-	private Terrain terrain;
+	private ArrayList<Displayable> display;
 	private Functions f;
 	public int xMove, yMove;
 
@@ -57,10 +59,9 @@ public class ServerInteractions implements Runnable {
 					r.setWorldResources(f.getResources());
 				f.getCharacter();
 				f.moveCharacter(xMove, yMove, 0, false);
-				terrain = f.requestTerrain(r.getWidth() / r.getCompression() + 2, r.getHeight() / r.getCompression() + 1);
+				display = f.requestTerrain(r.getWidth() / r.getCompression() + 2, r.getHeight() / r.getCompression() + 1);
 				r.x = getX();
 				r.y = getY();
-				r.data = terrain.data;
 				r.charData = f.getCharDisplay(r.getWidth(), r.getHeight());
 				r.repaint();
 			}

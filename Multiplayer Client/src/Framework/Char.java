@@ -1,10 +1,10 @@
-package Client;
+package Framework;
 
 public class Char {
 
 	public static int PLAYER_SIZE = 100;
 
-	private int x, y, maxHealth = 100, health = 100, attack = 10, maxMana = 100, mana = 100, power = 10, speed = 10, graphics = -1;
+	private int x, y, maxHealth = 100, health = 100, attack = 10, maxMana = 100, mana = 100, power = 10, speed = 10, graphics = -1, frame = 0;
 
 	public int getX() {
 		return x;
@@ -46,7 +46,11 @@ public class Char {
 		return graphics;
 	}
 
-	public void setStats(int x, int y, int maxHealth, int health, int attack, int maxMana, int mana, int power, int speed, int graphics) {
+	public int getFrame() {
+		return frame;
+	}
+
+	public void setStats(int x, int y, int maxHealth, int health, int attack, int maxMana, int mana, int power, int speed, int graphics, int frame) {
 		this.x = x;
 		this.y = y;
 		this.maxHealth = maxHealth;
@@ -57,6 +61,7 @@ public class Char {
 		this.power = power;
 		this.speed = speed;
 		this.graphics = graphics;
+		this.frame = frame;
 	}
 
 }

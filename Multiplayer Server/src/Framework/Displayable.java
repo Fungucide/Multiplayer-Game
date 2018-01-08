@@ -2,6 +2,8 @@ package Framework;
 
 public interface Displayable {
 
+	public int getType();
+	
 	public int getX();
 
 	public int getY();
