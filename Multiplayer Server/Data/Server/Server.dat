@@ -7,7 +7,6 @@ compression=50
 playerSize=50
 maxRefreshRate=10
 maxWorldUpdate=20
-startWorld=Data/Server/StartWorld.world
-loadWorld=World1=Data/Server/World1.world
+startWorld=Data/Server/StartWorld
 charResources=Data/Server/Character/
 charData=Data/Player/

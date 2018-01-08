@@ -13,7 +13,7 @@ public class ClientInteractions implements Runnable, Closeable {
 	public boolean updateResources = true;
 	private Functions f;
 	private Socket socket;
-	private final int PROTOCOL_VERSION, TILE_SIZE, COMPRESSION, MAX_REFRESH_RATE;
+	private final int PROTOCOL_VERSION, MAX_REFRESH_RATE;
 	public Connection connection;
 	public final Server SERVER;
 	private boolean serverStop = false;
@@ -24,7 +24,7 @@ public class ClientInteractions implements Runnable, Closeable {
 	 */
 	public Char CHARACTER;
 
-	public ClientInteractions(Socket socket, Server s, Connection connection, int mrr, String t, int pv, int c, int ts) {
+	public ClientInteractions(Socket socket, Server s, Connection connection, int mrr, String t, int pv) {
 		/**
 		 * Temporary Stuff
 		 */
@@ -33,11 +33,9 @@ public class ClientInteractions implements Runnable, Closeable {
 		SERVER = s;
 		this.connection = connection;
 		PROTOCOL_VERSION = pv;
-		TILE_SIZE = ts;
-		COMPRESSION = c;
 		try {
 
-			f = new Functions(this, socket, t, PROTOCOL_VERSION, COMPRESSION, TILE_SIZE);
+			f = new Functions(this, socket, t, PROTOCOL_VERSION);
 			// Make sure everything is up to date
 			if (!f.verifyToken())
 				f.close();
@@ -65,7 +63,7 @@ public class ClientInteractions implements Runnable, Closeable {
 			while (true) {
 				f.dataUpdate(updateResources);
 				if (updateResources)
-					f.writeResources(connection.CHAR.w.getResources(), connection.CHAR.w.getType());
+					f.writeResources(connection.CHAR.w.getResources());
 				time = System.currentTimeMillis();
 				f.writeCharacter();
 				f.getCharacterMove();

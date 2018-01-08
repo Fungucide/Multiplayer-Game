@@ -23,6 +23,7 @@ import javax.imageio.ImageIO;
 
 import Framework.Char;
 import Framework.Displayable;
+import Framework.Sprite;
 import Framework.Terrain;
 import Log.LogMessageType;
 
@@ -30,8 +31,6 @@ public class Functions implements Closeable {
 
 	private final String TOKEN;
 	private final int PROTOCOL_VERSION;
-	private final int COMPRESSION;
-	private final int TILE_SIZE;
 	private final ClientInteractions CI;
 
 	private static final int BUFFER_SIZE_BYTES = 1 << 20;
@@ -46,13 +45,11 @@ public class Functions implements Closeable {
 	private final ByteArrayOutputStream outputStreamBuffer;
 	private final Socket SOCKET;
 
-	public Functions(ClientInteractions rps, Socket socket, String t, int pv, int c, int ts) throws IOException {
-		CI = rps;
+	public Functions(ClientInteractions ci, Socket socket, String t, int pv) throws IOException {
+		CI = ci;
 		SOCKET = socket;
 		TOKEN = t;
 		PROTOCOL_VERSION = pv;
-		COMPRESSION = c;
-		TILE_SIZE = ts;
 		socket.setSendBufferSize(BUFFER_SIZE_BYTES);
 		socket.setReceiveBufferSize(BUFFER_SIZE_BYTES);
 		socket.setTcpNoDelay(true);
@@ -80,8 +77,8 @@ public class Functions implements Closeable {
 
 	public void writeGraphic() throws IOException {
 		writeEnum(MessageType.GRAPHIC_DATA);
-		writeInt(TILE_SIZE);
-		writeInt(COMPRESSION);
+		writeInt(CI.CHARACTER.w.TILE_SIZE);
+		writeInt(CI.CHARACTER.w.COMPRESSION);
 		writeInt(Char.getCharSize());
 		flush();
 	}
@@ -92,17 +89,11 @@ public class Functions implements Closeable {
 		flush();
 	}
 
-	public void writeResources(String[] path, int[][] type) throws IOException {
+	public void writeResources(Sprite[] sprites) throws IOException {
 		writeEnum(MessageType.RESOURCE_DATA);
-		writeInt(path.length);
-		for (int i = 0; i < path.length; i++) {
-			BufferedImage img;
-			if (type[i][1] == -1 && type[i][0] == 0)
-				img = toBufferedImage(ImageIO.read(new File(path[i])).getScaledInstance(TILE_SIZE, TILE_SIZE, Image.SCALE_SMOOTH));
-			else if (type[i][1] == -1 && type[i][0] == 1)
-				img = toBufferedImage(ImageIO.read(new File(path[i])).getScaledInstance(COMPRESSION, COMPRESSION, Image.SCALE_SMOOTH));
-			else
-				img = toBufferedImage(ImageIO.read(new File(path[i])).getScaledInstance(type[i][0], type[i][1], Image.SCALE_SMOOTH));
+		writeInt(sprites.length);
+		for (int i = 0; i < sprites.length; i++) {
+			BufferedImage img = toBufferedImage(ImageIO.read(new File(sprites[i].getPath())).getScaledInstance(sprites[i].getWidth(), sprites[i].getHeight(), Image.SCALE_SMOOTH));
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ImageIO.write(img, "jpg", baos);
 			String base64String = new String(Base64.getEncoder().encode(baos.toByteArray()));
@@ -190,7 +181,8 @@ public class Functions implements Closeable {
 		writeInt(CI.CHARACTER.getMana());
 		writeInt(CI.CHARACTER.getPower());
 		writeInt(CI.CHARACTER.getSpeed());
-		writeInt(CI.CHARACTER.getGraphics());
+		writeInt(CI.CHARACTER.getGraphics()[0]);
+		writeInt(CI.CHARACTER.getGraphics()[1]);
 		flush();
 	}
 
@@ -208,8 +200,7 @@ public class Functions implements Closeable {
 		int width = readInt();
 		int height = readInt();
 		writeEnum(MessageType.TERRAIN_REQUEST);
-		writeInt(COMPRESSION);
-		writeIntArray2D(displayableArray(CI.CHARACTER.w.getDisplay(x / COMPRESSION - width / 2, y / COMPRESSION - height / 2, width, height)));
+		writeIntArray2D(displayableArray(CI.CHARACTER.w.getDisplay(x, y, width, height)));
 		flush();
 	}
 

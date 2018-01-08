@@ -23,7 +23,7 @@ import Log.JLogArea;
 import Log.LogMessageType;
 
 public class Server implements Runnable, Closeable {
-	private int MAXCONNECTIONS, PORT, PROTOCOL_VERSION, TILE_SIZE, COMPRESSION, MAX_REFRESH_RATE;
+	private int MAXCONNECTIONS, PORT, PROTOCOL_VERSION, MAX_REFRESH_RATE;
 	private ServerSocket serverSocket;
 	protected long MAX_WORLD_UPDATE;
 	private String TOKEN, CHAR_RESOURCES;
@@ -58,12 +58,6 @@ public class Server implements Runnable, Closeable {
 				break;
 			case "protocolVersion":
 				PROTOCOL_VERSION = Integer.parseInt(in[1]);
-				break;
-			case "tileSize":
-				TILE_SIZE = Integer.parseInt(in[1]);
-				break;
-			case "compression":
-				COMPRESSION = Integer.parseInt(in[1]);
 				break;
 			case "playerSize":
 				Char.setCharSize(Integer.parseInt(in[1]));
@@ -116,7 +110,7 @@ public class Server implements Runnable, Closeable {
 					Socket sock = serverSocket.accept();
 					log.log(LogMessageType.SERVER, "Begining Conection to:" + sock.getInetAddress().getHostAddress());
 					Connection c = new Connection(idStack.pop(), sock.getInetAddress().getHostAddress(), "", 0, "", sock);
-					ClientInteractions ci = new ClientInteractions(sock, this, c, MAX_REFRESH_RATE, TOKEN, PROTOCOL_VERSION, COMPRESSION, TILE_SIZE);
+					ClientInteractions ci = new ClientInteractions(sock, this, c, MAX_REFRESH_RATE, TOKEN, PROTOCOL_VERSION);
 					c.setCI(ci);
 					connectionUpdate();
 					log.log(LogMessageType.SERVER, "Handle object created for " + sock.getInetAddress().getHostAddress());

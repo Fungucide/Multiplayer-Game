@@ -19,7 +19,7 @@ public class Char implements Closeable, Displayable {
 	private final int INDEX;
 	private double DIAGONAL_MOD = Math.sqrt(.5d);
 	private int xMove = 0, yMove = 0;
-	private int x = 0, y = 0, maxHealth = 100, health = 100, attack = 10, maxMana = 100, mana = 100, power = 10, speed = 5, graphics = 0;
+	private int x = 0, y = 0, maxHealth = 100, health = 100, attack = 10, maxMana = 100, mana = 100, power = 10, speed = 5, graphics = 0, frame = 0;
 	public World w;
 
 	public Char(String userName, int x, int y, int maxHealth, int health, int attack, int maxMana, int mana, int power, int speed) {
@@ -125,8 +125,8 @@ public class Char implements Closeable, Displayable {
 		return speed;
 	}
 
-	public int getGraphics() {
-		return graphics;
+	public int[] getGraphics() {
+		return new int[] { graphics, frame };
 	}
 
 	public void move(int x, int y) {
@@ -233,7 +233,6 @@ public class Char implements Closeable, Displayable {
 		fw.close();
 	}
 
-	@Override
 	public boolean equals(Object o) {
 		if (o instanceof Char) {
 			return ((Char) o).USERNAME.equals(USERNAME);
@@ -241,7 +240,6 @@ public class Char implements Closeable, Displayable {
 		return false;
 	}
 
-	@Override
 	public int getSize() {
 		return PLAYER_SIZE;
 	}

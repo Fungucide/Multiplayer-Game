@@ -1,45 +1,46 @@
 package Framework;
 
 public class Terrain implements Displayable {
-	private final int x, y, graphics, offset, size;
+	private final int X, Y, GRAPHICS, OFFSET, SIZE;
 	private boolean passable;
+	private int frame = 0;
 
 	public Terrain(int x, int y, boolean passable, int size, int graphics) {
 		this(x, y, passable, graphics, size, 0);
 	}
 
 	public Terrain(int x, int y, boolean passable, int graphics, int size, int offset) {
-		this.x = x;
-		this.y = y;
+		this.X = x;
+		this.Y = y;
 		this.passable = passable;
-		this.graphics = graphics;
-		this.size = size;
-		this.offset = offset;
+		this.GRAPHICS = graphics;
+		this.SIZE = size;
+		this.OFFSET = offset;
 	}
 
 	public int getX() {
-		return x;
+		return X;
 	}
 
 	public int getY() {
-		return y;
+		return Y;
 	}
 
 	public int getOffSet() {
-		return offset;
+		return OFFSET;
 	}
 
 	public boolean isPassable() {
 		return passable;
 	}
-	
+
 	public int getSize() {
-		return size;
+		return SIZE;
 	}
 
 	public boolean validBound(int width, int height) {
-		boolean xBound = x >= 0 && x < width;
-		boolean yBound = y >= 0 && y < height;
+		boolean xBound = X >= 0 && X < width;
+		boolean yBound = Y >= 0 && Y < height;
 		return xBound && yBound;
 	}
 
@@ -48,6 +49,10 @@ public class Terrain implements Displayable {
 		if (o instanceof Terrain)
 			return getX() == ((Terrain) o).getX() && getY() == ((Terrain) o).getY();
 		return false;
+	}
+
+	public int[] getGraphics() {
+		return new int[] { GRAPHICS, frame };
 	}
 
 }
