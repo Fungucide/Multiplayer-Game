@@ -41,7 +41,6 @@ public class ClientInteractions implements Runnable, Closeable {
 				f.close();
 			if (!f.verifyProtocolVersion())
 				f.close();
-			f.writeGraphic();
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -59,6 +58,7 @@ public class ClientInteractions implements Runnable, Closeable {
 			CHARACTER.setWorld(SERVER.WORLDS.get("STARTING WORLD"));
 			connection.setChar(CHARACTER);
 			long time;
+			f.writeGraphic();
 			f.charGraphics(Char.CHAR_PIC_AL.toArray(new String[Char.CHAR_PIC_AL.size()]));
 			while (true) {
 				f.dataUpdate(updateResources);

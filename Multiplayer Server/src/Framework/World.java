@@ -58,10 +58,14 @@ public class World {
 				break;
 			case "height":
 				height = Integer.parseInt(temp[1]);
+				break;
 			case "compression":
 				compression = Integer.parseInt(temp[1]);
+				System.out.println(compression);
+				break;
 			case "tileSize":
 				tileSize = Integer.parseInt(temp[1]);
+				break;
 			}
 		}
 		WIDTH = width;
@@ -98,8 +102,11 @@ public class World {
 				offset = Integer.parseInt(temp[6]);
 			else
 				offset = 0;
-			if (type == 0)// Terrain
-				display.add(new Terrain(x, y, passable == 1 ? true : false, graphics, SPRITES[graphics].getWidth(), offset));
+
+			if (type == 1) {// Terrain
+				TERRAIN[x][y] = new Terrain(x * COMPRESSION, y * COMPRESSION, passable == 1 ? true : false, graphics, SPRITES[graphics].getWidth(), offset);
+				display.add(TERRAIN[x][y]);
+			}
 
 		}
 		setPlayerUpdate(UPDATE_DELAY);
@@ -108,29 +115,6 @@ public class World {
 		resources.close();
 		terrain.close();
 	}
-
-	/*
-	 * public World(String path, long ud) throws IOException { UPDATE_DELAY = ud;
-	 * BufferedReader worldRead = new BufferedReader(new FileReader(new
-	 * File(path))); width = Integer.parseInt(worldRead.readLine()); height =
-	 * Integer.parseInt(worldRead.readLine()); COMPRESSION =
-	 * Integer.parseInt(worldRead.readLine()); int[][] data = new
-	 * int[width][height]; String[] input; for (int i = 0; i < height / COMPRESSION;
-	 * i++) { input = worldRead.readLine().split(" "); for (int j = 0; j < width /
-	 * COMPRESSION; j++) { data[j][i] = Integer.parseInt(input[j]); } } int size =
-	 * Integer.parseInt(worldRead.readLine()); this.path = new String[size]; type =
-	 * new int[size][2]; HashSet<Integer> pass = new HashSet<Integer>(); for (int i
-	 * = 0; i < size; i++) { String[] in = worldRead.readLine().split(" "); if
-	 * (in[0].equals("P")) pass.add(i); if (in.length == 3) { type[i][0] =
-	 * Integer.parseInt(in[2]); type[i][1] = -1; } else { type[i][0] =
-	 * Integer.parseInt(in[2]); type[i][1] = Integer.parseInt(in[3]); } this.path[i]
-	 * = in[1]; } worldRead.close(); terrain = new Terrain(data, COMPRESSION, pass);
-	 * if (terrain.width != width || terrain.height != height) throw new
-	 * IllegalArgumentException(String.
-	 * format("World size [x=%d y=%d] does not match Terrain size [x=%d y=%d]",
-	 * width, height, terrain.width, terrain.height));
-	 * setPlayerUpdate(UPDATE_DELAY); }
-	 */
 
 	public void setPlayerUpdate(long updateDelay) {
 		pu = new PlayerUpdate(updateDelay);
@@ -155,11 +139,11 @@ public class World {
 	}
 
 	public ArrayList<Displayable> getDisplay(int x, int y, int width, int height) {
-		x = x / COMPRESSION - width / 2;
-		y = y / COMPRESSION - height / 2;
+		x -= width / 2;
+		y -= height / 2;
 		ArrayList<Displayable> display = new ArrayList<Displayable>();
 		for (Displayable d : this.display) {
-			if (d.isWithin(x, y, width, height, d))
+			if (d.isWithin(x, y, width, height))
 				display.add(d);
 		}
 		return display;

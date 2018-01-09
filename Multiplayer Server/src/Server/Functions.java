@@ -205,17 +205,19 @@ public class Functions implements Closeable {
 	}
 
 	private int[][] displayableArray(ArrayList<Displayable> al) {
-		int[][] array = new int[al.size()][5];// x,y,offset,passable
+		int[][] array = new int[al.size()][6];// x,y,offset,passable
 		for (int i = 0; i < al.size(); i++) {
 			array[i][0] = al.get(i).getType();
 			array[i][1] = al.get(i).getX();
 			array[i][2] = al.get(i).getY();
 			if (al.get(i) instanceof Terrain) {
 				array[i][3] = ((Terrain) al.get(i)).getOffSet();
-				array[i][4] = ((Terrain) al.get(i)).isPassable() ? 1 : 0;
+				array[i][4] = ((Terrain) al.get(i)).getGraphics()[0];
+				array[i][5] = ((Terrain) al.get(i)).getGraphics()[1];
 			} else {
 				array[i][3] = 0;
-				array[i][4] = 1;
+				array[i][4] = ((Terrain) al.get(i)).getGraphics()[0];
+				array[i][5] = ((Terrain) al.get(i)).getGraphics()[1];
 			}
 		}
 		return array;
@@ -458,6 +460,10 @@ public class Functions implements Closeable {
 
 	private void writeIntArray2D(int[][] value) throws IOException {
 		writeInt(value.length);
+		if (value.length == 0) {
+			writeInt(0);
+			return;
+		}
 		writeInt(value[0].length);
 		for (int i = 0; i < value.length; i++) {
 			for (int j = 0; j < value[0].length; j++) {

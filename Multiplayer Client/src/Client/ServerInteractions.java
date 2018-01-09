@@ -27,7 +27,6 @@ public class ServerInteractions implements Runnable {
 			f = new Functions(adress, port);
 			f.writeTokenMessage(TOKEN);
 			f.writeProtocolVersionMessage();
-			info = f.getGraphic();
 			byte[] bytes = new String(password).getBytes("UTF-8");
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			byte[] hash = md.digest(bytes);
@@ -44,7 +43,6 @@ public class ServerInteractions implements Runnable {
 
 	public void setRender(Render r) {
 		this.r = r;
-		this.r.setData(info[0], info[1]);
 	}
 
 	public void setChar() {
@@ -53,13 +51,15 @@ public class ServerInteractions implements Runnable {
 
 	public void update() {
 		try {
+			info = f.getGraphic();
+			r.setData(info[0], info[1]);
 			r.setCharResources(f.charGraphics());
 			while (true) {
 				if (f.dataUpdate())
 					r.setWorldResources(f.getResources());
 				f.getCharacter();
 				f.moveCharacter(xMove, yMove, 0, false);
-				display = f.requestTerrain(r.getWidth() / r.getCompression() + 2, r.getHeight() / r.getCompression() + 1);
+				r.display = f.requestTerrain(r.getWidth(), r.getHeight());
 				r.x = getX();
 				r.y = getY();
 				r.charData = f.getCharDisplay(r.getWidth(), r.getHeight());
