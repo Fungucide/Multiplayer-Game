@@ -61,7 +61,6 @@ public class World {
 				break;
 			case "compression":
 				compression = Integer.parseInt(temp[1]);
-				System.out.println(compression);
 				break;
 			case "tileSize":
 				tileSize = Integer.parseInt(temp[1]);
@@ -98,13 +97,12 @@ public class World {
 			y = Integer.parseInt(temp[2]);
 			passable = Integer.parseInt(temp[3]);
 			graphics = Integer.parseInt(temp[4]);
-			if (temp.length >= 7)
-				offset = Integer.parseInt(temp[6]);
+			if (temp.length >= 6)
+				offset = Integer.parseInt(temp[5]);
 			else
 				offset = 0;
-
 			if (type == 1) {// Terrain
-				TERRAIN[x][y] = new Terrain(x * COMPRESSION, y * COMPRESSION, passable == 1 ? true : false, graphics, SPRITES[graphics].getWidth(), offset);
+				TERRAIN[x][y] = new Terrain(x * COMPRESSION, y * COMPRESSION, passable == 1 ? true : false, graphics, SPRITES[graphics].getWidth(), SPRITES[graphics].getHeight(), offset);
 				display.add(TERRAIN[x][y]);
 			}
 
@@ -123,10 +121,13 @@ public class World {
 	}
 
 	public boolean addPlayer(Char c) {
+		display.add(c);
+		System.out.println(display.size());
 		return pu.add(c);
 	}
 
 	public boolean removePlayer(Char c) {
+		display.remove(c);
 		return pu.delete(c);
 	}
 
@@ -138,11 +139,13 @@ public class World {
 		return HEIGHT;
 	}
 
-	public ArrayList<Displayable> getDisplay(int x, int y, int width, int height) {
+	public ArrayList<Displayable> getDisplay(int x, int y, int width, int height, Char c) {
 		x -= width / 2;
 		y -= height / 2;
 		ArrayList<Displayable> display = new ArrayList<Displayable>();
 		for (Displayable d : this.display) {
+			if (c.equals(d))
+				continue;
 			if (d.isWithin(x, y, width, height))
 				display.add(d);
 		}

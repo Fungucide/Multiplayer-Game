@@ -1,20 +1,21 @@
 package Framework;
 
 public class Terrain implements Displayable {
-	private final int X, Y, GRAPHICS, OFFSET, SIZE;
+	private final int X, Y, GRAPHICS, OFFSET, WIDTH, HEIGHT;
 	private boolean passable;
 	private int frame = 0;
 
-	public Terrain(int x, int y, boolean passable, int size, int graphics) {
-		this(x, y, passable, graphics, size, 0);
+	public Terrain(int x, int y, boolean passable, int width, int height, int graphics) {
+		this(x, y, passable, graphics, width, height, 0);
 	}
 
-	public Terrain(int x, int y, boolean passable, int graphics, int size, int offset) {
+	public Terrain(int x, int y, boolean passable, int graphics, int width, int height, int offset) {
 		this.X = x;
 		this.Y = y;
 		this.passable = passable;
 		this.GRAPHICS = graphics;
-		this.SIZE = size;
+		this.WIDTH = width;
+		this.HEIGHT = height;
 		this.OFFSET = offset;
 	}
 
@@ -34,8 +35,12 @@ public class Terrain implements Displayable {
 		return passable;
 	}
 
-	public int getSize() {
-		return SIZE;
+	public int getWidth() {
+		return WIDTH;
+	}
+
+	public int getHeight() {
+		return HEIGHT;
 	}
 
 	public boolean validBound(int width, int height) {
@@ -58,5 +63,5 @@ public class Terrain implements Displayable {
 	public int getType() {
 		return 1;
 	}
-	
+
 }

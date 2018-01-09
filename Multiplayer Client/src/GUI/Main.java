@@ -176,11 +176,13 @@ public class Main {
 	private void login() {
 		try {
 			if (si.attemptLogin(textFieldServerAdress.getText(), Integer.parseInt(textFieldPort.getText()), textFieldUsername.getText(), textFieldPassword.getPassword())) {
+				textFieldPassword.setText("");
 				hide(login);
 				render.setVisible(true);
 				render.repaint();
 				run();
 			} else {
+				textFieldPassword.setText("");
 				JOptionPane.showMessageDialog(frame, "Login Failed", "Login Error", JOptionPane.ERROR_MESSAGE);
 			}
 		} catch (NoSuchAlgorithmException | IOException e) {

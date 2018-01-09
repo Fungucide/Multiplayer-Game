@@ -8,13 +8,15 @@ public interface Displayable {
 
 	public int getY();
 
-	public int getSize();
+	public int getWidth();
+	
+	public int getHeight();
 
 	public int[] getGraphics();
 
 	public default boolean isWithin(int x, int y, int width, int height) {
-		boolean xBound = getX() + getSize() >= x && getX() - getSize() <= x + width;
-		boolean yBound = getY() + getSize() >= y && getY() - getSize() <= y + width;
+		boolean xBound = getX() + getWidth() >= x && getX() - getWidth() <= x + width;
+		boolean yBound = getY() + getHeight() >= y && getY() - getHeight() <= y + width;
 		return xBound && yBound;
 	}
 

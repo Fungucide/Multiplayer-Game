@@ -88,7 +88,6 @@ public class Main {
 			Thread t = new Thread(s);
 			t.start();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

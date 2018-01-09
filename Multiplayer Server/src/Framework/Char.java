@@ -240,7 +240,11 @@ public class Char implements Closeable, Displayable {
 		return false;
 	}
 
-	public int getSize() {
+	public int getWidth() {
+		return PLAYER_SIZE;
+	}
+	
+	public int getHeight() {
 		return PLAYER_SIZE;
 	}
 	

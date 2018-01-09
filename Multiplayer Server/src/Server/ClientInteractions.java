@@ -68,7 +68,6 @@ public class ClientInteractions implements Runnable, Closeable {
 				f.writeCharacter();
 				f.getCharacterMove();
 				f.terraintRequest();
-				f.characterDisplayRequest();
 				while (System.currentTimeMillis() - time < MAX_REFRESH_RATE);
 				connection.REFRESH_RATE = System.currentTimeMillis() - time;
 			}

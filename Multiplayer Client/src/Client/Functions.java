@@ -131,11 +131,12 @@ public class Functions implements Closeable {
 		int[][] display = readIntArray2D();
 		ArrayList<Displayable> res = new ArrayList<Displayable>();
 		for (int i = 0; i < display.length; i++) {
-			res.add(new Displayable(display[i][0], display[i][1], display[i][2], display[i][3], display[i][4], display[i][5]));
+			res.add(new Displayable(display[i][0], display[i][1], display[i][2], display[i][3], display[i][4], display[i][5], display[i][6], display[i][7]));
 		}
 		return res;
 	}
 
+	@Deprecated
 	public int[][] getCharDisplay(int width, int height) throws IOException {
 		writeEnum(MessageType.CHAR_DISPLAY_REQUEST);
 		writeInt(c.getX() + width / 2);

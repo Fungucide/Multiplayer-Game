@@ -2,12 +2,14 @@ package Framework;
 
 public class Displayable implements Comparable<Displayable> {
 
-	private final int TYPE, X, Y, OFF_SET, GRAPHICS, FRAME;
+	private final int TYPE, X, Y, HALF_WIDTH, HALF_HEIGHT, OFF_SET, GRAPHICS, FRAME;
 
-	public Displayable(int type, int x, int y, int offSet, int graphics, int frame) {
+	public Displayable(int type, int x, int y, int width, int height, int offSet, int graphics, int frame) {
 		TYPE = type;
 		X = x;
 		Y = y;
+		HALF_WIDTH = width / 2;
+		HALF_HEIGHT = height / 2;
 		OFF_SET = offSet;
 		GRAPHICS = graphics;
 		FRAME = frame;
@@ -23,6 +25,14 @@ public class Displayable implements Comparable<Displayable> {
 
 	public int getY() {
 		return Y;
+	}
+
+	public int getHalfWidth() {
+		return HALF_WIDTH;
+	}
+
+	public int getHalfHeight() {
+		return HALF_HEIGHT;
 	}
 
 	public int getOffset() {

@@ -62,7 +62,6 @@ public class ServerInteractions implements Runnable {
 				r.display = f.requestTerrain(r.getWidth(), r.getHeight());
 				r.x = getX();
 				r.y = getY();
-				r.charData = f.getCharDisplay(r.getWidth(), r.getHeight());
 				r.repaint();
 			}
 		} catch (IOException e) {

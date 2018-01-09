@@ -200,24 +200,26 @@ public class Functions implements Closeable {
 		int width = readInt();
 		int height = readInt();
 		writeEnum(MessageType.TERRAIN_REQUEST);
-		writeIntArray2D(displayableArray(CI.CHARACTER.w.getDisplay(x, y, width, height)));
+		writeIntArray2D(displayableArray(CI.CHARACTER.w.getDisplay(x, y, width, height, CI.CHARACTER)));
 		flush();
 	}
 
 	private int[][] displayableArray(ArrayList<Displayable> al) {
-		int[][] array = new int[al.size()][6];// x,y,offset,passable
+		int[][] array = new int[al.size()][8];// x,y,offset,passable
 		for (int i = 0; i < al.size(); i++) {
 			array[i][0] = al.get(i).getType();
 			array[i][1] = al.get(i).getX();
 			array[i][2] = al.get(i).getY();
+			array[i][3] = al.get(i).getWidth();
+			array[i][4] = al.get(i).getHeight();
 			if (al.get(i) instanceof Terrain) {
-				array[i][3] = ((Terrain) al.get(i)).getOffSet();
-				array[i][4] = ((Terrain) al.get(i)).getGraphics()[0];
-				array[i][5] = ((Terrain) al.get(i)).getGraphics()[1];
+				array[i][5] = ((Terrain) al.get(i)).getOffSet();
+				array[i][6] = ((Terrain) al.get(i)).getGraphics()[0];
+				array[i][7] = ((Terrain) al.get(i)).getGraphics()[1];
 			} else {
-				array[i][3] = 0;
-				array[i][4] = ((Terrain) al.get(i)).getGraphics()[0];
-				array[i][5] = ((Terrain) al.get(i)).getGraphics()[1];
+				array[i][5] = 0;
+				array[i][6] = al.get(i).getGraphics()[0];
+				array[i][7] = al.get(i).getGraphics()[1];
 			}
 		}
 		return array;
@@ -229,6 +231,7 @@ public class Functions implements Closeable {
 		}
 	}
 
+	@Deprecated
 	public void characterDisplayRequest() throws IOException {
 		ensureMessageType(readEnum(MessageType.class), MessageType.CHAR_DISPLAY_REQUEST);
 		int tx = readInt();
