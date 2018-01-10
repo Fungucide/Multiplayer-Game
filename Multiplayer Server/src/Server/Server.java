@@ -199,7 +199,8 @@ public class Server implements Runnable, Closeable {
 		}
 
 		c.CHAR.setWorld(w);
-		c.ci.updateResources = true;
+		if (c.ci != null)
+			c.ci.updateResources = true;
 		log.log(new LogMessageType[] { LogMessageType.COMMAND, LogMessageType.SET_WORLD }, " User " + c.USERNAME + " successfully moved to world " + world);
 		connectionUpdate();
 

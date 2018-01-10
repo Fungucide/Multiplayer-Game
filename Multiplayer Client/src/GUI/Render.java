@@ -62,25 +62,16 @@ public class Render extends JPanel {
 				}
 			}
 
-			display.add(new Displayable(0, x, y, CHARACTER.PLAYER_SIZE, CHARACTER.PLAYER_SIZE + 20, 0, CHARACTER.getGraphics(), CHARACTER.getFrame()));
+			display.add(new Displayable(0, x, y, Char.playerSize(), Char.playerSize(), 0, CHARACTER.getGraphics(), CHARACTER.getFrame()));
 			Collections.sort(display);
 			for (Displayable d : display) {
 				if (d.getType() == 0)// Player
-					g.drawImage(charResources[d.getGraphics()[0]], d.getX() - d.getHalfWidth() - x + middleX, d.getY() - d.getHalfHeight() - y + middleY, this);
+					g.drawImage(charResources[d.getGraphics()[0]], d.getX() - Char.playerSize() - x + middleX, d.getY() - Char.playerSize() - y + middleY, this);
 				else if (d.getType() == 1) {// Terrain
-					g.drawImage(worldResources[d.getGraphics()[0]], d.getX() - d.getHalfWidth() - x + middleX + 3, d.getY() - d.getHalfHeight() - y + middleY - 10, this);
+					g.drawImage(worldResources[d.getGraphics()[0]], d.getX() - d.getHalfWidth() - x + middleX + 3, d.getY() - d.getHalfHeight() - y + middleY - 5, this);
 				}
 			}
 		}
-
-		/*
-		 * g.setColor(Color.BLACK); for (int i = 1; i * COMPRESSION <= getWidth(); i++)
-		 * { g.drawLine(i * COMPRESSION + xOff, 0, i * COMPRESSION + xOff, getHeight());
-		 * }
-		 * 
-		 * for (int i = 1; i * COMPRESSION <= getHeight(); i++) { g.drawLine(0, i *
-		 * COMPRESSION + yOff, getWidth(), i * COMPRESSION + yOff); }
-		 */
 
 		g.drawOval(getWidth() / 2, getHeight() / 2, 1, 1);
 		g.setColor(Color.DARK_GRAY);

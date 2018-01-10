@@ -52,7 +52,8 @@ public class Connection implements Closeable {
 	@Override
 	public void close() throws IOException {
 		// TODO Auto-generated method stub
-		SOCKET.close();
+		if (SOCKET != null)
+			SOCKET.close();
 		CHAR.close();
 		ci.close();
 	}

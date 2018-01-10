@@ -95,6 +95,7 @@ public class Functions implements Closeable {
 	public BufferedImage[] charGraphics() throws IOException {
 		BufferedImage[] resources;
 		ensureMessageType(readEnum(MessageType.class), MessageType.RESOURCE_DATA);
+		Char.setPlayerSize(readInt());
 		resources = new BufferedImage[readInt()];
 		for (int i = 0; i < resources.length; i++) {
 			byte[] arr = Base64.getDecoder().decode(readString());

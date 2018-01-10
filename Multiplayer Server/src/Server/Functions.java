@@ -121,6 +121,7 @@ public class Functions implements Closeable {
 
 	public void charGraphics(String[] path) throws IOException {
 		writeEnum(MessageType.RESOURCE_DATA);
+		writeInt(Char.getCharSize());
 		writeInt(path.length);
 		for (int i = 0; i < path.length; i++) {
 			BufferedImage img = toBufferedImage(ImageIO.read(new File(path[i])).getScaledInstance(Char.getCharSize(), Char.getCharSize(), Image.SCALE_SMOOTH));

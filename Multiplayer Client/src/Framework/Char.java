@@ -2,9 +2,17 @@ package Framework;
 
 public class Char {
 
-	public int PLAYER_SIZE = 100;
+	private static int PLAYER_SIZE = 100;
 
 	private int x, y, maxHealth = 100, health = 100, attack = 10, maxMana = 100, mana = 100, power = 10, speed = 10, graphics = -1, frame = 0;
+
+	public static void setPlayerSize(int size) {
+		PLAYER_SIZE = size;
+	}
+
+	public static int playerSize() {
+		return PLAYER_SIZE;
+	}
 
 	public int getX() {
 		return x;

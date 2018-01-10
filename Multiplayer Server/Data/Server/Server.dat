@@ -8,5 +8,6 @@ playerSize=50
 maxRefreshRate=10
 maxWorldUpdate=20
 startWorld=Data/Server/StartWorld
+loadWorld=World1=Data/Server/World1
 charResources=Data/Server/Character/
 charData=Data/Player/

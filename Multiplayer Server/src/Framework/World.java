@@ -122,12 +122,11 @@ public class World {
 
 	public boolean addPlayer(Char c) {
 		display.add(c);
-		System.out.println(display.size());
 		return pu.add(c);
 	}
 
 	public boolean removePlayer(Char c) {
-		display.remove(c);
+		System.out.println(display.remove(c));
 		return pu.delete(c);
 	}
 
