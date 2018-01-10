@@ -53,10 +53,10 @@ public class ServerInteractions implements Runnable {
 		try {
 			info = f.getGraphic();
 			r.setData(info[0], info[1]);
-			r.setCharResources(f.charGraphics());
+			r.setResources(f.charGraphics(),0);
 			while (true) {
 				if (f.dataUpdate())
-					r.setWorldResources(f.getResources());
+					r.setResources(f.getResources(),1);
 				f.getCharacter();
 				f.moveCharacter(xMove, yMove, 0, false);
 				r.display = f.requestTerrain(r.getWidth(), r.getHeight());

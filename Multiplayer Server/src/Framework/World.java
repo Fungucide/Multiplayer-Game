@@ -12,7 +12,8 @@ public class World {
 	private final long UPDATE_DELAY;
 	private final Sprite[] SPRITES;
 	private PlayerUpdate pu;
-	private final ArrayList<Displayable> display;
+	private final ArrayList<Terrain> terrainDisplay;
+	private final ArrayList<Char> charDisplay;
 	private final Terrain[][] TERRAIN;
 
 	public World(int width, int height, int c, int ts, long ud, Sprite[] sprites, ArrayList<Terrain> t) throws Exception {
@@ -25,8 +26,9 @@ public class World {
 		C_WIDTH = width / c;
 		C_HEIGHT = height / c;
 		setPlayerUpdate(UPDATE_DELAY);
-		display = new ArrayList<Displayable>();
-		display.addAll(t);
+		terrainDisplay = new ArrayList<Terrain>();
+		charDisplay = new ArrayList<Char>();
+		terrainDisplay.addAll(t);
 		TERRAIN = new Terrain[C_WIDTH][C_HEIGHT];
 		for (Terrain ter : t) {
 			if (ter.validBound(C_WIDTH, C_HEIGHT))
@@ -87,8 +89,9 @@ public class World {
 		}
 		SPRITES = files.toArray(new Sprite[0]);
 
-		int type, x, y, passable, size, graphics, offset;
-		display = new ArrayList<Displayable>();
+		int type, x, y, passable, breakable, graphics, offset, health;
+		terrainDisplay = new ArrayList<Terrain>();
+		charDisplay = new ArrayList<Char>();
 		TERRAIN = new Terrain[C_WIDTH][C_HEIGHT];
 		while (terrain.ready()) {
 			temp = terrain.readLine().split(" ");// Type, X, Y, Passable, Graphics, Size ?Offset
@@ -96,14 +99,18 @@ public class World {
 			x = Integer.parseInt(temp[1]);
 			y = Integer.parseInt(temp[2]);
 			passable = Integer.parseInt(temp[3]);
-			graphics = Integer.parseInt(temp[4]);
-			if (temp.length >= 6)
-				offset = Integer.parseInt(temp[5]);
-			else
+			breakable = Integer.parseInt(temp[4]);
+			graphics = Integer.parseInt(temp[5]);
+			if (temp.length >= 8) {
+				offset = Integer.parseInt(temp[6]);
+				health = Integer.parseInt(temp[7]);
+			} else {
 				offset = 0;
+				health = 0;
+			}
 			if (type == 1) {// Terrain
-				TERRAIN[x][y] = new Terrain(x * COMPRESSION, y * COMPRESSION, passable == 1 ? true : false, graphics, SPRITES[graphics].getWidth(), SPRITES[graphics].getHeight(), offset);
-				display.add(TERRAIN[x][y]);
+				TERRAIN[x][y] = new Terrain(x * COMPRESSION, y * COMPRESSION, passable == 1 ? true : false, breakable == 1 ? true : false, graphics, SPRITES[graphics].getWidth(), SPRITES[graphics].getHeight(), offset, health);
+				terrainDisplay.add(TERRAIN[x][y]);
 			}
 
 		}
@@ -121,12 +128,12 @@ public class World {
 	}
 
 	public boolean addPlayer(Char c) {
-		display.add(c);
+		charDisplay.add(c);
 		return pu.add(c);
 	}
 
 	public boolean removePlayer(Char c) {
-		System.out.println(display.remove(c));
+		System.out.println(charDisplay.remove(c));
 		return pu.delete(c);
 	}
 
@@ -138,15 +145,21 @@ public class World {
 		return HEIGHT;
 	}
 
-	public ArrayList<Displayable> getDisplay(int x, int y, int width, int height, Char c) {
+	public ArrayList<Displayable> getDisplay(int x, int y, int width, int height, Char cur) {
 		x -= width / 2;
 		y -= height / 2;
 		ArrayList<Displayable> display = new ArrayList<Displayable>();
-		for (Displayable d : this.display) {
-			if (c.equals(d))
+		for (Terrain t : terrainDisplay) {
+			if (t.isWithin(x, y, width, height))
+				display.add(t);
+		}
+		for (Char c : charDisplay) {
+			for (Projectile p : c.getProjectiles())
+				if (p.isWithin(x, y, width, height))
+					display.add(p);
+			if (c.equals(cur))
 				continue;
-			if (d.isWithin(x, y, width, height))
-				display.add(d);
+			display.add(c);
 		}
 		return display;
 	}
@@ -155,9 +168,10 @@ public class World {
 		return SPRITES;
 	}
 
+	@Deprecated
 	public ArrayList<int[]> getRenderData(int tx, int ty, int bx, int by, Char character) {
 		ArrayList<int[]> res = new ArrayList<int[]>();
-		for (Char c : pu.players)
+		for (Char c : pu.getPlayers())
 			if (c.getX() >= bx && c.getX() <= tx && c.getY() >= by && c.getY() <= ty && !c.equals(character))
 				res.add(new int[] { c.getX(), c.getY(), c.getGraphics()[0], c.getGraphics()[1] });
 		return res;
@@ -171,11 +185,22 @@ public class World {
 class PlayerUpdate implements Runnable {
 
 	final long UPDATE_DELAY;
-	protected ArrayList<Char> players;
+	private ArrayList<Char> players;
+	private ArrayList<Displayable> objects;
 
 	public PlayerUpdate(long ud) {
 		UPDATE_DELAY = ud;
 		players = new ArrayList<Char>();
+	}
+
+	public void updateDisplay(ArrayList<Displayable>[] display) {
+		for(ArrayList<Displayable> al:display) {
+			this.objects.addAll(al);
+		}
+	}
+	
+	public ArrayList<Char> getPlayers() {
+		return players;
 	}
 
 	public boolean add(Char c) {
@@ -193,8 +218,10 @@ class PlayerUpdate implements Runnable {
 		while (true) {
 			try {
 				time = System.currentTimeMillis();
-				for (Char c : players)
+				for (Char c : players) {
 					c.update();
+					c.updateProjectiles(objects);
+				}
 				while (System.currentTimeMillis() - time < UPDATE_DELAY);
 			} catch (ConcurrentModificationException e) {
 

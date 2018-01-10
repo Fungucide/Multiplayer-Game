@@ -77,8 +77,8 @@ public class Functions implements Closeable {
 
 	public void writeGraphic() throws IOException {
 		writeEnum(MessageType.GRAPHIC_DATA);
-		writeInt(CI.CHARACTER.w.TILE_SIZE);
-		writeInt(CI.CHARACTER.w.COMPRESSION);
+		writeInt(CI.CHARACTER.getWorld().TILE_SIZE);
+		writeInt(CI.CHARACTER.getWorld().COMPRESSION);
 		writeInt(Char.getCharSize());
 		flush();
 	}
@@ -201,7 +201,7 @@ public class Functions implements Closeable {
 		int width = readInt();
 		int height = readInt();
 		writeEnum(MessageType.TERRAIN_REQUEST);
-		writeIntArray2D(displayableArray(CI.CHARACTER.w.getDisplay(x, y, width, height, CI.CHARACTER)));
+		writeIntArray2D(displayableArray(CI.CHARACTER.getWorld().getDisplay(x, y, width, height, CI.CHARACTER)));
 		flush();
 	}
 
@@ -239,7 +239,7 @@ public class Functions implements Closeable {
 		int ty = readInt();
 		int bx = readInt();
 		int by = readInt();
-		ArrayList<int[]> al = CI.CHARACTER.w.getRenderData(tx, ty, bx, by, CI.CHARACTER);
+		ArrayList<int[]> al = CI.CHARACTER.getWorld().getRenderData(tx, ty, bx, by, CI.CHARACTER);
 		writeEnum(MessageType.CHAR_DISPLAY_DATA);
 		writeInt(al.size());
 		for (int[] a : al) {

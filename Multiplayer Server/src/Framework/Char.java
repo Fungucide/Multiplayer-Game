@@ -8,11 +8,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
 
-public class Char implements Closeable, Displayable {
+public class Char implements Closeable, Damage {
 	public static String PATH = "";
 	private static int PLAYER_SIZE = 100;
-	private static int PLAYER_SIZE_HALF = 50;
 	public static HashMap<String, Integer> CHAR_PIC = new HashMap<String, Integer>();
 	public static ArrayList<String> CHAR_PIC_AL = new ArrayList<String>();
 	private final String USERNAME;
@@ -20,8 +21,14 @@ public class Char implements Closeable, Displayable {
 	private double DIAGONAL_MOD = Math.sqrt(.5d);
 	private int xMove = 0, yMove = 0;
 	private int x = 0, y = 0, maxHealth = 100, health = 100, attack = 10, maxMana = 100, mana = 100, power = 10, speed = 5, graphics = 0, frame = 0;
-	public World w;
+	private double direction = 0;
+	private ArrayList<Projectile> projectiles;
+	private Queue<Projectile> removeProjectile;
+	private World WORLD;
+	private Weapon WEAPON;
+	private boolean attacking = false;
 
+	@Deprecated
 	public Char(String userName, int x, int y, int maxHealth, int health, int attack, int maxMana, int mana, int power, int speed) {
 		USERNAME = userName;
 		int i;
@@ -42,6 +49,9 @@ public class Char implements Closeable, Displayable {
 	public Char(String userName, int index) throws IOException {
 		USERNAME = userName;
 		INDEX = index;
+		projectiles = new ArrayList<Projectile>();
+		removeProjectile = new LinkedList<Projectile>();
+		WEAPON = new TestWeapon(100);
 		String FILE_PATH = PATH + userName + "/Characters/Character" + index + ".dat";
 		File f = new File(FILE_PATH);
 		f.createNewFile();
@@ -129,6 +139,10 @@ public class Char implements Closeable, Displayable {
 		return new int[] { graphics, frame };
 	}
 
+	public World getWorld() {
+		return WORLD;
+	}
+
 	public void move(int x, int y) {
 		if (x == 0)
 			xMove = 0;
@@ -145,19 +159,27 @@ public class Char implements Closeable, Displayable {
 			yMove = -1;
 	}
 
-	int lQx = -1;
-	int lQy = -1;
+	public void setAttack(boolean s, double direction) {
+		attacking = s;
+		this.direction = direction;
+	}
+
+	public void attack() {
+		if (attacking) {
+			WEAPON.attack(x, y, direction);
+		}
+	}
 
 	private int[] correction(int sx, int sy, int ex, int ey) {
-		int xQuad = ex / w.COMPRESSION;
-		int yQuad = ey / w.COMPRESSION;
+		int xQuad = ex / WORLD.COMPRESSION;
+		int yQuad = ey / WORLD.COMPRESSION;
 		int rx = ex;
 		int ry = ey;
-		if (w.isBlocked(xQuad, yQuad)) {
-			if (w.isBlocked(xQuad, sy / w.COMPRESSION)) {
+		if (WORLD.isBlocked(xQuad, yQuad)) {
+			if (WORLD.isBlocked(xQuad, sy / WORLD.COMPRESSION)) {
 				rx = sx;
 			}
-			if (w.isBlocked(sx / w.COMPRESSION, yQuad)) {
+			if (WORLD.isBlocked(sx / WORLD.COMPRESSION, yQuad)) {
 				ry = sy;
 			}
 		}
@@ -165,7 +187,32 @@ public class Char implements Closeable, Displayable {
 		return new int[] { rx, ry };
 	}
 
+	public ArrayList<Projectile> getProjectiles() {
+		return projectiles;
+	}
+
+	public void updateProjectiles(ArrayList<Displayable> objects) {
+		for (Projectile p : projectiles) {
+			p.move();
+			if (p.getLifeTime() == 0 || p.getPierce() == 0) {
+				removeProjectile.add(p);
+				continue;
+			}
+			for (Displayable d : objects) {
+				p.collide(d);
+				if (p.getLifeTime() == 0 || p.getPierce() == 0) {
+					removeProjectile.add(p);
+					break;
+				}
+			}
+		}
+		while (!removeProjectile.isEmpty())
+			projectiles.remove(removeProjectile.remove());
+	}
+
 	public void update() {
+		if (WEAPON != null)
+			WEAPON.update();
 		if (xMove == 0 && yMove == 0)
 			return;
 		int totalX;
@@ -186,28 +233,27 @@ public class Char implements Closeable, Displayable {
 		x += dis;
 		if (x < 0)
 			x = 0;
-		else if (w != null && x > w.getWidth())
-			x = w.getWidth();
+		else if (WORLD != null && x > WORLD.getWidth())
+			x = WORLD.getWidth();
 	}
 
 	private void moveY(int dis) {
 		y += dis;
 		if (y < 0)
 			y = 0;
-		else if (w != null && y > w.getHeight())
-			y = w.getHeight();
+		else if (WORLD != null && y > WORLD.getHeight())
+			y = WORLD.getHeight();
 	}
 
 	public void setWorld(World w) {
-		if (this.w != null)
-			this.w.removePlayer(this);
-		this.w = w;
-		this.w.addPlayer(this);
+		if (this.WORLD != null)
+			this.WORLD.removePlayer(this);
+		this.WORLD = w;
+		this.WORLD.addPlayer(this);
 	}
 
 	public static void setCharSize(int size) {
 		PLAYER_SIZE = size;
-		PLAYER_SIZE_HALF = size / 2;
 	}
 
 	public void tp(int x, int y) {
@@ -217,7 +263,7 @@ public class Char implements Closeable, Displayable {
 
 	@Override
 	public void close() throws IOException {
-		w.removePlayer(this);
+		WORLD.removePlayer(this);
 		FileWriter fw = new FileWriter(PATH + USERNAME + "/Characters/Character" + INDEX + ".dat");
 		fw.write("x=" + x + "\n");
 		fw.write("y=" + y + "\n");
@@ -243,13 +289,17 @@ public class Char implements Closeable, Displayable {
 	public int getWidth() {
 		return PLAYER_SIZE;
 	}
-	
+
 	public int getHeight() {
 		return PLAYER_SIZE;
 	}
-	
+
 	public int getType() {
 		return 0;
+	}
+
+	public void doDamage(int damage) {
+		health -= damage;
 	}
 
 }

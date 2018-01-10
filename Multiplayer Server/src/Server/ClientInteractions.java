@@ -63,7 +63,7 @@ public class ClientInteractions implements Runnable, Closeable {
 			while (true) {
 				f.dataUpdate(updateResources);
 				if (updateResources)
-					f.writeResources(connection.CHAR.w.getResources());
+					f.writeResources(connection.CHAR.getWorld().getResources());
 				time = System.currentTimeMillis();
 				f.writeCharacter();
 				f.getCharacterMove();
