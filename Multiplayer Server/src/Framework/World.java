@@ -149,8 +149,8 @@ public class World {
 	}
 
 	public ArrayList<Displayable> getDisplay(int x, int y, int width, int height, Char cur) {
-		x -= width / 2;
-		y -= height / 2;
+		x -= width >> 1;
+		y -= height >> 1;
 		ArrayList<Displayable> display = new ArrayList<Displayable>();
 		for (Terrain t : terrainDisplay) {
 			if (t.isWithin(x, y, width, height))

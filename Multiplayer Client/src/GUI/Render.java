@@ -38,8 +38,8 @@ public class Render extends JPanel {
 	public void setData(int tileSize, int compression) {
 		TILE_SIZE = tileSize;
 		COMPRESSION = compression;
-		middleX = getWidth() / 2;
-		middleY = getHeight() / 2;
+		middleX = getWidth() >> 1;
+		middleY = getHeight() >> 1;
 	}
 
 	public void setResources(BufferedImage[][] resources) {
@@ -90,21 +90,29 @@ public class Render extends JPanel {
 			Collections.sort(display);
 			for (Displayable d : display) {
 				if (d.getType() == 0)// Player
-					g2d.drawImage(resources[0][d.getGraphics()[0]], d.getX() - Char.playerSize() - x + middleX, d.getY() - Char.playerSize() - y + middleY, this);
+					g2d.drawImage(resources[0][d.getGraphics()[0]], d.getX() - Char.playerSize() - x + middleX, d.getY() - Char.playerSize() - y + middleY - 5, this);
 				else if (d.getType() == 1) {// Terrain
 					g2d.drawImage(resources[1][d.getGraphics()[0]], d.getX() - d.getHalfWidth() - x + middleX + 3, d.getY() - d.getHalfHeight() - y + middleY - 5, this);
 				} else if (d.getType() == 2) {// Projectile... This is going to be fun
 					at = new AffineTransform();
-					at.translate(d.getX() - d.getHalfWidth() - x + middleX, d.getY() - d.getHalfHeight() - y + middleY);
-					at.rotate(-d.getDirection()+Math.PI/2);
-					at.translate(-resources[2][d.getGraphics()[0]].getWidth() / 2, -resources[2][d.getGraphics()[0]].getHeight() / 2);
+					at.translate(d.getX() - d.getHalfWidth() - x + middleX - (Char.playerSize() >> 1), d.getY() - d.getHalfHeight() - y + middleY - (Char.playerSize() >> 1));
+					at.rotate(-d.getDirection() + Math.PI / 2);
+					at.translate(-resources[2][d.getGraphics()[0]].getWidth() >> 1, -resources[2][d.getGraphics()[0]].getHeight() >> 1);
 					g2d.drawImage(resources[2][d.getGraphics()[0]], at, this);
 				}
 
 			}
 		}
 
-		g2d.drawOval(getWidth() / 2, getHeight() / 2, 1, 1);
+		// g.setColor(Color.BLACK);
+		// for (int i = 1; i * COMPRESSION <= getWidth(); i++) {
+		// g.drawLine(i * COMPRESSION + xOff, 0, i * COMPRESSION + xOff, getHeight());
+		// }
+		//
+		// for (int i = 1; i * COMPRESSION <= getHeight(); i++) {
+		// g.drawLine(0, i * COMPRESSION + yOff, getWidth(), i * COMPRESSION + yOff);
+		// }
+
 		g2d.setColor(Color.DARK_GRAY);
 		g2d.fillOval(0, 0, 75, 75);
 		g2d.fillRoundRect(37, 37, 150, 38, 5, 5);

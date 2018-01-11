@@ -9,8 +9,8 @@ public class Displayable implements Comparable<Displayable> {
 		TYPE = type;
 		X = x;
 		Y = y;
-		HALF_WIDTH = width / 2;
-		HALF_HEIGHT = height / 2;
+		HALF_WIDTH = width >> 1;
+		HALF_HEIGHT = height >> 1;
 		OFF_SET = offSet;
 		GRAPHICS = graphics;
 		FRAME = frame;

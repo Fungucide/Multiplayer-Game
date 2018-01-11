@@ -28,7 +28,6 @@ public class Char implements Closeable, Damage {
 	private Weapon WEAPON;
 	private boolean attacking = false;
 
-	@Deprecated
 	public Char(String userName, int x, int y, int maxHealth, int health, int attack, int maxMana, int mana, int power, int speed) {
 		USERNAME = userName;
 		int i;
@@ -43,7 +42,8 @@ public class Char implements Closeable, Damage {
 		this.mana = mana;
 		this.power = power;
 		this.speed = speed;
-
+		projectiles = new ArrayList<Projectile>();
+		removeProjectile = new LinkedList<Projectile>();
 	}
 
 	public Char(String userName, int index) throws IOException {
@@ -187,11 +187,6 @@ public class Char implements Closeable, Damage {
 
 	public void updateProjectiles(ArrayList<Displayable> objects) {
 		for (Projectile p : projectiles) {
-			p.move();
-			if (p.getLifeTime() <= 0 || p.getPierce() == 0) {
-				removeProjectile.add(p);
-				continue;
-			}
 			for (Displayable d : objects) {
 				if (!equals(d))
 					p.interact(d);
@@ -199,6 +194,11 @@ public class Char implements Closeable, Damage {
 					removeProjectile.add(p);
 					break;
 				}
+			}
+			p.move();
+			if (p.getLifeTime() <= 0 || p.getPierce() == 0) {
+				removeProjectile.add(p);
+				continue;
 			}
 		}
 		while (!removeProjectile.isEmpty())

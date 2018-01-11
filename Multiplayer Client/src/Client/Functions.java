@@ -152,10 +152,10 @@ public class Functions implements Closeable {
 	@Deprecated
 	public int[][] getCharDisplay(int width, int height) throws IOException {
 		writeEnum(MessageType.CHAR_DISPLAY_REQUEST);
-		writeInt(c.getX() + width / 2);
-		writeInt(c.getY() + height / 2);
-		writeInt(c.getX() - width / 2);
-		writeInt(c.getY() - height / 2);
+		writeInt(c.getX() + width >> 1);
+		writeInt(c.getY() + height >> 1);
+		writeInt(c.getX() - width >> 1);
+		writeInt(c.getY() - height >> 1);
 		flush();
 		return readCharDisplay();
 	}
@@ -187,7 +187,7 @@ public class Functions implements Closeable {
 	}
 
 	private static void ensureMessageType(MessageType actualType, MessageType expectedType) {
-		//System.out.println(actualType.toString() + " " + expectedType.toString());
+		// System.out.println(actualType.toString() + " " + expectedType.toString());
 		if (actualType != expectedType) {
 			throw new IllegalArgumentException(String.format("Received wrong message [actual=%s, expected=%s].", actualType, expectedType));
 		}
@@ -243,7 +243,7 @@ public class Functions implements Closeable {
 
 	private <E extends Enum> E readEnum(Class<E> enumClass) throws IOException {
 		byte ordinal = readByte();
-		//System.out.println("Read Enum" + ordinal);
+		// System.out.println("Read Enum" + ordinal);
 		E[] values = enumClass.getEnumConstants();
 		return ordinal >= 0 && ordinal < values.length ? values[ordinal] : null;
 	}
@@ -299,7 +299,7 @@ public class Functions implements Closeable {
 	}
 
 	private <E extends Enum> void writeEnum(E value) throws IOException {
-		//System.out.println(value.toString());
+		// System.out.println(value.toString());
 		writeByte(value == null ? -1 : value.ordinal());
 	}
 

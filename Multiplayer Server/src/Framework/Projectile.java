@@ -70,10 +70,10 @@ public class Projectile implements Displayable {
 	}
 
 	private boolean collide(Displayable d) {
-		int cx = (int) (x + d_sin * getWidth());
-		int cy = (int) (y + d_cos * getWidth());
-		boolean xBound = d.getX() + d.getWidth() >= cx && d.getX() - d.getWidth() <= cx;
-		boolean yBound = d.getY() + d.getHeight() >= cy && d.getY() - d.getHeight() <= cy;
+		int cx = (int) (x + d_sin * (getWidth() >> 1));
+		int cy = (int) (y + d_cos * (getWidth() >> 1));
+		boolean xBound = d.getX() + d.getWidth() >= cx && d.getX() <= cx;
+		boolean yBound = d.getY() + d.getHeight() >= cy && d.getY() <= cy;
 		return xBound && yBound;
 	}
 
