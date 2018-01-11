@@ -51,7 +51,7 @@ public class Char implements Closeable, Damage {
 		INDEX = index;
 		projectiles = new ArrayList<Projectile>();
 		removeProjectile = new LinkedList<Projectile>();
-		WEAPON = new TestWeapon(100);
+		WEAPON = new TestWeapon(10);
 		String FILE_PATH = PATH + userName + "/Characters/Character" + index + ".dat";
 		File f = new File(FILE_PATH);
 		f.createNewFile();
@@ -164,12 +164,6 @@ public class Char implements Closeable, Damage {
 		this.direction = direction;
 	}
 
-	public void attack() {
-		if (attacking) {
-			WEAPON.attack(x, y, direction);
-		}
-	}
-
 	private int[] correction(int sx, int sy, int ex, int ey) {
 		int xQuad = ex / WORLD.COMPRESSION;
 		int yQuad = ey / WORLD.COMPRESSION;
@@ -194,13 +188,14 @@ public class Char implements Closeable, Damage {
 	public void updateProjectiles(ArrayList<Displayable> objects) {
 		for (Projectile p : projectiles) {
 			p.move();
-			if (p.getLifeTime() == 0 || p.getPierce() == 0) {
+			if (p.getLifeTime() <= 0 || p.getPierce() == 0) {
 				removeProjectile.add(p);
 				continue;
 			}
 			for (Displayable d : objects) {
-				p.collide(d);
-				if (p.getLifeTime() == 0 || p.getPierce() == 0) {
+				if (!equals(d))
+					p.interact(d);
+				if (p.getLifeTime() <= 0 || p.getPierce() == 0) {
 					removeProjectile.add(p);
 					break;
 				}
@@ -211,8 +206,14 @@ public class Char implements Closeable, Damage {
 	}
 
 	public void update() {
-		if (WEAPON != null)
+		if (WEAPON != null) {
 			WEAPON.update();
+			if (attacking) {
+				ArrayList<Projectile> p = WEAPON.attack(x, y, direction);
+				if (p != null)
+					projectiles.addAll(p);
+			}
+		}
 		if (xMove == 0 && yMove == 0)
 			return;
 		int totalX;

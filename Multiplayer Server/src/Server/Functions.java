@@ -23,6 +23,7 @@ import javax.imageio.ImageIO;
 
 import Framework.Char;
 import Framework.Displayable;
+import Framework.Projectile;
 import Framework.Sprite;
 import Framework.Terrain;
 import Log.LogMessageType;
@@ -73,6 +74,44 @@ public class Functions implements Closeable {
 			return true;
 		else
 			return false;
+	}
+
+	public void waitForLogin() throws IOException {
+		while (true) {
+			ensureMessageType(readEnum(MessageType.class), MessageType.LOGIN_REQUEST);
+			String user = readString();
+			String pass = readString();
+			if (CI.SERVER.active.contains(user)) {
+				CI.SERVER.log.log(LogMessageType.DATA, "Player already loged in with same username: " + user);
+				writeLoginStatus(false);
+				continue;
+			}
+			File f = new File(Char.PATH + user + "/Password.pass");
+			if (!f.exists()) {
+				CI.SERVER.log.log(LogMessageType.DATA, "Player does not exist: " + user);
+				writeLoginStatus(false);
+				continue;
+			}
+			FileReader fr = new FileReader(f);
+			BufferedReader br = new BufferedReader(fr);
+			if (pass.equals(br.readLine())) {
+				CI.SERVER.log.log(LogMessageType.DATA, "Player loged in successfully: " + user);
+				CI.connection.USERNAME = user;
+				CI.SERVER.active.add(user);
+				CI.SERVER.connectionUpdate();
+				writeLoginStatus(true);
+				break;
+			} else {
+				CI.SERVER.log.log(LogMessageType.DATA, "Player login rejected: " + user);
+				writeLoginStatus(false);
+			}
+		}
+	}
+
+	public void writeLoginStatus(boolean status) throws IOException {
+		writeEnum(MessageType.LOGIN_REQUEST);
+		writeBoolean(status);
+		flush();
 	}
 
 	public void writeGraphic() throws IOException {
@@ -133,41 +172,16 @@ public class Functions implements Closeable {
 		flush();
 	}
 
-	public void waitForLogin() throws IOException {
-		while (true) {
-			ensureMessageType(readEnum(MessageType.class), MessageType.LOGIN_REQUEST);
-			String user = readString();
-			String pass = readString();
-			if (CI.SERVER.active.contains(user)) {
-				CI.SERVER.log.log(LogMessageType.DATA, "Player already loged in with same username: " + user);
-				writeLoginStatus(false);
-				continue;
-			}
-			File f = new File(Char.PATH + user + "/Password.pass");
-			if (!f.exists()) {
-				CI.SERVER.log.log(LogMessageType.DATA, "Player does not exist: " + user);
-				writeLoginStatus(false);
-				continue;
-			}
-			FileReader fr = new FileReader(f);
-			BufferedReader br = new BufferedReader(fr);
-			if (pass.equals(br.readLine())) {
-				CI.SERVER.log.log(LogMessageType.DATA, "Player loged in successfully: " + user);
-				CI.connection.USERNAME = user;
-				CI.SERVER.active.add(user);
-				CI.SERVER.connectionUpdate();
-				writeLoginStatus(true);
-				break;
-			} else {
-				CI.SERVER.log.log(LogMessageType.DATA, "Player login rejected: " + user);
-				writeLoginStatus(false);
-			}
+	public void projectileGraphics() throws IOException {
+		writeEnum(MessageType.PROJECTILE_DISPLAY);
+		writeInt(Projectile.PROJECTILE_PATHS.length);
+		for (String s : Projectile.PROJECTILE_PATHS) {
+			BufferedImage img = toBufferedImage(ImageIO.read(new File(s)).getScaledInstance(20, 5, Image.SCALE_SMOOTH));
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ImageIO.write(img, "jpg", baos);
+			String base64String = new String(Base64.getEncoder().encode(baos.toByteArray()));
+			writeString(base64String);
 		}
-	}
-
-	public void writeLoginStatus(boolean status) throws IOException {
-		writeEnum(MessageType.LOGIN_REQUEST);
-		writeBoolean(status);
 		flush();
 	}
 
@@ -190,8 +204,7 @@ public class Functions implements Closeable {
 	public void getCharacterMove() throws IOException {
 		ensureMessageType(readEnum(MessageType.class), MessageType.CHARACTER_MOVE);
 		CI.CHARACTER.move(readInt(), readInt());
-		readInt();
-		readBoolean();
+		CI.CHARACTER.setAttack(readBoolean(), readDouble());
 	}
 
 	public void terraintRequest() throws IOException {
@@ -201,32 +214,30 @@ public class Functions implements Closeable {
 		int width = readInt();
 		int height = readInt();
 		writeEnum(MessageType.TERRAIN_REQUEST);
-		writeIntArray2D(displayableArray(CI.CHARACTER.getWorld().getDisplay(x, y, width, height, CI.CHARACTER)));
+		ArrayList<Displayable> display = CI.CHARACTER.getWorld().getDisplay(x, y, width, height, CI.CHARACTER);
+		writeInt(display.size());
+		for (Displayable d : display) {
+			writeInt(d.getType());
+			writeInt(d.getX());
+			writeInt(d.getY());
+			writeInt(d.getWidth());
+			writeInt(d.getHeight());
+			if (d instanceof Terrain)
+				writeInt(((Terrain) d).getOffSet());
+			else
+				writeInt(0);
+			writeInt(d.getGraphics()[0]);
+			writeInt(d.getGraphics()[1]);
+			if (d instanceof Projectile)
+				writeDouble(((Projectile) d).getDirection());
+			else
+				writeDouble(0);
+		}
 		flush();
 	}
 
-	private int[][] displayableArray(ArrayList<Displayable> al) {
-		int[][] array = new int[al.size()][8];// x,y,offset,passable
-		for (int i = 0; i < al.size(); i++) {
-			array[i][0] = al.get(i).getType();
-			array[i][1] = al.get(i).getX();
-			array[i][2] = al.get(i).getY();
-			array[i][3] = al.get(i).getWidth();
-			array[i][4] = al.get(i).getHeight();
-			if (al.get(i) instanceof Terrain) {
-				array[i][5] = ((Terrain) al.get(i)).getOffSet();
-				array[i][6] = ((Terrain) al.get(i)).getGraphics()[0];
-				array[i][7] = ((Terrain) al.get(i)).getGraphics()[1];
-			} else {
-				array[i][5] = 0;
-				array[i][6] = al.get(i).getGraphics()[0];
-				array[i][7] = al.get(i).getGraphics()[1];
-			}
-		}
-		return array;
-	}
-
 	private static void ensureMessageType(MessageType actualType, MessageType expectedType) {
+		//System.out.println(actualType.toString()+" "+expectedType.toString());
 		if (actualType != expectedType) {
 			throw new IllegalArgumentException(String.format("Received wrong message [actual=%s, expected=%s].", actualType, expectedType));
 		}
@@ -356,6 +367,7 @@ public class Functions implements Closeable {
 	}
 
 	private <E extends Enum> void writeEnum(E value) throws IOException {
+		//System.out.println(value.toString()+" "+value.ordinal());
 		writeByte(value == null ? -1 : value.ordinal());
 	}
 

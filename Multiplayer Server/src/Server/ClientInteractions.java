@@ -59,7 +59,8 @@ public class ClientInteractions implements Runnable, Closeable {
 			connection.setChar(CHARACTER);
 			long time;
 			f.writeGraphic();
-			f.charGraphics(Char.CHAR_PIC_AL.toArray(new String[Char.CHAR_PIC_AL.size()]));
+			f.charGraphics(Char.CHAR_PIC_AL.toArray(new String[0]));
+			f.projectileGraphics();
 			while (true) {
 				f.dataUpdate(updateResources);
 				if (updateResources)

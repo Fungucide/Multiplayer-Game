@@ -1,5 +1,6 @@
 package Client;
 
+import java.awt.MouseInfo;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -16,10 +17,12 @@ public class ServerInteractions implements Runnable {
 	private final String TOKEN = "Token";
 	private int[] info;
 	private Render r;
+	private double angle = 0;
 
 	private ArrayList<Displayable> display;
 	private Functions f;
 	public int xMove, yMove;
+	public boolean mouseDown = false;
 
 	public boolean attemptLogin(String adress, int port, String username, char[] password) throws IOException, NoSuchAlgorithmException {
 		boolean result;
@@ -53,12 +56,23 @@ public class ServerInteractions implements Runnable {
 		try {
 			info = f.getGraphic();
 			r.setData(info[0], info[1]);
-			r.setResources(f.charGraphics(),0);
+			r.setResources(f.charGraphics(), 0);
+			r.setResources(f.projectileGraphics(), 2);
 			while (true) {
 				if (f.dataUpdate())
-					r.setResources(f.getResources(),1);
+					r.setResources(f.getResources(), 1);
 				f.getCharacter();
-				f.moveCharacter(xMove, yMove, 0, false);
+				if (r.getMousePosition() != null) {
+					try {
+						angle = Math.atan((r.getMiddleY() - r.getMousePosition().getY()) / (r.getMousePosition().getX() - r.getMiddleX()));
+						angle = angle < 0 ? angle + Math.PI : angle;
+						angle = r.getMiddleY() - r.getMousePosition().getY() < 0 ? angle + Math.PI : angle;
+						angle += Math.PI / 2;
+					} catch (NullPointerException e) {
+
+					}
+				}
+				f.moveCharacter(xMove, yMove, angle, mouseDown);
 				r.display = f.requestTerrain(r.getWidth(), r.getHeight());
 				r.x = getX();
 				r.y = getY();

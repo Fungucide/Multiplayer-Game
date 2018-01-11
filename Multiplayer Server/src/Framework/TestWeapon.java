@@ -9,10 +9,10 @@ public class TestWeapon extends Weapon {
 	}
 
 	public ArrayList<Projectile> attack(int x, int y, double direction) {
-		if (cooldown > fireRate) {
+		if (cooldown >= fireRate) {
 			ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
-			projectiles.add(new Projectile(x, y, 10, 10, direction, 10, 5, -1, 1, 0));
-			cooldown=0;
+			projectiles.add(new Projectile(x, y, 10, 10, direction, 10, 10, 100, 1, 1, 1));
+			cooldown = 0;
 			return projectiles;
 		}
 		return null;

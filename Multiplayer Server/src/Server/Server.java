@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.Stack;
 
 import Framework.Char;
+import Framework.Projectile;
 import Framework.World;
 import GUI.ConnectionTable;
 import Log.JLogArea;
@@ -26,7 +27,7 @@ public class Server implements Runnable, Closeable {
 	private int MAXCONNECTIONS, PORT, PROTOCOL_VERSION, MAX_REFRESH_RATE;
 	private ServerSocket serverSocket;
 	protected long MAX_WORLD_UPDATE;
-	private String TOKEN, CHAR_RESOURCES;
+	private String TOKEN, CHAR_RESOURCES, PROJECTILE_RESOURCES;
 	public JLogArea log;
 	public ConnectionTable clients;
 	private final Stack<Integer> idStack;
@@ -80,6 +81,10 @@ public class Server implements Runnable, Closeable {
 				CHAR_RESOURCES = in[1];
 				charResources();
 				break;
+			case "projectileResources":
+				PROJECTILE_RESOURCES = in[1];
+				projectileResources();
+				break;
 			case "charData":
 				Char.PATH = in[1];
 				break;
@@ -96,6 +101,16 @@ public class Server implements Runnable, Closeable {
 				Char.CHAR_PIC_AL.add(filePath.toString());
 			}
 		});
+	}
+
+	private void projectileResources() throws IOException {
+		ArrayList<String> paths = new ArrayList<String>();
+		Files.walk(Paths.get(PROJECTILE_RESOURCES)).forEach(filePath -> {
+			if (Files.isRegularFile(filePath)) {
+				paths.add(filePath.toString());
+			}
+		});
+		Projectile.PROJECTILE_PATHS = paths.toArray(new String[0]);
 	}
 
 	public void open() throws IOException {

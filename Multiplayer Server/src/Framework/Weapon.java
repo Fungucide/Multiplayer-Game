@@ -8,7 +8,7 @@ public abstract class Weapon {
 
 	public Weapon(int fireRate) {
 		this.fireRate = fireRate;
-		cooldown = fireRate;
+		cooldown = 0;
 	}
 
 	public void update() {

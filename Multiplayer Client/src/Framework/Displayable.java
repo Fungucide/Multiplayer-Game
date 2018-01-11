@@ -3,8 +3,9 @@ package Framework;
 public class Displayable implements Comparable<Displayable> {
 
 	private final int TYPE, X, Y, HALF_WIDTH, HALF_HEIGHT, OFF_SET, GRAPHICS, FRAME;
+	private final double DIRECTION;
 
-	public Displayable(int type, int x, int y, int width, int height, int offSet, int graphics, int frame) {
+	public Displayable(int type, int x, int y, int width, int height, int offSet, int graphics, int frame, double direction) {
 		TYPE = type;
 		X = x;
 		Y = y;
@@ -13,6 +14,7 @@ public class Displayable implements Comparable<Displayable> {
 		OFF_SET = offSet;
 		GRAPHICS = graphics;
 		FRAME = frame;
+		DIRECTION = direction;
 	}
 
 	public int getType() {
@@ -43,7 +45,10 @@ public class Displayable implements Comparable<Displayable> {
 		return new int[] { GRAPHICS, FRAME };
 	}
 
-	@Override
+	public double getDirection() {
+		return DIRECTION;
+	}
+
 	public int compareTo(Displayable o) {
 		if (Y + OFF_SET > o.getY() + o.getOffset())
 			return 1;

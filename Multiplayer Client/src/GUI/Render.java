@@ -18,27 +18,19 @@ import Framework.Displayable;
 
 public class Render extends JPanel {
 
-	BufferedImage bi;
-
 	private int TILE_SIZE;
 	private int COMPRESSION;
 	private Char CHARACTER;
-	private int HALF_PLAYER_SIZE;
 
 	public ArrayList<Displayable> display;
 	public int x, y;
 	private int middleX, middleY;
 	private BufferedImage[] worldResources, charResources;
-	private BufferedImage[][] resources=new BufferedImage[4][];
+	private BufferedImage[][] resources = new BufferedImage[4][];
+	private AffineTransform at;
 
 	public Render() {
 		super();
-		try {
-			bi = ImageIO.read(new File("C:/Users/William/Desktop/Multiplayer/Multiplayer-Game/Multiplayer Server/Data/Server/Resources/Projectile1.png"));
-		} catch (IOException e) {
-			e.printStackTrace();
-			return;
-		}
 		setDoubleBuffered(true);
 		display = new ArrayList<Displayable>();
 	}
@@ -70,6 +62,14 @@ public class Render extends JPanel {
 		CHARACTER = c;
 	}
 
+	public int getMiddleX() {
+		return middleX;
+	}
+
+	public int getMiddleY() {
+		return middleY;
+	}
+
 	public void paint(Graphics g) {
 
 		Graphics2D g2d = (Graphics2D) g;
@@ -79,29 +79,28 @@ public class Render extends JPanel {
 
 		int xOff = -(x % COMPRESSION);
 		int yOff = -(y % COMPRESSION);
-		if (worldResources != null && charResources != null && CHARACTER != null) {
-
+		if (resources[0] != null && resources[1] != null && CHARACTER != null) {
 			for (int i = 0; i * TILE_SIZE <= getWidth() + TILE_SIZE; i++) {
 				for (int j = 0; j * TILE_SIZE <= getHeight() + TILE_SIZE; j++) {
-					g2d.drawImage(worldResources[0], xOff + i * TILE_SIZE, yOff + j * TILE_SIZE, this);
+					g2d.drawImage(resources[1][0], xOff + i * TILE_SIZE, yOff + j * TILE_SIZE, this);
 				}
 			}
 
-			display.add(new Displayable(0, x, y, Char.playerSize(), Char.playerSize(), 0, CHARACTER.getGraphics(), CHARACTER.getFrame()));
+			display.add(new Displayable(0, x, y, Char.playerSize(), Char.playerSize(), 0, CHARACTER.getGraphics(), CHARACTER.getFrame(), 0));
 			Collections.sort(display);
 			for (Displayable d : display) {
 				if (d.getType() == 0)// Player
-					g2d.drawImage(charResources[d.getGraphics()[0]], d.getX() - Char.playerSize() - x + middleX, d.getY() - Char.playerSize() - y + middleY, this);
+					g2d.drawImage(resources[0][d.getGraphics()[0]], d.getX() - Char.playerSize() - x + middleX, d.getY() - Char.playerSize() - y + middleY, this);
 				else if (d.getType() == 1) {// Terrain
-					g2d.drawImage(worldResources[d.getGraphics()[0]], d.getX() - d.getHalfWidth() - x + middleX + 3, d.getY() - d.getHalfHeight() - y + middleY - 5, this);
-				} // else if (d.getType() == 2) {// Projectile... This is going to be fun
-				AffineTransform at = new AffineTransform();
-				at.translate(getWidth() / 2, getHeight() / 2);
-				at.rotate(1);
-				at.translate(-bi.getWidth() / 2, -bi.getHeight() / 2);
+					g2d.drawImage(resources[1][d.getGraphics()[0]], d.getX() - d.getHalfWidth() - x + middleX + 3, d.getY() - d.getHalfHeight() - y + middleY - 5, this);
+				} else if (d.getType() == 2) {// Projectile... This is going to be fun
+					at = new AffineTransform();
+					at.translate(d.getX() - d.getHalfWidth() - x + middleX, d.getY() - d.getHalfHeight() - y + middleY);
+					at.rotate(-d.getDirection()+Math.PI/2);
+					at.translate(-resources[2][d.getGraphics()[0]].getWidth() / 2, -resources[2][d.getGraphics()[0]].getHeight() / 2);
+					g2d.drawImage(resources[2][d.getGraphics()[0]], at, this);
+				}
 
-				g2d.drawImage(bi, at, this);
-				// }
 			}
 		}
 

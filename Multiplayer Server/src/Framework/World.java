@@ -123,17 +123,20 @@ public class World {
 
 	public void setPlayerUpdate(long updateDelay) {
 		pu = new PlayerUpdate(updateDelay);
+		pu.updateDisplay(charDisplay, terrainDisplay);
 		Thread t = new Thread(pu);
 		t.start();
 	}
 
 	public boolean addPlayer(Char c) {
 		charDisplay.add(c);
+		pu.updateDisplay(charDisplay, terrainDisplay);
 		return pu.add(c);
 	}
 
 	public boolean removePlayer(Char c) {
 		System.out.println(charDisplay.remove(c));
+		pu.updateDisplay(charDisplay, terrainDisplay);
 		return pu.delete(c);
 	}
 
@@ -191,14 +194,15 @@ class PlayerUpdate implements Runnable {
 	public PlayerUpdate(long ud) {
 		UPDATE_DELAY = ud;
 		players = new ArrayList<Char>();
+		objects = new ArrayList<Displayable>();
 	}
 
-	public void updateDisplay(ArrayList<Displayable>[] display) {
-		for(ArrayList<Displayable> al:display) {
-			this.objects.addAll(al);
-		}
+	public void updateDisplay(ArrayList<Char> player, ArrayList<Terrain> enemy) {
+		objects.clear();
+		objects.addAll(player);
+		objects.addAll(enemy);
 	}
-	
+
 	public ArrayList<Char> getPlayers() {
 		return players;
 	}

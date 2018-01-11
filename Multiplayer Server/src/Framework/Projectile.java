@@ -1,23 +1,30 @@
 package Framework;
 
+import java.util.UUID;
+
 public class Projectile implements Displayable {
 
+	public static String[] PROJECTILE_PATHS;
 	private int x, y, damage, speed, pierce, graphics, frame = 0, lifeTime;
 	private final int WDITH, HEIGHT, TYPE;
-	private double d_sin, d_cos;
+	private double d_sin, d_cos, direction;
+	private final UUID ID;
 
-	public Projectile(int x, int y, int width, int height, double direction, int damage, int speed, int pierce, int type, int graphics) {
+	public Projectile(int x, int y, int width, int height, double direction, int damage, int speed, int lifeTime, int pierce, int type, int graphics) {
 		this.x = x;
 		this.y = y;
 		this.WDITH = width;
 		this.HEIGHT = height;
+		this.direction = direction;
 		this.damage = damage;
 		this.speed = speed;
+		this.lifeTime = lifeTime;
 		this.pierce = pierce;
 		this.TYPE = type;
 		this.graphics = graphics;
-		d_sin = Math.sin(direction);//Radians
-		d_cos = Math.cos(direction);//Radians
+		d_sin = Math.sin(direction);// Radians
+		d_cos = Math.cos(direction);// Radians
+		ID = UUID.randomUUID();
 	}
 
 	public void move() {// Remove projectile by lifeTime
@@ -50,6 +57,10 @@ public class Projectile implements Displayable {
 		return HEIGHT;
 	}
 
+	public double getDirection() {
+		return direction;
+	}
+
 	public int getPierce() {
 		return pierce;
 	}
@@ -58,7 +69,7 @@ public class Projectile implements Displayable {
 		return new int[] { graphics, frame };
 	}
 
-	public boolean collide(Displayable d) {
+	private boolean collide(Displayable d) {
 		int cx = (int) (x + d_sin * getWidth());
 		int cy = (int) (y + d_cos * getWidth());
 		boolean xBound = d.getX() + d.getWidth() >= cx && d.getX() - d.getWidth() <= cx;
@@ -91,6 +102,13 @@ public class Projectile implements Displayable {
 				}
 			}
 		}
+	}
+
+	public boolean equals(Object o) {
+		if (o instanceof Projectile) {
+			return ((Projectile) o).ID.equals(ID);
+		}
+		return false;
 	}
 
 }

@@ -222,6 +222,17 @@ public class Main {
 				}
 			}
 		});
+		render.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				si.mouseDown = true;
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				si.mouseDown = false;
+			}
+		});
 		render.setFocusable(true);
 	}
 

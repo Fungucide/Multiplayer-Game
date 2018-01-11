@@ -1,5 +1,6 @@
 package Client;
 
+import java.awt.MouseInfo;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -104,6 +105,17 @@ public class Functions implements Closeable {
 		return resources;
 	}
 
+	public BufferedImage[] projectileGraphics() throws IOException {
+		BufferedImage[] resources;
+		ensureMessageType(readEnum(MessageType.class), MessageType.PROJECTILE_DISPLAY);
+		resources = new BufferedImage[readInt()];
+		for (int i = 0; i < resources.length; i++) {
+			byte[] arr = Base64.getDecoder().decode(readString());
+			resources[i] = ImageIO.read(new ByteArrayInputStream(arr));
+		}
+		return resources;
+	}
+
 	public void loginRequest(String user, String pass) throws IOException {
 		writeEnum(MessageType.LOGIN_REQUEST);
 		writeString(user);
@@ -129,10 +141,10 @@ public class Functions implements Closeable {
 
 	private ArrayList<Displayable> readTerrain() throws IOException {
 		ensureMessageType(readEnum(MessageType.class), MessageType.TERRAIN_REQUEST);
-		int[][] display = readIntArray2D();
 		ArrayList<Displayable> res = new ArrayList<Displayable>();
-		for (int i = 0; i < display.length; i++) {
-			res.add(new Displayable(display[i][0], display[i][1], display[i][2], display[i][3], display[i][4], display[i][5], display[i][6], display[i][7]));
+		int size = readInt();
+		for (int i = 0; i < size; i++) {
+			res.add(new Displayable(readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readDouble()));
 		}
 		return res;
 	}
@@ -165,16 +177,17 @@ public class Functions implements Closeable {
 		c.setStats(readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt(), readInt());
 	}
 
-	public void moveCharacter(int xMove, int yMove, int direction, boolean attack) throws IOException {
+	public void moveCharacter(int xMove, int yMove, double direction, boolean attack) throws IOException {
 		writeEnum(MessageType.CHARACTER_MOVE);
 		writeInt(xMove);// X Movement
 		writeInt(yMove);// Y Movement
-		writeInt(direction);// Attack Direction
 		writeBoolean(attack);// Attacking?
+		writeDouble(direction);
 		flush();
 	}
 
 	private static void ensureMessageType(MessageType actualType, MessageType expectedType) {
+		//System.out.println(actualType.toString() + " " + expectedType.toString());
 		if (actualType != expectedType) {
 			throw new IllegalArgumentException(String.format("Received wrong message [actual=%s, expected=%s].", actualType, expectedType));
 		}
@@ -230,7 +243,7 @@ public class Functions implements Closeable {
 
 	private <E extends Enum> E readEnum(Class<E> enumClass) throws IOException {
 		byte ordinal = readByte();
-
+		//System.out.println("Read Enum" + ordinal);
 		E[] values = enumClass.getEnumConstants();
 		return ordinal >= 0 && ordinal < values.length ? values[ordinal] : null;
 	}
@@ -286,6 +299,7 @@ public class Functions implements Closeable {
 	}
 
 	private <E extends Enum> void writeEnum(E value) throws IOException {
+		//System.out.println(value.toString());
 		writeByte(value == null ? -1 : value.ordinal());
 	}
 
