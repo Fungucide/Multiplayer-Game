@@ -1,0 +1,8 @@
+StartTime,EndTime,RoomID,RoomNumber,Capacity,Telephone,Date,FirstDate,LastDate,NoSchoolDates,DayStartTime,DayEndTime,DayAMEndTime,DayPMStartTime,StaffGUID,StudentGUID,HomeRoomStaffGUID,Birthday,SID,StreetAddress,Start,End
+2017_18,2018_19
+_18,_19
+2017-18,2018-19
+2017-2018,2018-2019
+2018.csv,2019.csv
+2018([^-_]),2019%1
+2017([^-_]),2018%1
