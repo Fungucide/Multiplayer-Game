@@ -25,8 +25,7 @@ public class Render extends JPanel {
 	public ArrayList<Displayable> display;
 	public int x, y;
 	private int middleX, middleY;
-	private BufferedImage[] worldResources, charResources;
-	private BufferedImage[][] resources = new BufferedImage[4][];
+	private BufferedImage[][][] resources = new BufferedImage[4][][];
 	private AffineTransform at;
 
 	public Render() {
@@ -42,20 +41,12 @@ public class Render extends JPanel {
 		middleY = getHeight() >> 1;
 	}
 
-	public void setResources(BufferedImage[][] resources) {
+	public void setResources(BufferedImage[][][] resources) {
 		this.resources = resources;
 	}
 
-	public void setResources(BufferedImage[] resources, int type) {
+	public void setResources(BufferedImage[][] resources, int type) {
 		this.resources[type] = resources;
-	}
-
-	public void setWorldResources(BufferedImage[] resources) {
-		worldResources = resources;
-	}
-
-	public void setCharResources(BufferedImage[] resources) {
-		charResources = resources;
 	}
 
 	public void setChar(Char c) {
@@ -82,7 +73,7 @@ public class Render extends JPanel {
 		if (resources[0] != null && resources[1] != null && CHARACTER != null) {
 			for (int i = 0; i * TILE_SIZE <= getWidth() + TILE_SIZE; i++) {
 				for (int j = 0; j * TILE_SIZE <= getHeight() + TILE_SIZE; j++) {
-					g2d.drawImage(resources[1][0], xOff + i * TILE_SIZE, yOff + j * TILE_SIZE, this);
+					g2d.drawImage(resources[1][0][0], xOff + i * TILE_SIZE, yOff + j * TILE_SIZE, this);// (1,0,0) Background Image
 				}
 			}
 
@@ -90,15 +81,15 @@ public class Render extends JPanel {
 			Collections.sort(display);
 			for (Displayable d : display) {
 				if (d.getType() == 0)// Player
-					g2d.drawImage(resources[0][d.getGraphics()[0]], d.getX() - Char.playerSize() - x + middleX, d.getY() - Char.playerSize() - y + middleY - 5, this);
+					g2d.drawImage(resources[0][d.getGraphics()[0]][d.getGraphics()[1]], d.getX() - Char.playerSize() - x + middleX, d.getY() - Char.playerSize() - y + middleY - 5, this);
 				else if (d.getType() == 1) {// Terrain
-					g2d.drawImage(resources[1][d.getGraphics()[0]], d.getX() - d.getHalfWidth() - x + middleX + 3, d.getY() - d.getHalfHeight() - y + middleY - 5, this);
+					g2d.drawImage(resources[1][d.getGraphics()[0]][d.getGraphics()[1]], d.getX() - d.getHalfWidth() - x + middleX + 3, d.getY() - d.getHalfHeight() - y + middleY - 5, this);
 				} else if (d.getType() == 2) {// Projectile... This is going to be fun
 					at = new AffineTransform();
 					at.translate(d.getX() - d.getHalfWidth() - x + middleX - (Char.playerSize() >> 1), d.getY() - d.getHalfHeight() - y + middleY - (Char.playerSize() >> 1));
 					at.rotate(-d.getDirection() + Math.PI / 2);
-					at.translate(-resources[2][d.getGraphics()[0]].getWidth() >> 1, -resources[2][d.getGraphics()[0]].getHeight() >> 1);
-					g2d.drawImage(resources[2][d.getGraphics()[0]], at, this);
+					at.translate(-resources[2][d.getGraphics()[0]][d.getGraphics()[1]].getWidth() >> 1, -resources[2][d.getGraphics()[0]][d.getGraphics()[1]].getHeight() >> 1);
+					g2d.drawImage(resources[2][d.getGraphics()[0]][d.getGraphics()[1]], at, this);
 				}
 
 			}

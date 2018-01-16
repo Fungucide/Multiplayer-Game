@@ -93,8 +93,8 @@ public class Functions implements Closeable {
 		return readBoolean();
 	}
 
-	public BufferedImage[] charGraphics() throws IOException {
-		BufferedImage[] resources;
+	public BufferedImage[][] charGraphics() throws IOException {
+		BufferedImage[][] resources;
 		ensureMessageType(readEnum(MessageType.class), MessageType.RESOURCE_DATA);
 		Char.setPlayerSize(readInt());
 		resources = new BufferedImage[readInt()];
