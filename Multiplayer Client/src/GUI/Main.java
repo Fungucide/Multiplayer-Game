@@ -2,6 +2,8 @@ package GUI;
 
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
@@ -17,10 +19,6 @@ import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
 import Client.ServerInteractions;
-
-import java.awt.Canvas;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 
 public class Main {
 
@@ -148,7 +146,6 @@ public class Main {
 		springLayout.putConstraint(SpringLayout.NORTH, btnLogin, 50, SpringLayout.SOUTH, textFieldPassword);
 		springLayout.putConstraint(SpringLayout.EAST, btnLogin, 0, SpringLayout.EAST, textFieldServerAdress);
 		frame.getContentPane().add(btnLogin);
-
 		login = new ArrayList<Component>();
 		login.add(lblServerAdress);
 		login.add(textFieldServerAdress);

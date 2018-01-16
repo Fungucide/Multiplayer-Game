@@ -14,8 +14,9 @@ import java.util.Queue;
 public class Char implements Closeable, Damage {
 	public static String PATH = "";
 	private static int PLAYER_SIZE = 100;
-	public static HashMap<String, Integer> CHAR_PIC = new HashMap<String, Integer>();
-	public static ArrayList<String> CHAR_PIC_AL = new ArrayList<String>();
+	public static HashMap<String, Integer> CHAR_PIC_StoI = new HashMap<String, Integer>();
+	public static HashMap<Integer, String> CHAR_PIC_ItoS = new HashMap<Integer, String>();
+	public static String[][] CHAR_PIC;
 	private final String USERNAME;
 	private final int INDEX;
 	private double DIAGONAL_MOD = Math.sqrt(.5d);
@@ -88,7 +89,7 @@ public class Char implements Closeable, Damage {
 				speed = Integer.parseInt(input[1]);
 				break;
 			case "graphics":
-				graphics = CHAR_PIC.get(input[1]);
+				graphics = CHAR_PIC_StoI.get(input[1]);
 				break;
 			}
 		}
@@ -275,8 +276,7 @@ public class Char implements Closeable, Damage {
 		fw.write("mana=" + mana + "\n");
 		fw.write("power=" + power + "\n");
 		fw.write("speed=" + speed + "\n");
-		File f = new File(CHAR_PIC_AL.get(graphics));
-		fw.write("graphics=" + f.getName().substring(0, f.getName().indexOf('.')));
+		fw.write("graphics=" + CHAR_PIC_ItoS.get(graphics));
 		fw.close();
 	}
 

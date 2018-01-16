@@ -158,16 +158,19 @@ public class Functions implements Closeable {
 		flush();
 	}
 
-	public void charGraphics(String[] path) throws IOException {
+	public void charGraphics(String[][] path) throws IOException {
 		writeEnum(MessageType.RESOURCE_DATA);
 		writeInt(Char.getCharSize());
 		writeInt(path.length);
 		for (int i = 0; i < path.length; i++) {
-			BufferedImage img = toBufferedImage(ImageIO.read(new File(path[i])).getScaledInstance(Char.getCharSize(), Char.getCharSize(), Image.SCALE_SMOOTH));
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ImageIO.write(img, "jpg", baos);
-			String base64String = new String(Base64.getEncoder().encode(baos.toByteArray()));
-			writeString(base64String);
+			writeInt(path[i].length);
+			for (int j = 0; j < path[i].length; j++) {
+				BufferedImage img = toBufferedImage(ImageIO.read(new File(path[i][j])).getScaledInstance(Char.getCharSize(), Char.getCharSize(), Image.SCALE_SMOOTH));
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				ImageIO.write(img, "jpg", baos);
+				String base64String = new String(Base64.getEncoder().encode(baos.toByteArray()));
+				writeString(base64String);
+			}
 		}
 		flush();
 	}
@@ -175,12 +178,15 @@ public class Functions implements Closeable {
 	public void projectileGraphics() throws IOException {
 		writeEnum(MessageType.PROJECTILE_DISPLAY);
 		writeInt(Projectile.PROJECTILE_PATHS.length);
-		for (String s : Projectile.PROJECTILE_PATHS) {
-			BufferedImage img = toBufferedImage(ImageIO.read(new File(s)).getScaledInstance(20, 5, Image.SCALE_SMOOTH));
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ImageIO.write(img, "jpg", baos);
-			String base64String = new String(Base64.getEncoder().encode(baos.toByteArray()));
-			writeString(base64String);
+		for (String[] pa : Projectile.PROJECTILE_PATHS) {
+			writeInt(pa.length);
+			for (String s : pa) {
+				BufferedImage img = toBufferedImage(ImageIO.read(new File(s)).getScaledInstance(20, 5, Image.SCALE_SMOOTH));
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				ImageIO.write(img, "jpg", baos);
+				String base64String = new String(Base64.getEncoder().encode(baos.toByteArray()));
+				writeString(base64String);
+			}
 		}
 		flush();
 	}
@@ -237,7 +243,7 @@ public class Functions implements Closeable {
 	}
 
 	private static void ensureMessageType(MessageType actualType, MessageType expectedType) {
-		//System.out.println(actualType.toString()+" "+expectedType.toString());
+		// System.out.println(actualType.toString()+" "+expectedType.toString());
 		if (actualType != expectedType) {
 			throw new IllegalArgumentException(String.format("Received wrong message [actual=%s, expected=%s].", actualType, expectedType));
 		}
@@ -367,7 +373,7 @@ public class Functions implements Closeable {
 	}
 
 	private <E extends Enum> void writeEnum(E value) throws IOException {
-		//System.out.println(value.toString()+" "+value.ordinal());
+		// System.out.println(value.toString()+" "+value.ordinal());
 		writeByte(value == null ? -1 : value.ordinal());
 	}
 

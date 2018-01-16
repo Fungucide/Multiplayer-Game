@@ -94,23 +94,39 @@ public class Server implements Runnable, Closeable {
 	}
 
 	private void charResources() throws IOException {
-		Files.walk(Paths.get(CHAR_RESOURCES)).forEach(filePath -> {
-			if (Files.isRegularFile(filePath)) {
-				String name = filePath.getFileName().toString();
-				Char.CHAR_PIC.put(name.substring(0, name.indexOf('.')), Char.CHAR_PIC_AL.size());
-				Char.CHAR_PIC_AL.add(filePath.toString());
+		CHAR_RESOURCES = CHAR_RESOURCES.replace("\\", "/");
+		if (!CHAR_RESOURCES.endsWith("/"))
+			CHAR_RESOURCES += "/";
+		BufferedReader charReader = new BufferedReader(new FileReader(new File(CHAR_RESOURCES + "Sprites.dat")));
+		int numOfSprites = Integer.parseInt(charReader.readLine());
+		Char.CHAR_PIC = new String[numOfSprites][];
+		String[] temp;
+		for (int i = 0; i < numOfSprites; i++) {
+			temp = charReader.readLine().split(" ");
+			String name = temp[0];
+			Char.CHAR_PIC[i] = new String[temp.length - 1];
+			for (int j = 1; j < temp.length; j++) {
+				Char.CHAR_PIC[i][j - 1] = CHAR_RESOURCES + temp[j];
+				Char.CHAR_PIC_StoI.put(name, i);
+				Char.CHAR_PIC_ItoS.put(i, name);
 			}
-		});
+		}
 	}
 
 	private void projectileResources() throws IOException {
-		ArrayList<String> paths = new ArrayList<String>();
-		Files.walk(Paths.get(PROJECTILE_RESOURCES)).forEach(filePath -> {
-			if (Files.isRegularFile(filePath)) {
-				paths.add(filePath.toString());
-			}
-		});
-		Projectile.PROJECTILE_PATHS = paths.toArray(new String[0]);
+		PROJECTILE_RESOURCES = PROJECTILE_RESOURCES.replace("\\", "/");
+		if (!PROJECTILE_RESOURCES.endsWith("/"))
+			PROJECTILE_RESOURCES += "/";
+		BufferedReader projectileReader = new BufferedReader(new FileReader(new File(PROJECTILE_RESOURCES + "Sprites.dat")));
+		int numOfSprites = Integer.parseInt(projectileReader.readLine());
+		Projectile.PROJECTILE_PATHS = new String[numOfSprites][];
+		String[] temp;
+		for (int i = 0; i < numOfSprites; i++) {
+			temp = projectileReader.readLine().split(" ");
+			Projectile.PROJECTILE_PATHS[i] = new String[temp.length];
+			for (int j = 0; j < temp.length; j++)
+				Projectile.PROJECTILE_PATHS[i][j] = PROJECTILE_RESOURCES + temp[j];
+		}
 	}
 
 	public void open() throws IOException {

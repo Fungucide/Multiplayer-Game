@@ -76,13 +76,17 @@ public class Functions implements Closeable {
 		return readBoolean();
 	}
 
-	public BufferedImage[] getResources() throws IOException {
-		BufferedImage[] resources;
+	public BufferedImage[][] getResources() throws IOException {
+		BufferedImage[][] resources;
 		ensureMessageType(readEnum(MessageType.class), MessageType.RESOURCE_DATA);
-		resources = new BufferedImage[readInt()];
+		resources = new BufferedImage[readInt()][];
 		for (int i = 0; i < resources.length; i++) {
-			byte[] arr = Base64.getDecoder().decode(readString());
-			resources[i] = ImageIO.read(new ByteArrayInputStream(arr));
+			int size = readInt();
+			resources[i]=new BufferedImage[size];
+			for (int j = 0; j < size; j++) {
+				byte[] arr = Base64.getDecoder().decode(readString());
+				resources[i][j] = ImageIO.read(new ByteArrayInputStream(arr));
+			}
 		}
 		return resources;
 	}
@@ -97,21 +101,29 @@ public class Functions implements Closeable {
 		BufferedImage[][] resources;
 		ensureMessageType(readEnum(MessageType.class), MessageType.RESOURCE_DATA);
 		Char.setPlayerSize(readInt());
-		resources = new BufferedImage[readInt()];
+		resources = new BufferedImage[readInt()][];
 		for (int i = 0; i < resources.length; i++) {
-			byte[] arr = Base64.getDecoder().decode(readString());
-			resources[i] = ImageIO.read(new ByteArrayInputStream(arr));
+			int size = readInt();
+			resources[i]=new BufferedImage[size];
+			for (int j = 0; j < size; j++) {
+				byte[] arr = Base64.getDecoder().decode(readString());
+				resources[i][j] = ImageIO.read(new ByteArrayInputStream(arr));
+			}
 		}
 		return resources;
 	}
 
-	public BufferedImage[] projectileGraphics() throws IOException {
-		BufferedImage[] resources;
+	public BufferedImage[][] projectileGraphics() throws IOException {
+		BufferedImage[][] resources;
 		ensureMessageType(readEnum(MessageType.class), MessageType.PROJECTILE_DISPLAY);
-		resources = new BufferedImage[readInt()];
+		resources = new BufferedImage[readInt()][];
 		for (int i = 0; i < resources.length; i++) {
-			byte[] arr = Base64.getDecoder().decode(readString());
-			resources[i] = ImageIO.read(new ByteArrayInputStream(arr));
+			int size = readInt();
+			resources[i]=new BufferedImage[size];
+			for (int j = 0; j < size; j++) {
+				byte[] arr = Base64.getDecoder().decode(readString());
+				resources[i][j] = ImageIO.read(new ByteArrayInputStream(arr));
+			}
 		}
 		return resources;
 	}

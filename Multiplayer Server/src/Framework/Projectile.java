@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public class Projectile implements Displayable {
 
-	public static String[] PROJECTILE_PATHS;
+	public static String[][] PROJECTILE_PATHS;
 	private int x, y, damage, speed, pierce, graphics, frame = 0, lifeTime;
 	private final int WDITH, HEIGHT, TYPE;
 	private double d_sin, d_cos, direction;

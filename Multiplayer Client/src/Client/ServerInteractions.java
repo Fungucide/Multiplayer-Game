@@ -54,13 +54,20 @@ public class ServerInteractions implements Runnable {
 
 	public void update() {
 		try {
+			System.out.println("Here");
 			info = f.getGraphic();
 			r.setData(info[0], info[1]);
+			System.out.println("char Graphics");
 			r.setResources(f.charGraphics(), 0);
+			System.out.println("Proj Graphics");
 			r.setResources(f.projectileGraphics(), 2);
+			System.out.println("First Load");
 			while (true) {
-				if (f.dataUpdate())
+				System.out.println("Normal");
+				if (f.dataUpdate()) {
+					System.out.println("Resource update");
 					r.setResources(f.getResources(), 1);
+				}
 				f.getCharacter();
 				if (r.getMousePosition() != null) {
 					try {
