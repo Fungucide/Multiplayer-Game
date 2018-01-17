@@ -1,3 +1,3 @@
-Data/Server/Resources/Background.jpg background
-Data/Server/Resources/Tree.png terrain
-Data/Server/Resources/Rock.png terrain
+background Data/Server/Resources/Background.jpg
+terrain Data/Server/Resources/Tree.png
+terrain Data/Server/Resources/Rock.png

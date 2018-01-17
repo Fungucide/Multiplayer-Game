@@ -132,11 +132,14 @@ public class Functions implements Closeable {
 		writeEnum(MessageType.RESOURCE_DATA);
 		writeInt(sprites.length);
 		for (int i = 0; i < sprites.length; i++) {
-			BufferedImage img = toBufferedImage(ImageIO.read(new File(sprites[i].getPath())).getScaledInstance(sprites[i].getWidth(), sprites[i].getHeight(), Image.SCALE_SMOOTH));
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ImageIO.write(img, "jpg", baos);
-			String base64String = new String(Base64.getEncoder().encode(baos.toByteArray()));
-			writeString(base64String);
+			writeInt(sprites[i].getPath().length);
+			for (String s : sprites[i].getPath()) {
+				BufferedImage img = toBufferedImage(ImageIO.read(new File(s)).getScaledInstance(sprites[i].getWidth(), sprites[i].getHeight(), Image.SCALE_SMOOTH));
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				ImageIO.write(img, "jpg", baos);
+				String base64String = new String(Base64.getEncoder().encode(baos.toByteArray()));
+				writeString(base64String);
+			}
 		}
 		flush();
 	}

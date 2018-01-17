@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.ConcurrentModificationException;
 
 public class World {
@@ -79,12 +80,12 @@ public class World {
 		ArrayList<Sprite> files = new ArrayList<Sprite>();
 		while (resources.ready()) {
 			temp = resources.readLine().split(" ");
-			if (temp[1].equals("background"))
-				files.add(new Sprite(temp[0], TILE_SIZE, TILE_SIZE));
-			else if (temp[1].equals("terrain"))
-				files.add(new Sprite(temp[0], COMPRESSION, COMPRESSION));
+			if (temp[0].equals("background"))
+				files.add(new Sprite(Arrays.copyOfRange(temp, 1, temp.length), TILE_SIZE, TILE_SIZE));
+			else if (temp[0].equals("terrain"))
+				files.add(new Sprite(Arrays.copyOfRange(temp, 1, temp.length), COMPRESSION, COMPRESSION));
 			else
-				files.add(new Sprite(temp[0], Integer.parseInt(temp[1]), Integer.parseInt(temp[2])));
+				files.add(new Sprite(Arrays.copyOfRange(temp, 2, temp.length), Integer.parseInt(temp[0]), Integer.parseInt(temp[1])));
 
 		}
 		SPRITES = files.toArray(new Sprite[0]);
@@ -94,7 +95,7 @@ public class World {
 		charDisplay = new ArrayList<Char>();
 		TERRAIN = new Terrain[C_WIDTH][C_HEIGHT];
 		while (terrain.ready()) {
-			temp = terrain.readLine().split(" ");// Type, X, Y, Passable, Graphics, Size ?Offset
+			temp = terrain.readLine().split(" ");// Type, X, Y, Passable, Breakable,Graphics,Offset,Health
 			type = Integer.parseInt(temp[0]);
 			x = Integer.parseInt(temp[1]);
 			y = Integer.parseInt(temp[2]);
@@ -181,7 +182,9 @@ public class World {
 	}
 
 	public boolean isBlocked(int qx, int qy) {
-		return TERRAIN[qx][qy] != null;
+		if (qx < 0 || qy < 0 || qx >= TERRAIN.length || qy >= TERRAIN[qx].length)
+			return true;
+		return TERRAIN[qx][qy] != null && !TERRAIN[qx][qy].isPassable();
 	}
 }
 

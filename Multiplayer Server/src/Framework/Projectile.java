@@ -80,21 +80,18 @@ public class Projectile implements Displayable {
 	public void interact(Displayable d) {// Remove projectile based on pierce
 		if (collide(d)) {
 			if (d instanceof Terrain) {
-				d = (Terrain) d;
-				if (pierce != 0) {
+				if (pierce != 0 && !((Terrain) d).isPassable()) {
 					((Terrain) d).doDamage(damage);
 					if (pierce != -1)
 						pierce--;
 				}
 			} else if (TYPE > 0 && d instanceof Enemy) {
-				d = (Enemy) d;
 				if (pierce != 0) {
 					((Enemy) d).doDamage(damage);
 					if (pierce != -1)
 						pierce--;
 				}
 			} else if (TYPE < 0 && d instanceof Char) {
-				d = (Char) d;
 				if (pierce != 0) {
 					((Char) d).doDamage(damage);
 					if (pierce != -1)

@@ -45,8 +45,10 @@ public class Terrain implements Damage {
 		if (!breakable)
 			return;
 		health -= damage;
-		if (health <= 0)
-			passable = true;//Will most likely add sprite change latter
+		if (health <= 0) {
+			passable = true;// Will most likely add sprite change latter
+			frame = 1;
+		}
 	}
 
 	public int getOffSet() {
