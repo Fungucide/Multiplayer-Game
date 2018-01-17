@@ -9,7 +9,7 @@ maxRefreshRate=10
 maxWorldUpdate=20
 startWorld=Data/Server/StartWorld
 loadWorld=World1=Data/Server/World1/
-loadWorld=TestWorld=Data/Server/TestWorld
+loadWorld=TestWorld=Data/Server/TestWorld/
 charResources=Data/Server/Character/
 projectileResources=Data/Server/Projectiles/
 charData=Data/Player/

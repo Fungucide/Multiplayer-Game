@@ -2,36 +2,48 @@ package Framework;
 
 public class Enemy implements Damage {
 
+	private int x, y, health, speed, frame;
+	private final int WIDTH, HEIGHT, GRAPHICS;
+
+	public Enemy(int x, int y, int health, int speed, int graphics, int frame, int width, int height) {
+		this.x = x;
+		this.y = y;
+		GRAPHICS = graphics;
+		this.frame = frame;
+		WIDTH = width;
+		HEIGHT = height;
+	}
+
 	public int getType() {
-		return 0;
+		return 3;
 	}
 
 	public int getX() {
-		return 0;
+		return x;
 	}
 
 	public int getY() {
-		return 0;
+		return y;
 	}
 
 	public int getWidth() {
-		return 0;
+		return WIDTH;
 	}
 
 	public int getHeight() {
-		return 0;
+		return HEIGHT;
 	}
 
 	public int[] getGraphics() {
-		return null;
+		return new int[] { GRAPHICS, frame };
 	}
 
 	public int getHealth() {
-		return 0;
+		return health;
 	}
 
 	public void doDamage(int damage) {
-		
+		health -= damage;
 	}
 
 }
