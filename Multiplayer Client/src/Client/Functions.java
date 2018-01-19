@@ -172,6 +172,7 @@ public class Functions implements Closeable {
 		return readCharDisplay();
 	}
 
+	@Deprecated
 	private int[][] readCharDisplay() throws IOException {
 		ensureMessageType(readEnum(MessageType.class), MessageType.CHAR_DISPLAY_DATA);
 		int size = readInt();

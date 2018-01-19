@@ -25,7 +25,11 @@ public class Enemy implements Damage {
 	public int getY() {
 		return y;
 	}
-
+	
+	public int getSpeed() {
+		return speed;
+	}
+	
 	public int getWidth() {
 		return WIDTH;
 	}
