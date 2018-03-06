@@ -1,12 +1,20 @@
 package Client;
 
-import java.awt.MouseInfo;
 import java.io.IOException;
-import java.math.BigInteger;
+import java.security.InvalidKeyException;
+import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
 import javax.swing.JOptionPane;
 
 import Framework.Displayable;
@@ -24,7 +32,7 @@ public class ServerInteractions implements Runnable {
 	public int xMove, yMove;
 	public boolean mouseDown = false;
 
-	public boolean attemptLogin(String adress, int port, String username, char[] password) throws IOException, NoSuchAlgorithmException {
+	public boolean attemptLogin(String adress, int port, String username, char[] password) throws IOException, NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
 		boolean result;
 		try {
 			f = new Functions(adress, port);
@@ -33,8 +41,7 @@ public class ServerInteractions implements Runnable {
 			byte[] bytes = new String(password).getBytes("UTF-8");
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			byte[] hash = md.digest(bytes);
-			BigInteger foo = new BigInteger(hash);
-			f.loginRequest(username, foo.toString(16));
+			f.loginRequest(username, hash);
 			result = f.loginStatus();
 		} finally {
 			if (f == null) {

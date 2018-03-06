@@ -16,9 +16,21 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
 import javax.imageio.ImageIO;
 
 import Framework.Char;
@@ -76,11 +88,14 @@ public class Functions implements Closeable {
 			return false;
 	}
 
-	public void waitForLogin() throws IOException {
+	public void waitForLogin() throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
 		while (true) {
 			ensureMessageType(readEnum(MessageType.class), MessageType.LOGIN_REQUEST);
+			byte[] dateTime = getTimeDate();
+			writeByteArray(dateTime);
+			flush();
 			String user = readString();
-			String pass = readString();
+			byte[] pass = readByteArray(false);
 			if (CI.SERVER.active.contains(user)) {
 				CI.SERVER.log.log(LogMessageType.DATA, "Player already loged in with same username: " + user);
 				writeLoginStatus(false);
@@ -94,7 +109,8 @@ public class Functions implements Closeable {
 			}
 			FileReader fr = new FileReader(f);
 			BufferedReader br = new BufferedReader(fr);
-			if (pass.equals(br.readLine())) {
+			pass = decrypt(pass, br.readLine().getBytes());
+			if (Arrays.equals(pass, dateTime)) {
 				CI.SERVER.log.log(LogMessageType.DATA, "Player loged in successfully: " + user);
 				CI.connection.USERNAME = user;
 				CI.SERVER.active.add(user);
@@ -106,6 +122,20 @@ public class Functions implements Closeable {
 				writeLoginStatus(false);
 			}
 		}
+	}
+
+	public byte[] getTimeDate() {
+		return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")).getBytes();
+	}
+
+	public static byte[] decrypt(byte[] ct, byte[] pass) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+		md.update(pass);
+		byte[] hash = Arrays.copyOf(md.digest(), 16);
+		Key key = new SecretKeySpec(hash, "AES");
+		Cipher c = Cipher.getInstance("AES");
+		c.init(Cipher.DECRYPT_MODE, key);
+		return c.doFinal(ct);
 	}
 
 	public void writeLoginStatus(boolean status) throws IOException {

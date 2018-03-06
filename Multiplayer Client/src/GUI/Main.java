@@ -2,14 +2,19 @@ package GUI;
 
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.HeadlessException;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -182,7 +187,7 @@ public class Main {
 				textFieldPassword.setText("");
 				JOptionPane.showMessageDialog(frame, "Login Failed", "Login Error", JOptionPane.ERROR_MESSAGE);
 			}
-		} catch (NoSuchAlgorithmException | IOException e) {
+		} catch (NoSuchAlgorithmException | IOException | InvalidKeyException | NumberFormatException | HeadlessException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException e) {
 			e.printStackTrace();
 		}
 	}

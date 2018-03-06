@@ -14,9 +14,19 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
 import javax.imageio.ImageIO;
 
 import Framework.Char;
@@ -82,7 +92,7 @@ public class Functions implements Closeable {
 		resources = new BufferedImage[readInt()][];
 		for (int i = 0; i < resources.length; i++) {
 			int size = readInt();
-			resources[i]=new BufferedImage[size];
+			resources[i] = new BufferedImage[size];
 			for (int j = 0; j < size; j++) {
 				byte[] arr = Base64.getDecoder().decode(readString());
 				resources[i][j] = ImageIO.read(new ByteArrayInputStream(arr));
@@ -104,7 +114,7 @@ public class Functions implements Closeable {
 		resources = new BufferedImage[readInt()][];
 		for (int i = 0; i < resources.length; i++) {
 			int size = readInt();
-			resources[i]=new BufferedImage[size];
+			resources[i] = new BufferedImage[size];
 			for (int j = 0; j < size; j++) {
 				byte[] arr = Base64.getDecoder().decode(readString());
 				resources[i][j] = ImageIO.read(new ByteArrayInputStream(arr));
@@ -119,7 +129,7 @@ public class Functions implements Closeable {
 		resources = new BufferedImage[readInt()][];
 		for (int i = 0; i < resources.length; i++) {
 			int size = readInt();
-			resources[i]=new BufferedImage[size];
+			resources[i] = new BufferedImage[size];
 			for (int j = 0; j < size; j++) {
 				byte[] arr = Base64.getDecoder().decode(readString());
 				resources[i][j] = ImageIO.read(new ByteArrayInputStream(arr));
@@ -128,11 +138,22 @@ public class Functions implements Closeable {
 		return resources;
 	}
 
-	public void loginRequest(String user, String pass) throws IOException {
+	public void loginRequest(String user, byte[] pass) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
 		writeEnum(MessageType.LOGIN_REQUEST);
+		byte[] dateTime = readByteArray(false);
 		writeString(user);
-		writeString(pass);
+		writeByteArray(encrypt(dateTime, pass));
 		flush();
+	}
+
+	public static byte[] encrypt(byte[] pt, byte[] pass) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+		md.update(pass);
+		byte[] hash = Arrays.copyOf(md.digest(), 16);
+		Key key = new SecretKeySpec(hash, "AES");
+		Cipher c = Cipher.getInstance("AES");
+		c.init(Cipher.ENCRYPT_MODE, key);
+		return c.doFinal(pt);
 	}
 
 	public boolean loginStatus() throws IOException {
