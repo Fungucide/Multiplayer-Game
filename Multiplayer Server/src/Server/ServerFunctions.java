@@ -40,11 +40,11 @@ import Framework.Sprite;
 import Framework.Terrain;
 import Log.LogMessageType;
 
-public class Functions implements Closeable {
+public class ServerFunctions implements Closeable {
 
 	private final String TOKEN;
 	private final int PROTOCOL_VERSION;
-	private final ClientInteractions CI;
+	private final ServerActions CI;
 
 	private static final int BUFFER_SIZE_BYTES = 1 << 20;
 	private static final ByteOrder PROTOCOL_BYTE_ORDER = ByteOrder.LITTLE_ENDIAN;
@@ -58,7 +58,7 @@ public class Functions implements Closeable {
 	private final ByteArrayOutputStream outputStreamBuffer;
 	private final Socket SOCKET;
 
-	public Functions(ClientInteractions ci, Socket socket, String t, int pv) throws IOException {
+	public ServerFunctions(ServerActions ci, Socket socket, String t, int pv) throws IOException {
 		CI = ci;
 		SOCKET = socket;
 		TOKEN = t;

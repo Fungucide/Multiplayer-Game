@@ -20,7 +20,7 @@ public class Connection implements Closeable {
 	public final JButton BUTTON;
 	public Char CHAR;
 	public boolean STATUS = true;
-	public ClientInteractions ci;
+	public ServerActions ci;
 
 	public Connection(int id, String address, String username, long refreshRate, String characterClass, Socket socket) {
 		ID = id;
@@ -41,7 +41,7 @@ public class Connection implements Closeable {
 		});
 	}
 
-	public void setCI(ClientInteractions ci) {
+	public void setCI(ServerActions ci) {
 		this.ci = ci;
 	}
 

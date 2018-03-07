@@ -20,7 +20,7 @@ import javax.swing.JOptionPane;
 import Framework.Displayable;
 import GUI.Render;
 
-public class ServerInteractions implements Runnable {
+public class ClientActions implements Runnable {
 
 	private final String TOKEN = "Token";
 	private int[] info;
@@ -28,14 +28,14 @@ public class ServerInteractions implements Runnable {
 	private double angle = 0;
 
 	private ArrayList<Displayable> display;
-	private Functions f;
+	private ClientFunctions f;
 	public int xMove, yMove;
 	public boolean mouseDown = false;
 
 	public boolean attemptLogin(String adress, int port, String username, char[] password) throws IOException, NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
 		boolean result;
 		try {
-			f = new Functions(adress, port);
+			f = new ClientFunctions(adress, port);
 			f.writeTokenMessage(TOKEN);
 			f.writeProtocolVersionMessage();
 			byte[] bytes = new String(password).getBytes("UTF-8");
@@ -43,6 +43,7 @@ public class ServerInteractions implements Runnable {
 			byte[] hash = md.digest(bytes);
 			f.loginRequest(username, hash);
 			result = f.loginStatus();
+			System.out.println(result);
 		} finally {
 			if (f == null) {
 				return false;

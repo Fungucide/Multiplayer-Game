@@ -23,7 +23,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
-import Client.ServerInteractions;
+import Client.ClientActions;
 
 public class Main {
 
@@ -31,7 +31,7 @@ public class Main {
 	private JTextField textFieldServerAdress;
 	private JTextField textFieldUsername;
 	private JPasswordField textFieldPassword;
-	private ServerInteractions si;
+	private ClientActions si;
 	private ArrayList<Component> login;
 	private JLabel lblServerAdress;
 	private JLabel lblUsername;
@@ -69,7 +69,7 @@ public class Main {
 	 */
 	private void initialize() {
 
-		si = new ServerInteractions();
+		si = new ClientActions();
 
 		frame = new JFrame();
 		frame.setBounds(100, 100, 750, 600);

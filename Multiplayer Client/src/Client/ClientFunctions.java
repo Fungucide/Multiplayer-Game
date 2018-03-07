@@ -1,6 +1,5 @@
 package Client;
 
-import java.awt.MouseInfo;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -32,7 +31,7 @@ import javax.imageio.ImageIO;
 import Framework.Char;
 import Framework.Displayable;
 
-public class Functions implements Closeable {
+public class ClientFunctions implements Closeable {
 
 	private static final int BUFFER_SIZE_BYTES = 1 << 20;
 	private static final ByteOrder PROTOCOL_BYTE_ORDER = ByteOrder.LITTLE_ENDIAN;
@@ -48,7 +47,7 @@ public class Functions implements Closeable {
 
 	public Char c = new Char();
 
-	public Functions(String host, int port) throws IOException {
+	public ClientFunctions(String host, int port) throws IOException {
 		socket = new Socket();
 		socket.setSendBufferSize(BUFFER_SIZE_BYTES);
 		socket.setReceiveBufferSize(BUFFER_SIZE_BYTES);
@@ -140,10 +139,14 @@ public class Functions implements Closeable {
 
 	public void loginRequest(String user, byte[] pass) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
 		writeEnum(MessageType.LOGIN_REQUEST);
+		flush();
+		System.out.println("Enum message sent");
 		byte[] dateTime = readByteArray(false);
+		System.out.println("DateTime String sent");
 		writeString(user);
 		writeByteArray(encrypt(dateTime, pass));
 		flush();
+		System.out.println("Encrypted string sent");
 	}
 
 	public static byte[] encrypt(byte[] pt, byte[] pass) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {

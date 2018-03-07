@@ -141,7 +141,7 @@ public class Server implements Runnable, Closeable {
 					Socket sock = serverSocket.accept();
 					log.log(LogMessageType.SERVER, "Begining Conection to:" + sock.getInetAddress().getHostAddress());
 					Connection c = new Connection(idStack.pop(), sock.getInetAddress().getHostAddress(), "", 0, "", sock);
-					ClientInteractions ci = new ClientInteractions(sock, this, c, MAX_REFRESH_RATE, TOKEN, PROTOCOL_VERSION);
+					ServerActions ci = new ServerActions(sock, this, c, MAX_REFRESH_RATE, TOKEN, PROTOCOL_VERSION);
 					c.setCI(ci);
 					connectionUpdate();
 					log.log(LogMessageType.SERVER, "Handle object created for " + sock.getInetAddress().getHostAddress());
