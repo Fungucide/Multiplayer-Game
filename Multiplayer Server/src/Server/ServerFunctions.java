@@ -11,6 +11,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -109,7 +110,9 @@ public class ServerFunctions implements Closeable {
 			}
 			FileReader fr = new FileReader(f);
 			BufferedReader br = new BufferedReader(fr);
-			pass = decrypt(pass, br.readLine().getBytes());
+			//br.readLine().getBytes("UTF-8")
+			pass = decrypt("îxÂÖ¯\r\n„\"{	ðjg9PÓ".getBytes("UTF-8"),hash("Test") );
+			System.out.println(new String(pass));
 			if (Arrays.equals(pass, dateTime)) {
 				CI.SERVER.log.log(LogMessageType.DATA, "Player loged in successfully: " + user);
 				CI.connection.USERNAME = user;
@@ -128,7 +131,14 @@ public class ServerFunctions implements Closeable {
 		return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")).getBytes();
 	}
 
+	public static byte[] hash(String s) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+		byte[] bytes = s.getBytes("UTF-8");
+		MessageDigest md = MessageDigest.getInstance("MD5");
+		return md.digest(bytes);
+	}
+	
 	public static byte[] decrypt(byte[] ct, byte[] pass) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+		System.out.println(pass.length);
 		MessageDigest md = MessageDigest.getInstance("SHA-256");
 		md.update(pass);
 		byte[] hash = Arrays.copyOf(md.digest(), 16);
