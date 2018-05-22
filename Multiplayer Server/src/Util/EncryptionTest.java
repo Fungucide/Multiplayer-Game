@@ -5,6 +5,8 @@ import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 
 import javax.crypto.BadPaddingException;
@@ -15,11 +17,15 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class EncryptionTest {
 
+	public static byte[] getTimeDate() {
+		return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")).getBytes();
+	}
+	
 	public static void main(String[] args) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException {
 		// TODO Auto-generated method stub
-		byte[] pass = hash("Test");
-		byte[] message = "Message".getBytes("UTF-8");
-		byte[] encrypted = encrypt(message, pass);
+		byte[] pass = new String("Test").getBytes("UTF-8");
+		byte[] dateTime = getTimeDate();
+		byte[] encrypted = encrypt(dateTime, pass);
 		System.out.println(new String(encrypted));
 		byte[] decrypted = decrypt(encrypted, pass);
 		System.out.println(new String(decrypted));
@@ -29,8 +35,8 @@ public class EncryptionTest {
 		MessageDigest md = MessageDigest.getInstance("SHA-256");
 		md.update(pass);
 		byte[] hash = Arrays.copyOf(md.digest(), 16);
-		Key key = new SecretKeySpec(hash, "AES/CBC/NoPadding");
-		Cipher c = Cipher.getInstance("AES/CBC/NoPadding");
+		Key key = new SecretKeySpec(hash, "AES");
+		Cipher c = Cipher.getInstance("AES");
 		c.init(Cipher.ENCRYPT_MODE, key);
 		return c.doFinal(pt);
 	}
@@ -40,15 +46,9 @@ public class EncryptionTest {
 		MessageDigest md = MessageDigest.getInstance("SHA-256");
 		md.update(pass);
 		byte[] hash = Arrays.copyOf(md.digest(), 16);
-		Key key = new SecretKeySpec(hash, "AES/CBC/NoPadding");
-		Cipher c = Cipher.getInstance("AES/CBC/NoPadding");
+		Key key = new SecretKeySpec(hash, "AES");
+		Cipher c = Cipher.getInstance("AES");
 		c.init(Cipher.DECRYPT_MODE, key);
 		return c.doFinal(ct);
-	}
-	
-	public static byte[] hash(String s) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-		byte[] bytes = s.getBytes("UTF-8");
-		MessageDigest md = MessageDigest.getInstance("MD5");
-		return md.digest(bytes);
 	}
 }

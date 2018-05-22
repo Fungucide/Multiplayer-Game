@@ -31,7 +31,7 @@ public class Main {
 	private JTextField textFieldServerAdress;
 	private JTextField textFieldUsername;
 	private JPasswordField textFieldPassword;
-	private ClientActions si;
+	private ClientActions ca;
 	private ArrayList<Component> login;
 	private JLabel lblServerAdress;
 	private JLabel lblUsername;
@@ -69,7 +69,7 @@ public class Main {
 	 */
 	private void initialize() {
 
-		si = new ClientActions();
+		ca = new ClientActions();
 
 		frame = new JFrame();
 		frame.setBounds(100, 100, 750, 600);
@@ -177,7 +177,7 @@ public class Main {
 
 	private void login() {
 		try {
-			if (si.attemptLogin(textFieldServerAdress.getText(), Integer.parseInt(textFieldPort.getText()), textFieldUsername.getText(), textFieldPassword.getPassword())) {
+			if (ca.attemptLogin(textFieldServerAdress.getText(), Integer.parseInt(textFieldPort.getText()), textFieldUsername.getText(), textFieldPassword.getPassword())) {
 				textFieldPassword.setText("");
 				hide(login);
 				render.setVisible(true);
@@ -194,45 +194,45 @@ public class Main {
 
 	private void run() {
 
-		si.setRender(render);
-		si.setChar();
-		Thread t = new Thread(si);
+		ca.setRender(render);
+		ca.setChar();
+		Thread t = new Thread(ca);
 		t.start();
 
 		render.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_W) {
-					si.yMove = -1;
+					ca.yMove = -1;
 				} else if (e.getKeyCode() == KeyEvent.VK_S) {
-					si.yMove = 1;
+					ca.yMove = 1;
 				}
 				if (e.getKeyCode() == KeyEvent.VK_D) {
-					si.xMove = 1;
+					ca.xMove = 1;
 				} else if (e.getKeyCode() == KeyEvent.VK_A) {
-					si.xMove = -1;
+					ca.xMove = -1;
 				}
 			}
 
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_W || e.getKeyCode() == KeyEvent.VK_S) {
-					si.yMove = 0;
+					ca.yMove = 0;
 				}
 				if (e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_D) {
-					si.xMove = 0;
+					ca.xMove = 0;
 				}
 			}
 		});
 		render.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent arg0) {
-				si.mouseDown = true;
+				ca.mouseDown = true;
 			}
 
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				si.mouseDown = false;
+				ca.mouseDown = false;
 			}
 		});
 		render.setFocusable(true);
